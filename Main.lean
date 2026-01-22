@@ -1,10 +1,9 @@
-import Sqlite3Lean
+import Sqlite3Lean.SelectStarProof
 
-open Sqlite3Lean.Vdbe in
 def main : IO Unit := do
   IO.println "Running SELECT * FROM t simulation..."
   IO.println ""
-  let result := runSelectExample
+  let result := Sqlite3Lean.Vdbe.runSelectExample
   IO.println s!"Status: {repr result.status}"
   IO.println s!"Output rows: {result.output.length}"
   for row in result.output do
