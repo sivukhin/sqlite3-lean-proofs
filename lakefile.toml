@@ -1,0 +1,10 @@
+name = "sqlite3-lean"
+version = "0.1.0"
+defaultTargets = ["sqlite3-lean"]
+
+[[lean_lib]]
+name = "Sqlite3Lean"
+
+[[lean_exe]]
+name = "sqlite3-lean"
+root = "Main"
