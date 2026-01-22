@@ -377,4 +377,536 @@ def runSelectExample : VMState :=
 #eval runSelectExample.status
 -- Expected: halted 0
 
-end Sqlite3Lean.Vdbe
+/-! ## Termination Proof for selectAllProgram -/
+
+/--
+  Compute the number of remaining rows to process based on cursor state.
+  This looks at cursor 0 (the cursor used by selectAllProgram) and determines
+  how many rows are left to iterate over.
+-/
+def remainingRows (state : VMState) : Nat :=
+  match state.cursors 0 with
+  | none => match state.database 2 with
+    | none => 0
+    | some btree => btree.tuples.length
+  | some cursor => match state.database cursor.btreeId with
+    | none => 0
+    | some btree => match cursor.position with
+      | none => btree.tuples.length
+      | some pos => btree.tuples.length - pos
+
+/--
+  Phase offset assigns a value to each PC based on its position in the execution flow.
+  Higher values = earlier in execution within a "phase".
+
+  Execution order: 0 → 7 → 8 → 1 → 2 → (3 → 4 → 5)* → 6
+
+  The key property: within a single "pass" (pre-loop, one loop iteration, or post-loop),
+  phaseOffset strictly decreases as PC advances.
+-/
+def phaseOffset (pc : Nat) : Nat :=
+  match pc with
+  | 0 => 9  -- Init
+  | 7 => 8  -- Transaction
+  | 8 => 7  -- Goto
+  | 1 => 6  -- OpenRead
+  | 2 => 5  -- Rewind
+  | 3 => 4  -- Column (loop body start)
+  | 4 => 3  -- ResultRow
+  | 5 => 2  -- Next (loop body end)
+  | 6 => 1  -- Halt
+  | _ => 1  -- Invalid PC (will error, but gas > 0 ensures decrease to error state)
+
+/--
+  The "gas" (or measure) function for proving termination of selectAllProgram.
+
+  Gas = remainingRows * loopCost + phaseOffset
+
+  Key properties:
+  1. Gas is always ≥ 0 (it's a Nat)
+  2. Gas is > 0 for any running state
+  3. Gas strictly decreases on every step
+  4. Gas = 0 only for halted/error states
+
+  loopCost (10) is chosen to be larger than the maximum phaseOffset (9),
+  ensuring that when remainingRows decreases by 1 (on Next with more rows),
+  the overall gas decreases even though phaseOffset might increase.
+-/
+def selectAllGas (state : VMState) : Nat :=
+  match state.status with
+  | .halted _ | .error _ => 0
+  | .running =>
+    let rows := remainingRows state
+    let loopCost := 10
+    let offset := phaseOffset state.pc
+    rows * loopCost + offset
+
+/-- Gas is always non-negative (trivial since it's a Nat) -/
+theorem selectAllGas_nonneg (state : VMState) : selectAllGas state ≥ 0 := Nat.zero_le _
+
+/-- phaseOffset is always at least 1 -/
+theorem phaseOffset_pos (pc : Nat) : phaseOffset pc ≥ 1 := by
+  unfold phaseOffset
+  split <;> omega
+
+/-- Gas is positive for any running state -/
+theorem selectAllGas_pos_of_running (state : VMState) (h : state.status = .running) :
+    selectAllGas state > 0 := by
+  unfold selectAllGas
+  simp only [h]
+  have hOffset : phaseOffset state.pc ≥ 1 := phaseOffset_pos state.pc
+  omega
+
+/-- selectAllProgram has exactly 9 instructions (indices 0-8) -/
+theorem selectAllProgram_size : selectAllProgram.size = 9 := rfl
+
+/-- Get the opcode at each index in selectAllProgram -/
+theorem selectAllProgram_at_0 : selectAllProgram[0]? = some (.init 0 7) := rfl
+theorem selectAllProgram_at_1 : selectAllProgram[1]? = some (.openRead 0 2 0 1) := rfl
+theorem selectAllProgram_at_2 : selectAllProgram[2]? = some (.rewind 0 6) := rfl
+theorem selectAllProgram_at_3 : selectAllProgram[3]? = some (.column 0 0 1) := rfl
+theorem selectAllProgram_at_4 : selectAllProgram[4]? = some (.resultRow 1 1) := rfl
+theorem selectAllProgram_at_5 : selectAllProgram[5]? = some (.next 0 3) := rfl
+theorem selectAllProgram_at_6 : selectAllProgram[6]? = some (.halt 0 0) := rfl
+theorem selectAllProgram_at_7 : selectAllProgram[7]? = some (.transaction 0 0 1) := rfl
+theorem selectAllProgram_at_8 : selectAllProgram[8]? = some (.goto 1) := rfl
+
+/-! ### Opcode PC behavior lemmas -/
+
+/-- openRead always increments PC by 1 -/
+theorem executeOpcode_openRead_pc (cursorId rootPage dbId numColumns : Nat) (state : VMState)
+    (hRunning : state.status = .running) :
+    (executeOpcode (.openRead cursorId rootPage dbId numColumns) state).pc = state.pc + 1 := by
+  simp [executeOpcode, hRunning]
+
+/-- column always increments PC by 1 -/
+theorem executeOpcode_column_pc (cursorId colIdx destReg : Nat) (state : VMState)
+    (hRunning : state.status = .running) :
+    (executeOpcode (.column cursorId colIdx destReg) state).pc = state.pc + 1 := by
+  simp [executeOpcode, hRunning, getCursorColumn]
+  split <;> rfl
+
+/-- resultRow always increments PC by 1 -/
+theorem executeOpcode_resultRow_pc (startReg numRegs : Nat) (state : VMState)
+    (hRunning : state.status = .running) :
+    (executeOpcode (.resultRow startReg numRegs) state).pc = state.pc + 1 := by
+  simp [executeOpcode, hRunning]
+
+/-- transaction always increments PC by 1 -/
+theorem executeOpcode_transaction_pc (dbId writeFlag schemaVersion : Nat) (state : VMState)
+    (hRunning : state.status = .running) :
+    (executeOpcode (.transaction dbId writeFlag schemaVersion) state).pc = state.pc + 1 := by
+  simp [executeOpcode, hRunning]
+
+/-- init always jumps to p2 -/
+theorem executeOpcode_init_pc (p1 p2 : Nat) (state : VMState)
+    (hRunning : state.status = .running) :
+    (executeOpcode (.init p1 p2) state).pc = p2 := by
+  simp [executeOpcode, hRunning]
+
+/-- goto always jumps to p2 -/
+theorem executeOpcode_goto_pc (p2 : Nat) (state : VMState)
+    (hRunning : state.status = .running) :
+    (executeOpcode (.goto p2) state).pc = p2 := by
+  simp [executeOpcode, hRunning]
+
+/-- halt sets status to halted -/
+theorem executeOpcode_halt_status (resultCode errorAction : Nat) (state : VMState)
+    (hRunning : state.status = .running) :
+    (executeOpcode (.halt resultCode errorAction) state).status = .halted resultCode := by
+  simp [executeOpcode, hRunning]
+
+/-- openRead preserves status as running -/
+theorem executeOpcode_openRead_status (cursorId rootPage dbId numColumns : Nat) (state : VMState)
+    (hRunning : state.status = .running) :
+    (executeOpcode (.openRead cursorId rootPage dbId numColumns) state).status = .running := by
+  simp [executeOpcode, hRunning]
+
+/-- column preserves status as running -/
+theorem executeOpcode_column_status (cursorId colIdx destReg : Nat) (state : VMState)
+    (hRunning : state.status = .running) :
+    (executeOpcode (.column cursorId colIdx destReg) state).status = .running := by
+  simp [executeOpcode, hRunning, getCursorColumn]
+  split <;> rfl
+
+/-- resultRow preserves status as running -/
+theorem executeOpcode_resultRow_status (startReg numRegs : Nat) (state : VMState)
+    (hRunning : state.status = .running) :
+    (executeOpcode (.resultRow startReg numRegs) state).status = .running := by
+  simp [executeOpcode, hRunning]
+
+/-- transaction preserves status as running -/
+theorem executeOpcode_transaction_status (dbId writeFlag schemaVersion : Nat) (state : VMState)
+    (hRunning : state.status = .running) :
+    (executeOpcode (.transaction dbId writeFlag schemaVersion) state).status = .running := by
+  simp [executeOpcode, hRunning]
+
+/-- init preserves status as running -/
+theorem executeOpcode_init_status (p1 p2 : Nat) (state : VMState)
+    (hRunning : state.status = .running) :
+    (executeOpcode (.init p1 p2) state).status = .running := by
+  simp [executeOpcode, hRunning]
+
+/-- goto preserves status as running -/
+theorem executeOpcode_goto_status (p2 : Nat) (state : VMState)
+    (hRunning : state.status = .running) :
+    (executeOpcode (.goto p2) state).status = .running := by
+  simp [executeOpcode, hRunning]
+
+/-! ### phaseOffset value lemmas -/
+
+@[simp] theorem phaseOffset_0 : phaseOffset 0 = 9 := rfl
+@[simp] theorem phaseOffset_1 : phaseOffset 1 = 6 := rfl
+@[simp] theorem phaseOffset_2 : phaseOffset 2 = 5 := rfl
+@[simp] theorem phaseOffset_3 : phaseOffset 3 = 4 := rfl
+@[simp] theorem phaseOffset_4 : phaseOffset 4 = 3 := rfl
+@[simp] theorem phaseOffset_5 : phaseOffset 5 = 2 := rfl
+@[simp] theorem phaseOffset_6 : phaseOffset 6 = 1 := rfl
+@[simp] theorem phaseOffset_7 : phaseOffset 7 = 8 := rfl
+@[simp] theorem phaseOffset_8 : phaseOffset 8 = 7 := rfl
+
+/-! ### State invariant for selectAllProgram -/
+
+/--
+  Invariant for selectAllProgram execution states.
+  Captures the relationship between PC and cursor state:
+  - Before OpenRead (pc ∈ {0, 7, 8, 1}): cursor 0 doesn't exist
+  - After OpenRead (pc ∈ {2, 3, 4, 5, 6}): cursor 0 exists with btreeId = 2
+-/
+def selectAllInvariant (state : VMState) : Prop :=
+  -- If cursor 0 exists, it points to btree 2
+  (∀ cursor, state.cursors 0 = some cursor → cursor.btreeId = 2) ∧
+  -- Before OpenRead executes, cursor 0 doesn't exist
+  (state.pc ∈ [0, 7, 8, 1] → state.cursors 0 = none)
+
+/-- Initial state satisfies the invariant -/
+theorem selectAllInvariant_initial (db : Database) :
+    selectAllInvariant (mkInitialState db) := by
+  simp [selectAllInvariant, mkInitialState, Cursors.empty]
+
+/-- The invariant is preserved by step -/
+theorem selectAllInvariant_preserved (state : VMState)
+    (hInv : selectAllInvariant state)
+    (hRunning : state.status = .running)
+    (hValidPc : state.pc < selectAllProgram.size) :
+    selectAllInvariant (step selectAllProgram state) := by
+  simp only [selectAllProgram_size] at hValidPc
+  have hPc : state.pc = 0 ∨ state.pc = 1 ∨ state.pc = 2 ∨ state.pc = 3 ∨
+             state.pc = 4 ∨ state.pc = 5 ∨ state.pc = 6 ∨ state.pc = 7 ∨ state.pc = 8 := by omega
+  simp only [selectAllInvariant] at hInv ⊢
+  obtain ⟨hCursorBtree, hNoCursorBefore⟩ := hInv
+  rcases hPc with h | h | h | h | h | h | h | h | h
+  -- pc = 0: Init → pc = 7, cursors unchanged
+  · simp [step, hRunning, h, selectAllProgram_at_0, executeOpcode]
+    exact ⟨hCursorBtree, hNoCursorBefore (by simp [h])⟩
+  -- pc = 1: OpenRead → pc = 2, cursor 0 := ⟨2, none, forward⟩
+  · simp only [step, hRunning, h, selectAllProgram_at_1, executeOpcode, Cursors.set]
+    constructor
+    · intro cursor hCursor
+      simp only [beq_self_eq_true, ↓reduceIte, Option.some.injEq] at hCursor
+      rw [← hCursor]
+    · simp
+  -- pc = 2: Rewind → pc = 3 or 6, need to case split
+  · simp only [step, hRunning, h, selectAllProgram_at_2, executeOpcode]
+    split
+    · -- cursor not open → error, but cursors unchanged
+      exact ⟨hCursorBtree, by simp⟩
+    · rename_i cursor hCursor
+      split
+      · -- btree not found → error, but cursors unchanged
+        exact ⟨hCursorBtree, by simp⟩
+      · rename_i btree hBtree
+        split
+        · -- btree empty → pc = 6
+          exact ⟨hCursorBtree, by simp⟩
+        · -- btree non-empty → pc = 3, cursor position := 0
+          simp only [Cursors.set]
+          constructor
+          · intro c hc
+            simp only [beq_self_eq_true, ↓reduceIte, Option.some.injEq] at hc
+            rw [← hc]
+            exact hCursorBtree cursor hCursor
+          · simp
+  -- pc = 3: Column → pc = 4, cursors unchanged
+  · simp only [step, hRunning, h, selectAllProgram_at_3, executeOpcode, getCursorColumn]
+    split <;> exact ⟨hCursorBtree, by simp⟩
+  -- pc = 4: ResultRow → pc = 5, cursors unchanged
+  · simp only [step, hRunning, h, selectAllProgram_at_4, executeOpcode]
+    exact ⟨hCursorBtree, by simp⟩
+  -- pc = 5: Next → pc = 3 or 6, need to case split
+  · simp only [step, hRunning, h, selectAllProgram_at_5, executeOpcode]
+    split
+    · exact ⟨hCursorBtree, by simp⟩  -- cursor not open → error
+    · rename_i cursor hCursor
+      split
+      · exact ⟨hCursorBtree, by simp⟩  -- btree not found → error
+      · rename_i btree hBtree
+        split
+        · exact ⟨hCursorBtree, by simp⟩  -- cursor not positioned → error
+        · rename_i pos hPos
+          split
+          · -- more rows → pc = 3, cursor position := pos + 1
+            simp only [Cursors.set]
+            constructor
+            · intro c hc
+              simp only [beq_self_eq_true, ↓reduceIte, Option.some.injEq] at hc
+              rw [← hc]
+              exact hCursorBtree cursor hCursor
+            · simp
+          · -- no more rows → pc = 6
+            exact ⟨hCursorBtree, by simp⟩
+  -- pc = 6: Halt → status = halted
+  · simp only [step, hRunning, h, selectAllProgram_at_6, executeOpcode]
+    exact ⟨hCursorBtree, by simp⟩
+  -- pc = 7: Transaction → pc = 8, cursors unchanged
+  · simp [step, hRunning, h, selectAllProgram_at_7, executeOpcode]
+    exact ⟨hCursorBtree, hNoCursorBefore (by simp [h])⟩
+  -- pc = 8: Goto → pc = 1, cursors unchanged
+  · simp [step, hRunning, h, selectAllProgram_at_8, executeOpcode]
+    exact ⟨hCursorBtree, hNoCursorBefore (by simp [h])⟩
+
+/--
+  At pc=2 (Rewind), cursor 0 has position = none.
+  This is because we just executed OpenRead which creates the cursor with position = none.
+-/
+def rewindPositionInvariant (state : VMState) : Prop :=
+  state.pc = 2 → ∀ cursor, state.cursors 0 = some cursor → cursor.position = none
+
+/-- Initial state satisfies rewindPositionInvariant (vacuously, since pc = 0) -/
+theorem rewindPositionInvariant_initial (db : Database) :
+    rewindPositionInvariant (mkInitialState db) := by
+  simp [rewindPositionInvariant, mkInitialState]
+
+/-- rewindPositionInvariant is preserved by step -/
+theorem rewindPositionInvariant_preserved (state : VMState)
+    (hRewind : rewindPositionInvariant state)
+    (hRunning : state.status = .running)
+    (hValidPc : state.pc < selectAllProgram.size) :
+    rewindPositionInvariant (step selectAllProgram state) := by
+  simp only [selectAllProgram_size] at hValidPc
+  simp only [rewindPositionInvariant] at hRewind ⊢
+  have hPc : state.pc = 0 ∨ state.pc = 1 ∨ state.pc = 2 ∨ state.pc = 3 ∨
+             state.pc = 4 ∨ state.pc = 5 ∨ state.pc = 6 ∨ state.pc = 7 ∨ state.pc = 8 := by omega
+  rcases hPc with h | h | h | h | h | h | h | h | h
+  -- pc = 0: new pc = 7 ≠ 2
+  · simp [step, hRunning, h, selectAllProgram_at_0, executeOpcode]
+  -- pc = 1: OpenRead → pc = 2, cursor 0 := ⟨2, none, forward⟩
+  · simp only [step, hRunning, h, selectAllProgram_at_1, executeOpcode, Cursors.set]
+    intro _ cursor hCursor
+    simp only [beq_self_eq_true, ↓reduceIte, Option.some.injEq] at hCursor
+    rw [← hCursor]
+  -- pc = 2: Rewind → new pc = 3 or 6, both ≠ 2
+  · simp only [step, hRunning, h, selectAllProgram_at_2, executeOpcode]
+    cases hCursor : state.cursors 0 with
+    | none =>
+      -- Error state: cursors unchanged, still none, so vacuously true
+      simp only [hCursor]
+      intro _ c hc; simp at hc
+    | some cursor =>
+      cases hBtree : state.database cursor.btreeId with
+      | none =>
+        -- Error state: cursors unchanged
+        simp only [hBtree]
+        intro _ c hc
+        have : c = cursor := by simp [hCursor] at hc; exact hc.symm
+        rw [this]
+        exact hRewind h cursor hCursor
+      | some btree =>
+        simp only [hBtree]
+        by_cases hEmpty : btree.tuples.isEmpty
+        · -- Empty: pc = 6 ≠ 2
+          simp only [hEmpty, ↓reduceIte]
+          intro hPc2; simp at hPc2
+        · -- Non-empty: pc = 3 ≠ 2
+          simp only [hEmpty]
+          intro hPc2; simp at hPc2
+  -- pc = 3: new pc = 4 ≠ 2
+  · simp [step, hRunning, h, selectAllProgram_at_3, executeOpcode, getCursorColumn]
+    split <;> simp
+  -- pc = 4: new pc = 5 ≠ 2
+  · simp [step, hRunning, h, selectAllProgram_at_4, executeOpcode]
+  -- pc = 5: new pc = 3 or 6 ≠ 2
+  · simp only [step, hRunning, h, selectAllProgram_at_5, executeOpcode]
+    cases hCursor5 : state.cursors 0 with
+    | none => simp
+    | some cursor =>
+      cases hBtree5 : state.database cursor.btreeId with
+      | none => simp [hBtree5]
+      | some btree =>
+        simp only [hBtree5]
+        cases hPos5 : cursor.position with
+        | none => simp
+        | some pos =>
+          simp only
+          by_cases hMore : pos + 1 < btree.tuples.length <;> simp [hMore]
+  -- pc = 6: Halt → status = halted (not running)
+  · simp [step, hRunning, h, selectAllProgram_at_6, executeOpcode]
+  -- pc = 7: new pc = 8 ≠ 2
+  · simp [step, hRunning, h, selectAllProgram_at_7, executeOpcode]
+  -- pc = 8: new pc = 1 ≠ 2
+  · simp [step, hRunning, h, selectAllProgram_at_8, executeOpcode]
+
+/-! ### remainingRows lemmas -/
+
+/-- remainingRows only depends on cursors and database, not on pc/registers/output/status -/
+theorem remainingRows_eq_of_cursors_database (s1 s2 : VMState)
+    (hCursors : s1.cursors = s2.cursors)
+    (hDb : s1.database = s2.database) :
+    remainingRows s1 = remainingRows s2 := by
+  simp only [remainingRows, hCursors, hDb]
+
+/-- After OpenRead on cursor 0 with btree 2, when cursor 0 didn't exist before,
+    remainingRows is preserved (because position is none, so we look at database 2's length) -/
+theorem remainingRows_after_openRead_cursor0 (state : VMState)
+    (hNoCursor : state.cursors 0 = none) :
+    remainingRows { state with cursors := state.cursors.set 0 ⟨2, none, .forward⟩ } =
+    remainingRows state := by
+  simp [remainingRows, Cursors.set, hNoCursor]
+
+/-- Column doesn't change cursors or database -/
+theorem remainingRows_after_column (state : VMState) (cursorId colIdx destReg : Nat)
+    (hRunning : state.status = .running) :
+    remainingRows (executeOpcode (.column cursorId colIdx destReg) state) =
+    remainingRows state := by
+  simp only [executeOpcode, hRunning, getCursorColumn]
+  split <;> rfl
+
+/-- ResultRow doesn't change cursors or database -/
+theorem remainingRows_after_resultRow (state : VMState) (startReg numRegs : Nat)
+    (hRunning : state.status = .running) :
+    remainingRows (executeOpcode (.resultRow startReg numRegs) state) =
+    remainingRows state := by
+  simp only [executeOpcode, hRunning]
+  rfl
+
+/--
+  Helper: executing an opcode on selectAllProgram results in gas decrease.
+  This is the core lemma for the termination proof.
+
+  The proof proceeds by case analysis on state.pc ∈ {0,1,2,3,4,5,6,7,8}.
+  For each case, we show that the gas strictly decreases.
+-/
+theorem selectAllGas_decreases_step (state : VMState)
+    (hInv : selectAllInvariant state)
+    (hRewind : rewindPositionInvariant state)
+    (hRunning : state.status = .running)
+    (hValidPc : state.pc < selectAllProgram.size) :
+    selectAllGas (step selectAllProgram state) < selectAllGas state := by
+  -- Establish pc ∈ {0..8}
+  simp only [selectAllProgram_size] at hValidPc
+  have hPc : state.pc = 0 ∨
+             state.pc = 1 ∨
+             state.pc = 2 ∨
+             state.pc = 3 ∨
+             state.pc = 4 ∨
+             state.pc = 5 ∨
+             state.pc = 6 ∨
+             state.pc = 7 ∨
+             state.pc = 8 := by omega
+  rcases hPc with h | h | h | h | h | h | h | h | h
+  -- Case pc = 0: Init 0 7 → jump to pc = 7
+  · simp [step, hRunning, h, selectAllProgram_at_0, executeOpcode]
+    simp [h, selectAllGas, hRunning, phaseOffset, remainingRows]
+  -- Case pc = 1: OpenRead → pc = 2
+  -- Use invariant: at pc=1, cursor 0 doesn't exist
+  · have hNoCursor : state.cursors 0 = none := hInv.2 (by simp [h])
+    simp only [step, hRunning, h, selectAllProgram_at_1, executeOpcode]
+    simp only [selectAllGas, hRunning, remainingRows, Cursors.set, h]
+    simp only [beq_self_eq_true, ↓reduceIte, hNoCursor, phaseOffset]
+    omega
+  -- Case pc = 2: Rewind → pc = 3 or pc = 6
+  · simp only [step, hRunning, h, selectAllProgram_at_2, executeOpcode]
+    cases hCursor : state.cursors 0 with
+    | none =>
+      -- Error case: gas becomes 0, which is less than positive gas
+      simp only [selectAllGas, hRunning, h, remainingRows, hCursor, phaseOffset]
+      omega
+    | some cursor =>
+      cases hBtree : state.database cursor.btreeId with
+      | none =>
+        -- Error case: gas becomes 0
+        simp only [hBtree, selectAllGas, hRunning, h, remainingRows, hCursor, phaseOffset]
+        omega
+      | some btree =>
+        simp only [hBtree]
+        have hBtreeId := hInv.1 cursor hCursor
+        have hPosNone := hRewind h cursor hCursor
+        have hDb2 : state.database 2 = some btree := by rw [← hBtreeId]; exact hBtree
+        by_cases hEmpty : btree.tuples.isEmpty
+        · -- Empty btree: jump to pc = 6
+          simp only [hEmpty, ↓reduceIte, selectAllGas, remainingRows, hCursor, hBtreeId, hPosNone,
+                     phaseOffset, hRunning, h, hDb2]
+          have hLen : btree.tuples.length = 0 :=
+            List.length_eq_zero_iff.mpr (List.isEmpty_iff.mp hEmpty)
+          omega
+        · -- Non-empty btree: pc = 3, cursor position := 0
+          have hNotEmpty : btree.tuples.isEmpty = false := Bool.eq_false_iff.mpr hEmpty
+          simp only [hNotEmpty, Bool.false_eq_true, ↓reduceIte, selectAllGas, Cursors.set,
+                     beq_self_eq_true, remainingRows, hBtreeId, hCursor, hPosNone, phaseOffset,
+                     hRunning, h, hDb2]
+          have hLen : btree.tuples.length > 0 :=
+            List.length_pos_iff.mpr (List.isEmpty_eq_false_iff.mp hNotEmpty)
+          omega
+  -- Case pc = 3: Column → pc = 4
+  · simp only [step, hRunning, h, selectAllProgram_at_3, executeOpcode, getCursorColumn]
+    -- Column doesn't change cursors or database, so remainingRows is preserved
+    -- But phaseOffset decreases from 4 to 3
+    cases hCol : getCursorTuple state 0 >>= fun t => t[0]? with
+    | none =>
+      simp only [selectAllGas, remainingRows, phaseOffset, hRunning, h]
+      omega
+    | some val =>
+      simp only [selectAllGas, remainingRows, phaseOffset, hRunning, h]
+      omega
+  -- Case pc = 4: ResultRow → pc = 5
+  · simp [step, hRunning, h, selectAllProgram_at_4, executeOpcode]
+    simp [h, selectAllGas, hRunning, phaseOffset, remainingRows]
+  -- Case pc = 5: Next → pc = 3 (more rows) or pc = 6 (done)
+  · simp only [step, hRunning, h, selectAllProgram_at_5, executeOpcode]
+    cases hCursor : state.cursors 0 with
+    | none =>
+      -- Error case: gas becomes 0
+      simp only [selectAllGas, hRunning, h, remainingRows, hCursor, phaseOffset]
+      omega
+    | some cursor =>
+      cases hBtree : state.database cursor.btreeId with
+      | none =>
+        -- Error case: gas becomes 0
+        simp only [hBtree, selectAllGas, hRunning, h, remainingRows, hCursor, phaseOffset]
+        omega
+      | some btree =>
+        simp only [hBtree]
+        have hBtreeId := hInv.1 cursor hCursor
+        have hDb2 : state.database 2 = some btree := by rw [← hBtreeId]; exact hBtree
+        cases hPos : cursor.position with
+        | none =>
+          -- Error case: cursor not positioned
+          simp only [selectAllGas, hRunning, h, remainingRows, hCursor, hBtreeId, hDb2, phaseOffset]
+          omega
+        | some pos =>
+          by_cases hMore : pos + 1 < btree.tuples.length
+          · -- More rows: pc = 3, position := pos + 1
+            -- remainingRows decreases: (length - pos) → (length - (pos + 1))
+            -- phaseOffset increases: 2 → 4
+            -- But loopCost (10) > max phaseOffset (9), so gas still decreases
+            simp only [hMore, ↓reduceIte, selectAllGas, Cursors.set, beq_self_eq_true,
+                       remainingRows, hBtreeId, hCursor, hDb2, phaseOffset, hRunning, h, hPos]
+            -- Gas before: (btree.tuples.length - pos) * 10 + 2
+            -- Gas after:  (btree.tuples.length - (pos + 1)) * 10 + 4
+            omega
+          · -- No more rows: pc = 6, position unchanged
+            -- phaseOffset decreases: 2 → 1
+            simp only [hMore, ↓reduceIte, selectAllGas, remainingRows,
+                       hCursor, hBtreeId, hDb2, hPos, phaseOffset, hRunning, h]
+            omega
+  -- Case pc = 6: Halt → status = halted, gas = 0
+  · simp only [step, hRunning, h, selectAllProgram_at_6, executeOpcode, selectAllGas, phaseOffset_6]
+    have hGasPos := selectAllGas_pos_of_running state hRunning
+    simp only [selectAllGas, hRunning, h] at hGasPos
+    exact hGasPos
+  -- Case pc = 7: Transaction → pc = 8
+  · simp [step, hRunning, h, selectAllProgram_at_7, executeOpcode]
+    simp [h, selectAllGas, hRunning, phaseOffset, remainingRows]
+  -- Case pc = 8: Goto 1 → pc = 1
+  · simp [step, hRunning, h, selectAllProgram_at_8, executeOpcode]
+    simp [h, selectAllGas, hRunning, phaseOffset, remainingRows]

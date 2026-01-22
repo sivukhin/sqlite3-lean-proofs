@@ -1,0 +1,1 @@
+-- Basic definitions for Sqlite3Lean
