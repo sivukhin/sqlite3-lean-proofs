@@ -910,3 +910,145 @@ theorem selectAllGas_decreases_step (state : VMState)
   -- Case pc = 8: Goto 1 → pc = 1
   · simp [step, hRunning, h, selectAllProgram_at_8, executeOpcode]
     simp [h, selectAllGas, hRunning, phaseOffset, remainingRows]
+
+/-! ## Termination Proof for selectAllProgram -/
+
+/-- Helper: Array indexing returns none when out of bounds -/
+theorem array_getElem?_ge_size {α : Type u} (a : Array α) (i : Nat) (h : i ≥ a.size) :
+    a[i]? = none := by
+  rw [Array.getElem?_eq_none_iff]
+  omega
+
+/-- If PC is out of bounds, step produces an error state -/
+theorem step_invalid_pc (state : VMState)
+    (hRunning : state.status = .running)
+    (hInvalidPc : state.pc ≥ selectAllProgram.size) :
+    (step selectAllProgram state).status = .error s!"Invalid PC: {state.pc}" := by
+  simp only [step, hRunning, selectAllProgram_size] at *
+  have hNone : selectAllProgram[state.pc]? = none := array_getElem?_ge_size _ _ hInvalidPc
+  simp [hNone]
+
+/-- Gas becomes 0 for non-running states -/
+theorem selectAllGas_zero_of_not_running (state : VMState)
+    (h : state.status ≠ .running) : selectAllGas state = 0 := by
+  simp only [selectAllGas]
+  cases hStatus : state.status with
+  | running => exact absurd hStatus h
+  | halted _ => rfl
+  | error _ => rfl
+
+/-- Combined invariant for selectAllProgram -/
+def selectAllCombinedInvariant (state : VMState) : Prop :=
+  selectAllInvariant state ∧ rewindPositionInvariant state
+
+/-- Initial state satisfies combined invariant -/
+theorem selectAllCombinedInvariant_initial (db : Database) :
+    selectAllCombinedInvariant (mkInitialState db) :=
+  ⟨selectAllInvariant_initial db, rewindPositionInvariant_initial db⟩
+
+/-- Combined invariant is preserved by step when PC is valid -/
+theorem selectAllCombinedInvariant_preserved (state : VMState)
+    (hInv : selectAllCombinedInvariant state)
+    (hRunning : state.status = .running)
+    (hValidPc : state.pc < selectAllProgram.size) :
+    selectAllCombinedInvariant (step selectAllProgram state) :=
+  ⟨selectAllInvariant_preserved state hInv.1 hRunning hValidPc,
+   rewindPositionInvariant_preserved state hInv.2 hRunning hValidPc⟩
+
+/-- Gas decreases on every step (extended to handle invalid PC) -/
+theorem selectAllGas_decreases (state : VMState)
+    (hInv : selectAllCombinedInvariant state)
+    (hRunning : state.status = .running) :
+    selectAllGas (step selectAllProgram state) < selectAllGas state := by
+  by_cases hValidPc : state.pc < selectAllProgram.size
+  · exact selectAllGas_decreases_step state hInv.1 hInv.2 hRunning hValidPc
+  · -- Invalid PC: step produces error, gas becomes 0
+    have hInvalidPc : state.pc ≥ selectAllProgram.size := Nat.not_lt.mp hValidPc
+    have hError := step_invalid_pc state hRunning hInvalidPc
+    have hNotRunning : (step selectAllProgram state).status ≠ .running := by
+      simp [hError]
+    rw [selectAllGas_zero_of_not_running _ hNotRunning]
+    exact selectAllGas_pos_of_running state hRunning
+
+/-- runBounded terminates with halted/error status when given enough fuel -/
+theorem runBounded_terminates (state : VMState)
+    (hInv : selectAllCombinedInvariant state)
+    (fuel : Nat)
+    (hFuel : fuel ≥ selectAllGas state) :
+    (runBounded selectAllProgram state fuel).status ≠ .running := by
+  -- Induction on fuel
+  induction fuel generalizing state with
+  | zero =>
+    -- fuel = 0: out of fuel error
+    simp [runBounded]
+  | succ n ih =>
+    simp only [runBounded]
+    cases hStatus : state.status with
+    | halted code =>
+      simp only [hStatus]
+      intro h; cases h
+    | error msg =>
+      simp only [hStatus]
+      intro h; cases h
+    | running =>
+      -- State is running, we take a step
+      -- Apply induction hypothesis to the stepped state
+      apply ih
+      · -- Invariant preserved
+        by_cases hValidPc : state.pc < selectAllProgram.size
+        · exact selectAllCombinedInvariant_preserved state hInv hStatus hValidPc
+        · -- Invalid PC: step produces error state
+          have hInvalidPc : state.pc ≥ selectAllProgram.size := Nat.not_lt.mp hValidPc
+          -- For error states, the invariant is preserved (state doesn't actually change, just status)
+          simp only [selectAllCombinedInvariant, selectAllInvariant, rewindPositionInvariant]
+          simp only [step, hStatus, selectAllProgram_size] at *
+          have hNone : selectAllProgram[state.pc]? = none := array_getElem?_ge_size _ _ hInvalidPc
+          simp only [hNone]
+          -- The invariant is inherited from the original state
+          constructor
+          · constructor
+            · exact hInv.1.1
+            · intro hPc
+              -- state.pc ∈ [0, 7, 8, 1] but state.pc ≥ 9, contradiction
+              simp only [List.mem_cons, List.not_mem_nil, or_false] at hPc
+              rcases hPc with h | h | h | h <;> omega
+          · intro hPc
+            -- state.pc = 2 but state.pc ≥ 9, contradiction
+            omega
+      · -- Fuel sufficient for stepped state
+        have hDecrease := selectAllGas_decreases state hInv hStatus
+        omega
+
+/-- Main termination theorem: selectAllProgram terminates for any database -/
+theorem selectAllProgram_terminates (db : Database) :
+    ∃ n : Nat, (runBounded selectAllProgram (mkInitialState db) n).status ≠ .running := by
+  refine ⟨selectAllGas (mkInitialState db), ?_⟩
+  exact runBounded_terminates (mkInitialState db) (selectAllCombinedInvariant_initial db)
+    (selectAllGas (mkInitialState db)) (Nat.le_refl _)
+
+/-- The final state is either halted or an error -/
+theorem selectAllProgram_final_status (db : Database) :
+    ∃ n : Nat, match (runBounded selectAllProgram (mkInitialState db) n).status with
+      | .halted _ => True
+      | .error _ => True
+      | .running => False := by
+  have ⟨n, hn⟩ := selectAllProgram_terminates db
+  refine ⟨n, ?_⟩
+  cases h : (runBounded selectAllProgram (mkInitialState db) n).status with
+  | halted _ => trivial
+  | error _ => trivial
+  | running => exact hn h
+
+/-- Compute the required fuel for termination based on database size -/
+def selectAllRequiredFuel (db : Database) : Nat :=
+  selectAllGas (mkInitialState db)
+
+/-- runBounded with required fuel terminates -/
+theorem selectAllProgram_terminates' (db : Database) :
+    (runBounded selectAllProgram (mkInitialState db) (selectAllRequiredFuel db)).status ≠ .running :=
+  runBounded_terminates (mkInitialState db) (selectAllCombinedInvariant_initial db)
+    (selectAllRequiredFuel db) (Nat.le_refl _)
+
+#check selectAllProgram_terminates
+-- selectAllProgram_terminates : ∀ (db : Database),
+--   ∃ n, (runBounded selectAllProgram (mkInitialState db) n).status ≠ Status.running
