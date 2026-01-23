@@ -95,6 +95,11 @@ def Registers.set (regs : Registers) (r : RegisterId) (v : Value) : Registers :=
 
 /-! ## VDBE Opcodes -/
 
+/-- Aggregate function types -/
+inductive AggFunc where
+  | count : AggFunc
+  deriving Repr, BEq
+
 /--
   VDBE opcodes for a basic SELECT query.
   Each opcode has parameters p1, p2, p3, p4, p5 with opcode-specific meanings.
@@ -102,12 +107,28 @@ def Registers.set (regs : Registers) (r : RegisterId) (v : Value) : Registers :=
 inductive Opcode where
   /-- Init: Jump to p2 on first execution. p1 is ignored for now. -/
   | init (p1 p2 : Nat) : Opcode
+  /-- Null: Set register p2 to NULL. p1 is ignored. -/
+  | null (p1 : Nat) (destReg : RegisterId) : Opcode
   /-- OpenRead: Open cursor p1 on btree with root page p2, database p3. p4 is column count. -/
   | openRead (cursorId : CursorId) (rootPage : BTreeId) (dbId : Nat) (numColumns : Nat) : Opcode
   /-- Rewind: Position cursor p1 to first row. Jump to p2 if table is empty. -/
   | rewind (cursorId : CursorId) (jumpIfEmpty : Nat) : Opcode
   /-- Column: Read column p2 from cursor p1, store in register p3. -/
   | column (cursorId : CursorId) (columnIdx : Nat) (destReg : RegisterId) : Opcode
+  /-- String8: Set register p2 to string p4. -/
+  | string8 (p1 : Nat) (destReg : RegisterId) (p3 : Nat) (value : String) : Opcode
+  /-- Eq: If r[p1]==r[p3] then jump to p2. p4 is comparison flags. -/
+  | eq (reg1 : RegisterId) (jumpAddr : Nat) (reg2 : RegisterId) : Opcode
+  /-- Ne: If r[p1]!=r[p3] then jump to p2. p4 is comparison flags. -/
+  | ne (reg1 : RegisterId) (jumpAddr : Nat) (reg2 : RegisterId) : Opcode
+  /-- Integer: Set register p2 to integer value p1. -/
+  | integer (value : Int) (destReg : RegisterId) : Opcode
+  /-- AggStep: Step aggregate function with argument r[p2] into accumulator r[p3]. -/
+  | aggStep (p1 : Nat) (argReg : RegisterId) (accumReg : RegisterId) (func : AggFunc) : Opcode
+  /-- AggFinal: Finalize aggregate in register p2. -/
+  | aggFinal (p1 : Nat) (accumReg : RegisterId) (p3 : Nat) (func : AggFunc) : Opcode
+  /-- Copy: Copy r[p1] to r[p2]. -/
+  | copy (srcReg : RegisterId) (destReg : RegisterId) (p3 : Nat) : Opcode
   /-- ResultRow: Output registers p1 through p1+p2-1 as a result row. -/
   | resultRow (startReg : RegisterId) (numRegs : Nat) : Opcode
   /-- Next: Advance cursor p1 to next row. Jump to p2 if there is another row. -/
@@ -188,6 +209,12 @@ def executeOpcode (op : Opcode) (state : VMState) : VMState :=
       -- Jump to p2 (typically the Transaction instruction)
       { state with pc := p2 }
 
+    | .null _ destReg =>
+      -- Set register to NULL
+      { state with
+        registers := state.registers.set destReg Value.null,
+        pc := state.pc + 1 }
+
     | .openRead cursorId rootPage _dbId _numColumns =>
       -- Open a read cursor on the btree
       let cursor : Cursor := {
@@ -227,6 +254,74 @@ def executeOpcode (op : Opcode) (state : VMState) : VMState :=
         { state with
           registers := state.registers.set destReg value,
           pc := state.pc + 1 }
+
+    | .string8 _ destReg _ value =>
+      -- Set register to string value
+      { state with
+        registers := state.registers.set destReg (Value.text value),
+        pc := state.pc + 1 }
+
+    | .eq reg1 jumpAddr reg2 =>
+      -- Jump to jumpAddr if r[reg1] == r[reg2]
+      let v1 := state.registers.get reg1
+      let v2 := state.registers.get reg2
+      if v1 == v2 then
+        { state with pc := jumpAddr }
+      else
+        { state with pc := state.pc + 1 }
+
+    | .ne reg1 jumpAddr reg2 =>
+      -- Jump to jumpAddr if r[reg1] != r[reg2]
+      let v1 := state.registers.get reg1
+      let v2 := state.registers.get reg2
+      if v1 != v2 then
+        { state with pc := jumpAddr }
+      else
+        { state with pc := state.pc + 1 }
+
+    | .integer value destReg =>
+      -- Set register to integer value
+      { state with
+        registers := state.registers.set destReg (Value.integer value),
+        pc := state.pc + 1 }
+
+    | .aggStep _ argReg accumReg func =>
+      -- Step aggregate function
+      match func with
+      | .count =>
+        -- count() increments accumulator for each row
+        -- If accumulator is null, initialize to 0 first
+        let currentVal := state.registers.get accumReg
+        let count := match currentVal with
+          | .integer n => n + 1
+          | .null => 1  -- Initialize from null to 1
+          | _ => 1  -- Shouldn't happen, but handle gracefully
+        -- argReg value is typically 1 (from Integer opcode) but ignored for count(*)
+        let _ := state.registers.get argReg
+        { state with
+          registers := state.registers.set accumReg (Value.integer count),
+          pc := state.pc + 1 }
+
+    | .aggFinal _ accumReg _ func =>
+      -- Finalize aggregate function
+      match func with
+      | .count =>
+        -- For count, ensure the accumulator has a proper integer value
+        let currentVal := state.registers.get accumReg
+        let finalVal := match currentVal with
+          | .integer n => Value.integer n
+          | .null => Value.integer 0  -- count() returns 0 for empty set
+          | _ => Value.integer 0
+        { state with
+          registers := state.registers.set accumReg finalVal,
+          pc := state.pc + 1 }
+
+    | .copy srcReg destReg _ =>
+      -- Copy value from srcReg to destReg
+      let value := state.registers.get srcReg
+      { state with
+        registers := state.registers.set destReg value,
+        pc := state.pc + 1 }
 
     | .resultRow startReg numRegs =>
       -- Collect registers into a result row
