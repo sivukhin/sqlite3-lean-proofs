@@ -398,7 +398,7 @@ def generate_html_report(queries: list[QueryStatus], output_path: str, project_r
 def main():
     parser = argparse.ArgumentParser(description='Generate HTML report for query verification progress')
     parser.add_argument('--output', '-o', default='index.html', help='Output HTML file path')
-    parser.add_argument('--include-example', action='store_true', help='Include Sqlite3Lean/Example.lean')
+    parser.add_argument('--include-example', default=True, action='store_true', help='Include Sqlite3Lean/Example.lean')
     args = parser.parse_args()
 
     # Find project root
