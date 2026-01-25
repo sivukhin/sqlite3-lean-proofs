@@ -22,15 +22,19 @@ from dataclasses import dataclass
 from typing import Callable, Optional
 import html
 
+REPO_URL = "https://github.com/sivukhin/sqlite3-lean-proofs"
+
 @dataclass
 class QueryStatus:
     file_name: str
+    file_path: str  # relative path for linking
     query_name: str
     namespace: str
     sql_query: Optional[str]
     formalized: bool
     terminates: Optional[bool]
     gas_bound: Optional[str]
+    pr_number: Optional[str]
 
 def extract_sql_query(content: str) -> Optional[str]:
     """Extract SQL query from the doc comment."""
@@ -39,54 +43,12 @@ def extract_sql_query(content: str) -> Optional[str]:
         return match.group(1).strip()
     return None
 
-def extract_opcodes(content: str) -> list[str]:
-    """Extract opcodes used in the program definition."""
-    # Find the program definition block
-    program_match = re.search(r'def\s+program\s*:\s*Program\s*:=\s*#\[(.*?)\]', content, re.DOTALL)
-    if not program_match:
-        return []
-
-    program_block = program_match.group(1)
-
-    # Match all opcode patterns like .init, .openRead, .halt, etc.
-    pattern = r'\.([a-zA-Z][a-zA-Z0-9]*)\b'
-    matches = re.findall(pattern, program_block)
-    return list(set(matches))
-
-def check_for_sorry(content: str) -> bool:
-    """Check if the file contains sorry."""
-    # Match 'sorry' as a word, not part of another word
-    return bool(re.search(r'\bsorry\b', content))
-
-def extract_gas_function(content: str) -> Optional[str]:
-    """Extract gas/fuel function definition if present."""
-    # Look for gas or fuel function definitions
-    match = re.search(r'def\s+(\w*[Gg]as|\w*[Ff]uel)\s*[^:]*:\s*(\w+)', content)
-    if match:
-        return f"{match.group(1)} : {match.group(2)}"
-    return None
-
-def extract_runtime_bound(content: str) -> Optional[str]:
-    """Extract runtime bound expression if present."""
-    # Look for gas computation like "rows * loopCost + offset"
-    match = re.search(r'(remainingRows|rows)\s*\*\s*(\w+)\s*\+\s*(\w+)', content)
-    if match:
-        return f"O({match.group(1)} * {match.group(2)} + {match.group(3)})"
-
-    # Look for simpler bounds
-    match = re.search(r'def\s+\w*[Gg]as[^=]*=\s*([^\n]+)', content)
-    if match:
-        expr = match.group(1).strip()
-        if len(expr) < 100:  # Sanity check
-            return expr
-    return None
-
-def get_pr_from_git(file_path: str) -> Optional[str]:
+def get_pr_from_git(file_path: str, project_root: Path) -> Optional[str]:
     """Try to extract PR number from git log."""
     try:
         result = subprocess.run(
             ['git', 'log', '--oneline', '-1', '--', file_path],
-            capture_output=True, text=True, cwd=os.path.dirname(file_path) or '.'
+            capture_output=True, text=True, cwd=project_root
         )
         if result.returncode == 0:
             log = result.stdout.strip()
@@ -108,7 +70,7 @@ class QueryInfo:
 class BuildResult:
     queries: dict[str, QueryInfo]
 
-def update_build_result(r: BuildResult, key: str, f: Callable[[QueryInfo], []]):
+def update_build_result(r: BuildResult, key: str, f: Callable[[QueryInfo], None]):
     if key not in r.queries:
         r.queries[key] = QueryInfo(formalized=False, terminates=None, gas_bound=None)
     f(r.queries[key])
@@ -126,7 +88,6 @@ def run_lake_build(project_root: Path) -> BuildResult:
         output = proc.stdout + proc.stderr
 
         for line in output.split('\n'):
-            print(line)
             # Parse info messages for axiom dependencies
             # e.g., "info: Main.lean:163:0: 'Sqlite3Lean.Example.program' does not depend on any axioms"
             program_definition = re.search(r"info:.*'Sqlite3Lean.([^']+).program' (.*)", line)
@@ -135,14 +96,14 @@ def run_lake_build(project_root: Path) -> BuildResult:
                 bound = program_definition.group(2)
                 update_build_result(result, name, lambda x: setattr(x, 'formalized', 'sorry' not in bound))
                 continue
-            
+
             program_termination = re.search(r"info:.*'Sqlite3Lean.([^']+).program_terminates' (.*)", line)
             if program_termination:
                 name = program_termination.group(1)
                 bound = program_termination.group(2)
                 update_build_result(result, name, lambda x: setattr(x, 'terminates', None if 'sorry' in bound else True))
                 continue
-            
+
             program_gas = re.search(r"info:.*'Sqlite3Lean.([^']+).program_gas' has gas bound: (.*)", line)
             if program_gas:
                 name = program_gas.group(1)
@@ -170,43 +131,51 @@ def analyze_query_file(file_path: Path, build_result: BuildResult, project_root:
     # Get relative path for matching with build output
     try:
         rel_path = str(file_path.relative_to(project_root))
+        display_path = rel_path
         # Remove Sqlite3Lean/ prefix for cleaner display
-        if rel_path.startswith('Sqlite3Lean/'):
-            rel_path = rel_path[len('Sqlite3Lean/'):]
+        if display_path.startswith('Sqlite3Lean/'):
+            display_path = display_path[len('Sqlite3Lean/'):]
     except ValueError:
         rel_path = file_path.name
+        display_path = file_path.name
 
     # Get namespace for looking up axiom info
     namespace = get_namespace_from_path(file_path, project_root)
     content = file_path.read_text()
     sql_query = extract_sql_query(content)
-    print(content)
-    name = rel_path.replace('/', '.')[:-len('.lean')]
-    result = build_result.queries[name]
+    pr_number = get_pr_from_git(str(file_path), project_root)
+
+    name = display_path.replace('/', '.')[:-len('.lean')]
+    result = build_result.queries.get(name, QueryInfo(formalized=False, terminates=None, gas_bound=None))
+
     return QueryStatus(
-        file_name=rel_path,
+        file_name=display_path,
+        file_path=rel_path,
         query_name=file_path.stem,
         namespace=namespace,
         sql_query=sql_query,
         formalized=result.formalized,
         terminates=result.terminates,
         gas_bound=result.gas_bound,
+        pr_number=pr_number,
     )
 
 def generate_html_report(queries: list[QueryStatus], output_path: str, project_root: Path):
     """Generate HTML report."""
+    from datetime import datetime
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     # Calculate statistics
     total = len(queries)
     formalized = len([q for q in queries if q.formalized])
     termination_proved = len([q for q in queries if q.terminates])
-    
+
     html_content = f'''<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SQLite Query Verification Report</title>
+    <title>SQLite busy challenge</title>
     <style>
         body {{
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
@@ -221,38 +190,41 @@ def generate_html_report(queries: list[QueryStatus], output_path: str, project_r
             margin: 0 auto;
         }}
 
-        h1 {{
-            text-align: center;
-            margin-bottom: 10px;
-            color: #333;
-        }}
-
-        .summary {{
+        .header {{
             display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
         }}
 
-        .stat-card {{
-            background: #f5f5f5;
-            padding: 20px 30px;
-            border-radius: 8px;
-            text-align: center;
-            min-width: 150px;
-            border: 1px solid #ddd;
+        .header-left {{
+            display: flex;
+            align-items: baseline;
+            gap: 20px;
         }}
 
-        .stat-card .number {{
-            font-size: 2.5em;
-            font-weight: bold;
+        h1 {{
+            margin: 0;
             color: #333;
         }}
 
-        .stat-card .label {{
+        .stats {{
             color: #666;
-            margin-top: 5px;
+            font-size: 0.95em;
+        }}
+
+        .header-right {{
+            color: #999;
+            font-size: 0.85em;
+        }}
+
+        .repo-link {{
+            color: #0066cc;
+            text-decoration: none;
+        }}
+
+        .repo-link:hover {{
+            text-decoration: underline;
         }}
 
         table {{
@@ -301,6 +273,15 @@ def generate_html_report(queries: list[QueryStatus], output_path: str, project_r
             white-space: nowrap;
         }}
 
+        .query-name a {{
+            color: #0066cc;
+            text-decoration: none;
+        }}
+
+        .query-name a:hover {{
+            text-decoration: underline;
+        }}
+
         .sql-query {{
             font-family: monospace;
             font-size: 0.85em;
@@ -309,11 +290,6 @@ def generate_html_report(queries: list[QueryStatus], output_path: str, project_r
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-        }}
-
-        .missing-opcodes {{
-            font-family: monospace;
-            color: #8b0000;
         }}
 
         .runtime {{
@@ -329,67 +305,18 @@ def generate_html_report(queries: list[QueryStatus], output_path: str, project_r
         .pr-link:hover {{
             text-decoration: underline;
         }}
-
-        .filter-bar {{
-            margin-bottom: 20px;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }}
-
-        .filter-btn {{
-            padding: 8px 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            cursor: pointer;
-            background: #fff;
-            color: #333;
-            transition: all 0.2s;
-        }}
-
-        .filter-btn:hover {{
-            background: #e0e0e0;
-        }}
-
-        .filter-btn.active {{
-            background: #333;
-            color: #fff;
-            border-color: #333;
-        }}
-
-        .timestamp {{
-            text-align: center;
-            color: #888;
-            margin-top: 20px;
-            font-size: 0.9em;
-        }}
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>SQLite Query Verification Report</h1>
-
-        <div class="summary">
-            <div class="stat-card">
-                <div class="number">{total}</div>
-                <div class="label">Total Queries</div>
+        <div class="header">
+            <div class="header-left">
+                <h1>SQLite busy challenge</h1>
+                <span class="stats">{formalized}/{total} formalized, {termination_proved}/{total} termination proved</span>
             </div>
-            <div class="stat-card">
-                <div class="number">{formalized}</div>
-                <div class="label">Formalized</div>
+            <div class="header-right">
+                <a class="repo-link" href="{REPO_URL}">{REPO_URL}</a> | Generated: {timestamp}
             </div>
-            <div class="stat-card">
-                <div class="number">{termination_proved}</div>
-                <div class="label">Termination proved</div>
-            </div>
-        </div>
-
-        <div class="filter-bar">
-            <button class="filter-btn active" onclick="filterTable('all')">All</button>
-            <button class="filter-btn" onclick="filterTable('proved')">Proved</button>
-            <button class="filter-btn" onclick="filterTable('sorry')">With Sorry</button>
-            <button class="filter-btn" onclick="filterTable('opcodes-ok')">Opcodes OK</button>
-            <button class="filter-btn" onclick="filterTable('opcodes-missing')">Missing Opcodes</button>
         </div>
 
         <table id="query-table">
@@ -398,16 +325,25 @@ def generate_html_report(queries: list[QueryStatus], output_path: str, project_r
                     <th>#</th>
                     <th>Query File</th>
                     <th>SQL Query</th>
+                    <th>Formalized</th>
                     <th>Termination</th>
-                    <th>Opcodes</th>
                     <th>Gas Bound</th>
+                    <th>PR</th>
                 </tr>
             </thead>
             <tbody>
 '''
 
     for i, q in enumerate(queries, 1):
-        # Termination status - based on axioms
+        # Formalized status
+        if q.formalized:
+            formalized_class = 'status-yes'
+            formalized_text = 'yes'
+        else:
+            formalized_class = 'status-unknown'
+            formalized_text = 'sorry'
+
+        # Termination status
         if q.terminates:
             termination_class = 'status-yes'
             termination_text = 'yes'
@@ -418,72 +354,38 @@ def generate_html_report(queries: list[QueryStatus], output_path: str, project_r
             termination_class = 'status-no'
             termination_text = 'no'
 
-        # Opcodes status
-        opcodes_class = 'status-yes' if q.formalized else 'status-no'
-        if q.formalized:
-            opcodes_text = 'yes'
-        else:
-            opcodes_text = f'<span class="status-unknown">{html.escape('sorry')}</span>'
-
         # Gas bound from build info
         if q.gas_bound:
             gas_bound_html = f'<span class="runtime">{html.escape(q.gas_bound)}</span>'
         else:
             gas_bound_html = '-'
 
+        # PR link
+        if q.pr_number:
+            pr_html = f'<a class="pr-link" href="{REPO_URL}/pull/{q.pr_number}">#{q.pr_number}</a>'
+        else:
+            pr_html = '-'
+
         sql_html = html.escape(q.sql_query) if q.sql_query else '-'
 
-        data_status = 'proved' if q.terminates else 'sorry'
-        data_opcodes = 'opcodes-ok' if q.formalized else 'opcodes-missing'
+        # Link to file in repo
+        file_link = f'{REPO_URL}/blob/master/{q.file_path}'
+        file_name_html = f'<a href="{file_link}">{html.escape(q.file_name)}</a>'
 
-        html_content += f'''                <tr data-status="{data_status}" data-opcodes="{data_opcodes}">
+        html_content += f'''                <tr>
                     <td>{i}</td>
-                    <td class="query-name">{html.escape(q.file_name)}</td>
+                    <td class="query-name">{file_name_html}</td>
                     <td class="sql-query" title="{sql_html}">{sql_html}</td>
+                    <td class="{formalized_class}">{formalized_text}</td>
                     <td class="{termination_class}">{termination_text}</td>
-                    <td class="{opcodes_class}">{opcodes_text}</td>
                     <td>{gas_bound_html}</td>
+                    <td>{pr_html}</td>
                 </tr>
 '''
 
-    from datetime import datetime
-    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
-    html_content += f'''            </tbody>
+    html_content += '''            </tbody>
         </table>
-
-        <p class="timestamp">Generated: {timestamp}</p>
     </div>
-
-    <script>
-        function filterTable(filter) {{
-            const rows = document.querySelectorAll('#query-table tbody tr');
-            const buttons = document.querySelectorAll('.filter-btn');
-
-            buttons.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-
-            rows.forEach(row => {{
-                const status = row.dataset.status;
-                const opcodes = row.dataset.opcodes;
-                let show = false;
-
-                if (filter === 'all') {{
-                    show = true;
-                }} else if (filter === 'proved' && status === 'proved') {{
-                    show = true;
-                }} else if (filter === 'sorry' && status === 'sorry') {{
-                    show = true;
-                }} else if (filter === 'opcodes-ok' && opcodes === 'opcodes-ok') {{
-                    show = true;
-                }} else if (filter === 'opcodes-missing' && opcodes === 'opcodes-missing') {{
-                    show = true;
-                }}
-
-                row.style.display = show ? '' : 'none';
-            }});
-        }}
-    </script>
 </body>
 </html>
 '''
@@ -491,10 +393,7 @@ def generate_html_report(queries: list[QueryStatus], output_path: str, project_r
     with open(output_path, 'w') as f:
         f.write(html_content)
 
-    print(f"Report generated: {output_path}")
-    print(f"  Total queries: {total}")
-    print(f"  Formalized: {formalized} ({formalized/total*100 if total > 0 else 0:.1f}%)")
-    print(f"  Termination proved: {termination_proved} ({termination_proved/total*100 if total > 0 else 0:.1f}%)")
+    print(f"Report: {output_path} | {formalized}/{total} formalized, {termination_proved}/{total} termination proved")
 
 def main():
     parser = argparse.ArgumentParser(description='Generate HTML report for query verification progress')
@@ -527,12 +426,10 @@ def main():
         print("No query files found")
         return 1
 
-    print(f"Found {len(query_files)} query files")
-    print("Running lake build to detect errors...")
+    print(f"Found {len(query_files)} query files, running lake build...")
 
     # Run lake build to get actual error information
     build_result = run_lake_build(project_root)
-    print("Analyzing query files...")
 
     # Analyze each file
     queries = []

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SQLite Query Verification Report</title>
+    <title>SQLite busy challenge</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
@@ -18,38 +18,41 @@
             margin: 0 auto;
         }
 
-        h1 {
-            text-align: center;
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .summary {
+        .header {
             display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
         }
 
-        .stat-card {
-            background: #f5f5f5;
-            padding: 20px 30px;
-            border-radius: 8px;
-            text-align: center;
-            min-width: 150px;
-            border: 1px solid #ddd;
+        .header-left {
+            display: flex;
+            align-items: baseline;
+            gap: 20px;
         }
 
-        .stat-card .number {
-            font-size: 2.5em;
-            font-weight: bold;
+        h1 {
+            margin: 0;
             color: #333;
         }
 
-        .stat-card .label {
+        .stats {
             color: #666;
-            margin-top: 5px;
+            font-size: 0.95em;
+        }
+
+        .header-right {
+            color: #999;
+            font-size: 0.85em;
+        }
+
+        .repo-link {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        .repo-link:hover {
+            text-decoration: underline;
         }
 
         table {
@@ -98,6 +101,15 @@
             white-space: nowrap;
         }
 
+        .query-name a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        .query-name a:hover {
+            text-decoration: underline;
+        }
+
         .sql-query {
             font-family: monospace;
             font-size: 0.85em;
@@ -106,11 +118,6 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-        }
-
-        .missing-opcodes {
-            font-family: monospace;
-            color: #8b0000;
         }
 
         .runtime {
@@ -126,67 +133,18 @@
         .pr-link:hover {
             text-decoration: underline;
         }
-
-        .filter-bar {
-            margin-bottom: 20px;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .filter-btn {
-            padding: 8px 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            cursor: pointer;
-            background: #fff;
-            color: #333;
-            transition: all 0.2s;
-        }
-
-        .filter-btn:hover {
-            background: #e0e0e0;
-        }
-
-        .filter-btn.active {
-            background: #333;
-            color: #fff;
-            border-color: #333;
-        }
-
-        .timestamp {
-            text-align: center;
-            color: #888;
-            margin-top: 20px;
-            font-size: 0.9em;
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>SQLite Query Verification Report</h1>
-
-        <div class="summary">
-            <div class="stat-card">
-                <div class="number">154</div>
-                <div class="label">Total Queries</div>
+        <div class="header">
+            <div class="header-left">
+                <h1>SQLite busy challenge</h1>
+                <span class="stats">31/154 formalized, 1/154 termination proved</span>
             </div>
-            <div class="stat-card">
-                <div class="number">31</div>
-                <div class="label">Formalized</div>
+            <div class="header-right">
+                <a class="repo-link" href="https://github.com/sivukhin/sqlite3-lean-proofs">https://github.com/sivukhin/sqlite3-lean-proofs</a> | Generated: 2026-01-25 18:33:34
             </div>
-            <div class="stat-card">
-                <div class="number">1</div>
-                <div class="label">Termination proved</div>
-            </div>
-        </div>
-
-        <div class="filter-bar">
-            <button class="filter-btn active" onclick="filterTable('all')">All</button>
-            <button class="filter-btn" onclick="filterTable('proved')">Proved</button>
-            <button class="filter-btn" onclick="filterTable('sorry')">With Sorry</button>
-            <button class="filter-btn" onclick="filterTable('opcodes-ok')">Opcodes OK</button>
-            <button class="filter-btn" onclick="filterTable('opcodes-missing')">Missing Opcodes</button>
         </div>
 
         <table id="query-table">
@@ -195,1278 +153,1401 @@
                     <th>#</th>
                     <th>Query File</th>
                     <th>SQL Query</th>
+                    <th>Formalized</th>
                     <th>Termination</th>
-                    <th>Opcodes</th>
                     <th>Gas Bound</th>
+                    <th>PR</th>
                 </tr>
             </thead>
             <tbody>
-                <tr data-status="proved" data-opcodes="opcodes-ok">
+                <tr>
                     <td>1</td>
-                    <td class="query-name">Example.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/Example.lean">Example.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM t">SELECT * FROM t</td>
                     <td class="status-yes">yes</td>
                     <td class="status-yes">yes</td>
                     <td><span class="runtime">10 * n + 9</span></td>
+                    <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
+                <tr>
                     <td>2</td>
-                    <td class="query-name">select1/Query000001.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000001.lean">select1/Query000001.lean</a></td>
                     <td class="sql-query" title="SELECT f1 FROM test1">SELECT f1 FROM test1</td>
-                    <td class="status-unknown">sorry</td>
                     <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
+                <tr>
                     <td>3</td>
-                    <td class="query-name">select1/Query000002.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000002.lean">select1/Query000002.lean</a></td>
                     <td class="sql-query" title="SELECT f2 FROM test1">SELECT f2 FROM test1</td>
-                    <td class="status-unknown">sorry</td>
                     <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
+                <tr>
                     <td>4</td>
-                    <td class="query-name">select1/Query000003.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000003.lean">select1/Query000003.lean</a></td>
                     <td class="sql-query" title="SELECT f2, f1 FROM test1">SELECT f2, f1 FROM test1</td>
-                    <td class="status-unknown">sorry</td>
                     <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
+                <tr>
                     <td>5</td>
-                    <td class="query-name">select1/Query000004.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000004.lean">select1/Query000004.lean</a></td>
                     <td class="sql-query" title="SELECT f1, f2 FROM test1">SELECT f1, f2 FROM test1</td>
-                    <td class="status-unknown">sorry</td>
                     <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
+                <tr>
                     <td>6</td>
-                    <td class="query-name">select1/Query000005.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000005.lean">select1/Query000005.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM test1">SELECT * FROM test1</td>
-                    <td class="status-unknown">sorry</td>
                     <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
+                <tr>
                     <td>7</td>
-                    <td class="query-name">select1/Query000006.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000006.lean">select1/Query000006.lean</a></td>
                     <td class="sql-query" title="SELECT *, * FROM test1">SELECT *, * FROM test1</td>
-                    <td class="status-unknown">sorry</td>
                     <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>8</td>
-                    <td class="query-name">select1/Query000007.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000007.lean">select1/Query000007.lean</a></td>
                     <td class="sql-query" title="SELECT *, min(f1,f2), max(f1,f2) FROM test1">SELECT *, min(f1,f2), max(f1,f2) FROM test1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
-                    <td>-</td>
-                </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
-                    <td>9</td>
-                    <td class="query-name">select1/Query000008.lean</td>
-                    <td class="sql-query" title="SELECT &#x27;one&#x27;, *, &#x27;two&#x27;, * FROM test1">SELECT &#x27;one&#x27;, *, &#x27;two&#x27;, * FROM test1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-yes">yes</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
+                    <td>9</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000008.lean">select1/Query000008.lean</a></td>
+                    <td class="sql-query" title="SELECT &#x27;one&#x27;, *, &#x27;two&#x27;, * FROM test1">SELECT &#x27;one&#x27;, *, &#x27;two&#x27;, * FROM test1</td>
+                    <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+                <tr>
                     <td>10</td>
-                    <td class="query-name">select1/Query000009.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000009.lean">select1/Query000009.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM test1, test2">SELECT * FROM test1, test2</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>11</td>
-                    <td class="query-name">select1/Query000010.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000010.lean">select1/Query000010.lean</a></td>
                     <td class="sql-query" title="SELECT *, &#x27;hi&#x27; FROM test1, test2">SELECT *, &#x27;hi&#x27; FROM test1, test2</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>12</td>
-                    <td class="query-name">select1/Query000011.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000011.lean">select1/Query000011.lean</a></td>
                     <td class="sql-query" title="SELECT &#x27;one&#x27;, *, &#x27;two&#x27;, * FROM test1, test2">SELECT &#x27;one&#x27;, *, &#x27;two&#x27;, * FROM test1, test2</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>13</td>
-                    <td class="query-name">select1/Query000012.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000012.lean">select1/Query000012.lean</a></td>
                     <td class="sql-query" title="SELECT test1.f1, test2.r1 FROM test1, test2">SELECT test1.f1, test2.r1 FROM test1, test2</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>14</td>
-                    <td class="query-name">select1/Query000013.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000013.lean">select1/Query000013.lean</a></td>
                     <td class="sql-query" title="SELECT test1.f1, test2.r1 FROM test2, test1">SELECT test1.f1, test2.r1 FROM test2, test1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>15</td>
-                    <td class="query-name">select1/Query000014.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000014.lean">select1/Query000014.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM test2, test1">SELECT * FROM test2, test1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
-                    <td>-</td>
-                </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
-                    <td>16</td>
-                    <td class="query-name">select1/Query000015.lean</td>
-                    <td class="sql-query" title="SELECT * FROM test1 AS a, test1 AS b">SELECT * FROM test1 AS a, test1 AS b</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-yes">yes</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
+                    <td>16</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000015.lean">select1/Query000015.lean</a></td>
+                    <td class="sql-query" title="SELECT * FROM test1 AS a, test1 AS b">SELECT * FROM test1 AS a, test1 AS b</td>
+                    <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+                <tr>
                     <td>17</td>
-                    <td class="query-name">select1/Query000016.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000016.lean">select1/Query000016.lean</a></td>
                     <td class="sql-query" title="SELECT max(test1.f1,test2.r1), min(test1.f2,test2.r2)">SELECT max(test1.f1,test2.r1), min(test1.f2,test2.r2)</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>18</td>
-                    <td class="query-name">select1/Query000017.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000017.lean">select1/Query000017.lean</a></td>
                     <td class="sql-query" title="SELECT min(test1.f1,test2.r1), max(test1.f2,test2.r2)">SELECT min(test1.f1,test2.r1), max(test1.f2,test2.r2)</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
+                <tr>
                     <td>19</td>
-                    <td class="query-name">select1/Query000018.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000018.lean">select1/Query000018.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM t3;">SELECT * FROM t3;</td>
-                    <td class="status-unknown">sorry</td>
                     <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
+                <tr>
                     <td>20</td>
-                    <td class="query-name">select1/Query000019.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000019.lean">select1/Query000019.lean</a></td>
                     <td class="sql-query" title="SELECT count(f1) FROM test1">SELECT count(f1) FROM test1</td>
-                    <td class="status-unknown">sorry</td>
                     <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>21</td>
-                    <td class="query-name">select1/Query000020.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000020.lean">select1/Query000020.lean</a></td>
                     <td class="sql-query" title="SELECT Count() FROM test1">SELECT Count() FROM test1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>22</td>
-                    <td class="query-name">select1/Query000021.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000021.lean">select1/Query000021.lean</a></td>
                     <td class="sql-query" title="SELECT COUNT(*) FROM test1">SELECT COUNT(*) FROM test1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>23</td>
-                    <td class="query-name">select1/Query000022.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000022.lean">select1/Query000022.lean</a></td>
                     <td class="sql-query" title="SELECT COUNT(*)+1 FROM test1">SELECT COUNT(*)+1 FROM test1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
+                <tr>
                     <td>24</td>
-                    <td class="query-name">select1/Query000023.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000023.lean">select1/Query000023.lean</a></td>
                     <td class="sql-query" title="SELECT count(*),count(a),count(b) FROM t3">SELECT count(*),count(a),count(b) FROM t3</td>
-                    <td class="status-unknown">sorry</td>
                     <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
+                <tr>
                     <td>25</td>
-                    <td class="query-name">select1/Query000024.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000024.lean">select1/Query000024.lean</a></td>
                     <td class="sql-query" title="SELECT count(*),count(a),count(b) FROM t4">SELECT count(*),count(a),count(b) FROM t4</td>
-                    <td class="status-unknown">sorry</td>
                     <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
+                <tr>
                     <td>26</td>
-                    <td class="query-name">select1/Query000025.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000025.lean">select1/Query000025.lean</a></td>
                     <td class="sql-query" title="SELECT count(*),count(a),count(b) FROM t4 WHERE b=5">SELECT count(*),count(a),count(b) FROM t4 WHERE b=5</td>
-                    <td class="status-unknown">sorry</td>
                     <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>27</td>
-                    <td class="query-name">select1/Query000026.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000026.lean">select1/Query000026.lean</a></td>
                     <td class="sql-query" title="SELECT Min(f1) FROM test1">SELECT Min(f1) FROM test1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>28</td>
-                    <td class="query-name">select1/Query000027.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000027.lean">select1/Query000027.lean</a></td>
                     <td class="sql-query" title="SELECT MIN(f1,f2) FROM test1">SELECT MIN(f1,f2) FROM test1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>29</td>
-                    <td class="query-name">select1/Query000028.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000028.lean">select1/Query000028.lean</a></td>
                     <td class="sql-query" title="SELECT coalesce(min(a),&#x27;xyzzy&#x27;) FROM t3">SELECT coalesce(min(a),&#x27;xyzzy&#x27;) FROM t3</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>30</td>
-                    <td class="query-name">select1/Query000029.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000029.lean">select1/Query000029.lean</a></td>
                     <td class="sql-query" title="SELECT min(coalesce(a,&#x27;xyzzy&#x27;)) FROM t3">SELECT min(coalesce(a,&#x27;xyzzy&#x27;)) FROM t3</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>31</td>
-                    <td class="query-name">select1/Query000030.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000030.lean">select1/Query000030.lean</a></td>
                     <td class="sql-query" title="SELECT min(b), min(b) FROM t4">SELECT min(b), min(b) FROM t4</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>32</td>
-                    <td class="query-name">select1/Query000031.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000031.lean">select1/Query000031.lean</a></td>
                     <td class="sql-query" title="SELECT Max(f1) FROM test1">SELECT Max(f1) FROM test1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>33</td>
-                    <td class="query-name">select1/Query000032.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000032.lean">select1/Query000032.lean</a></td>
                     <td class="sql-query" title="SELECT max(f1,f2) FROM test1">SELECT max(f1,f2) FROM test1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>34</td>
-                    <td class="query-name">select1/Query000033.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000033.lean">select1/Query000033.lean</a></td>
                     <td class="sql-query" title="SELECT MAX(f1,f2)+1 FROM test1">SELECT MAX(f1,f2)+1 FROM test1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>35</td>
-                    <td class="query-name">select1/Query000034.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000034.lean">select1/Query000034.lean</a></td>
                     <td class="sql-query" title="SELECT MAX(f1)+1 FROM test1">SELECT MAX(f1)+1 FROM test1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>36</td>
-                    <td class="query-name">select1/Query000035.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000035.lean">select1/Query000035.lean</a></td>
                     <td class="sql-query" title="SELECT coalesce(max(a),&#x27;xyzzy&#x27;) FROM t3">SELECT coalesce(max(a),&#x27;xyzzy&#x27;) FROM t3</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>37</td>
-                    <td class="query-name">select1/Query000036.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000036.lean">select1/Query000036.lean</a></td>
                     <td class="sql-query" title="SELECT max(coalesce(a,&#x27;xyzzy&#x27;)) FROM t3">SELECT max(coalesce(a,&#x27;xyzzy&#x27;)) FROM t3</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
-                    <td>-</td>
-                </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
-                    <td>38</td>
-                    <td class="query-name">select1/Query000037.lean</td>
-                    <td class="sql-query" title="SELECT Sum(f1) FROM test1">SELECT Sum(f1) FROM test1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-yes">yes</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
+                    <td>38</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000037.lean">select1/Query000037.lean</a></td>
+                    <td class="sql-query" title="SELECT Sum(f1) FROM test1">SELECT Sum(f1) FROM test1</td>
+                    <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+                <tr>
                     <td>39</td>
-                    <td class="query-name">select1/Query000038.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000038.lean">select1/Query000038.lean</a></td>
                     <td class="sql-query" title="SELECT SUM(f1)+1 FROM test1">SELECT SUM(f1)+1 FROM test1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
-                    <td>-</td>
-                </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
-                    <td>40</td>
-                    <td class="query-name">select1/Query000039.lean</td>
-                    <td class="sql-query" title="SELECT sum(a) FROM t3">SELECT sum(a) FROM t3</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-yes">yes</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
+                    <td>40</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000039.lean">select1/Query000039.lean</a></td>
+                    <td class="sql-query" title="SELECT sum(a) FROM t3">SELECT sum(a) FROM t3</td>
+                    <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+                <tr>
                     <td>41</td>
-                    <td class="query-name">select1/Query000040.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000040.lean">select1/Query000040.lean</a></td>
                     <td class="sql-query" title="SELECT SUM(min(f1,f2)) FROM test1">SELECT SUM(min(f1,f2)) FROM test1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>42</td>
-                    <td class="query-name">select1/Query000041.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000041.lean">select1/Query000041.lean</a></td>
                     <td class="sql-query" title="SELECT f1 FROM test1 WHERE f1&lt;11">SELECT f1 FROM test1 WHERE f1&lt;11</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>43</td>
-                    <td class="query-name">select1/Query000042.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000042.lean">select1/Query000042.lean</a></td>
                     <td class="sql-query" title="SELECT f1 FROM test1 WHERE f1&lt;=11">SELECT f1 FROM test1 WHERE f1&lt;=11</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
-                    <td>-</td>
-                </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
-                    <td>44</td>
-                    <td class="query-name">select1/Query000043.lean</td>
-                    <td class="sql-query" title="SELECT f1 FROM test1 WHERE f1=11">SELECT f1 FROM test1 WHERE f1=11</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-yes">yes</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
+                    <td>44</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000043.lean">select1/Query000043.lean</a></td>
+                    <td class="sql-query" title="SELECT f1 FROM test1 WHERE f1=11">SELECT f1 FROM test1 WHERE f1=11</td>
+                    <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+                <tr>
                     <td>45</td>
-                    <td class="query-name">select1/Query000044.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000044.lean">select1/Query000044.lean</a></td>
                     <td class="sql-query" title="SELECT f1 FROM test1 WHERE f1&gt;=11">SELECT f1 FROM test1 WHERE f1&gt;=11</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>46</td>
-                    <td class="query-name">select1/Query000045.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000045.lean">select1/Query000045.lean</a></td>
                     <td class="sql-query" title="SELECT f1 FROM test1 WHERE f1&gt;11">SELECT f1 FROM test1 WHERE f1&gt;11</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
-                    <td>-</td>
-                </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
-                    <td>47</td>
-                    <td class="query-name">select1/Query000046.lean</td>
-                    <td class="sql-query" title="SELECT f1 FROM test1 WHERE f1!=11">SELECT f1 FROM test1 WHERE f1!=11</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-yes">yes</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
+                    <td>47</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000046.lean">select1/Query000046.lean</a></td>
+                    <td class="sql-query" title="SELECT f1 FROM test1 WHERE f1!=11">SELECT f1 FROM test1 WHERE f1!=11</td>
+                    <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+                <tr>
                     <td>48</td>
-                    <td class="query-name">select1/Query000047.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000047.lean">select1/Query000047.lean</a></td>
                     <td class="sql-query" title="SELECT f1 FROM test1 WHERE min(f1,f2)!=11">SELECT f1 FROM test1 WHERE min(f1,f2)!=11</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>49</td>
-                    <td class="query-name">select1/Query000048.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000048.lean">select1/Query000048.lean</a></td>
                     <td class="sql-query" title="SELECT f1 FROM test1 WHERE max(f1,f2)!=11">SELECT f1 FROM test1 WHERE max(f1,f2)!=11</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>50</td>
-                    <td class="query-name">select1/Query000049.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000049.lean">select1/Query000049.lean</a></td>
                     <td class="sql-query" title="SELECT f1 FROM test1 ORDER BY f1">SELECT f1 FROM test1 ORDER BY f1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>51</td>
-                    <td class="query-name">select1/Query000050.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000050.lean">select1/Query000050.lean</a></td>
                     <td class="sql-query" title="SELECT f1 FROM test1 ORDER BY -f1">SELECT f1 FROM test1 ORDER BY -f1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>52</td>
-                    <td class="query-name">select1/Query000051.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000051.lean">select1/Query000051.lean</a></td>
                     <td class="sql-query" title="SELECT f1 FROM test1 ORDER BY min(f1,f2)">SELECT f1 FROM test1 ORDER BY min(f1,f2)</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>53</td>
-                    <td class="query-name">select1/Query000052.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000052.lean">select1/Query000052.lean</a></td>
                     <td class="sql-query" title="SELECT f1 FROM test1 ORDER BY 8.4">SELECT f1 FROM test1 ORDER BY 8.4</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>54</td>
-                    <td class="query-name">select1/Query000053.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000053.lean">select1/Query000053.lean</a></td>
                     <td class="sql-query" title="SELECT f1 FROM test1 ORDER BY &#x27;8.4&#x27;">SELECT f1 FROM test1 ORDER BY &#x27;8.4&#x27;</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>55</td>
-                    <td class="query-name">select1/Query000054.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000054.lean">select1/Query000054.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM t5 ORDER BY 1;">SELECT * FROM t5 ORDER BY 1;</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>56</td>
-                    <td class="query-name">select1/Query000055.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000055.lean">select1/Query000055.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM t5 ORDER BY 2;">SELECT * FROM t5 ORDER BY 2;</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>57</td>
-                    <td class="query-name">select1/Query000056.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000056.lean">select1/Query000056.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM t5 ORDER BY +2;">SELECT * FROM t5 ORDER BY +2;</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>58</td>
-                    <td class="query-name">select1/Query000057.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000057.lean">select1/Query000057.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM t5 ORDER BY 2, 1 DESC;">SELECT * FROM t5 ORDER BY 2, 1 DESC;</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>59</td>
-                    <td class="query-name">select1/Query000058.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000058.lean">select1/Query000058.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM t5 ORDER BY 1 DESC, b;">SELECT * FROM t5 ORDER BY 1 DESC, b;</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>60</td>
-                    <td class="query-name">select1/Query000059.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000059.lean">select1/Query000059.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM t5 ORDER BY b DESC, 1;">SELECT * FROM t5 ORDER BY b DESC, 1;</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>61</td>
-                    <td class="query-name">select1/Query000060.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000060.lean">select1/Query000060.lean</a></td>
                     <td class="sql-query" title="SELECT max(f1) FROM test1 ORDER BY f2">SELECT max(f1) FROM test1 ORDER BY f2</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>62</td>
-                    <td class="query-name">select1/Query000061.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000061.lean">select1/Query000061.lean</a></td>
                     <td class="sql-query" title="SELECT f1 FROM test1 ORDER BY f2">SELECT f1 FROM test1 ORDER BY f2</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>63</td>
-                    <td class="query-name">select1/Query000062.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000062.lean">select1/Query000062.lean</a></td>
                     <td class="sql-query" title="SELECT f1 FROM test1 ORDER BY f2">SELECT f1 FROM test1 ORDER BY f2</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>64</td>
-                    <td class="query-name">select1/Query000063.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000063.lean">select1/Query000063.lean</a></td>
                     <td class="sql-query" title="SELECT f1 as &#x27;f1&#x27; FROM test1 ORDER BY f2">SELECT f1 as &#x27;f1&#x27; FROM test1 ORDER BY f2</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
+                <tr>
                     <td>65</td>
-                    <td class="query-name">select1/Query000064.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000064.lean">select1/Query000064.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM test1 WHERE f1==11">SELECT * FROM test1 WHERE f1==11</td>
-                    <td class="status-unknown">sorry</td>
                     <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>66</td>
-                    <td class="query-name">select1/Query000065.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000065.lean">select1/Query000065.lean</a></td>
                     <td class="sql-query" title="SELECT DISTINCT * FROM test1 WHERE f1==11">SELECT DISTINCT * FROM test1 WHERE f1==11</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
+                <tr>
                     <td>67</td>
-                    <td class="query-name">select1/Query000066.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000066.lean">select1/Query000066.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM test1 WHERE f1==11">SELECT * FROM test1 WHERE f1==11</td>
-                    <td class="status-unknown">sorry</td>
                     <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>68</td>
-                    <td class="query-name">select1/Query000067.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000067.lean">select1/Query000067.lean</a></td>
                     <td class="sql-query" title="SELECT DISTINCT * FROM test1 WHERE f1==11">SELECT DISTINCT * FROM test1 WHERE f1==11</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>69</td>
-                    <td class="query-name">select1/Query000068.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000068.lean">select1/Query000068.lean</a></td>
                     <td class="sql-query" title="SELECT f1 as xyzzy FROM test1 ORDER BY f2">SELECT f1 as xyzzy FROM test1 ORDER BY f2</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>70</td>
-                    <td class="query-name">select1/Query000069.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000069.lean">select1/Query000069.lean</a></td>
                     <td class="sql-query" title="SELECT f1 as &quot;xyzzy&quot; FROM test1 ORDER BY f2">SELECT f1 as &quot;xyzzy&quot; FROM test1 ORDER BY f2</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>71</td>
-                    <td class="query-name">select1/Query000070.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000070.lean">select1/Query000070.lean</a></td>
                     <td class="sql-query" title="SELECT f1 as &#x27;xyzzy &#x27; FROM test1 ORDER BY f2">SELECT f1 as &#x27;xyzzy &#x27; FROM test1 ORDER BY f2</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>72</td>
-                    <td class="query-name">select1/Query000071.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000071.lean">select1/Query000071.lean</a></td>
                     <td class="sql-query" title="SELECT f1+F2 as xyzzy FROM test1 ORDER BY f2">SELECT f1+F2 as xyzzy FROM test1 ORDER BY f2</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>73</td>
-                    <td class="query-name">select1/Query000072.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000072.lean">select1/Query000072.lean</a></td>
                     <td class="sql-query" title="SELECT f1+F2 FROM test1 ORDER BY f2">SELECT f1+F2 FROM test1 ORDER BY f2</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>74</td>
-                    <td class="query-name">select1/Query000073.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000073.lean">select1/Query000073.lean</a></td>
                     <td class="sql-query" title="SELECT test1.f1+F2 FROM test1 ORDER BY f2">SELECT test1.f1+F2 FROM test1 ORDER BY f2</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>75</td>
-                    <td class="query-name">select1/Query000074.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000074.lean">select1/Query000074.lean</a></td>
                     <td class="sql-query" title="SELECT test1.f1+F2 FROM test1 ORDER BY f2">SELECT test1.f1+F2 FROM test1 ORDER BY f2</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>76</td>
-                    <td class="query-name">select1/Query000075.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000075.lean">select1/Query000075.lean</a></td>
                     <td class="sql-query" title="SELECT test1.f1+F2, t1 FROM test1, test2">SELECT test1.f1+F2, t1 FROM test1, test2</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>77</td>
-                    <td class="query-name">select1/Query000076.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000076.lean">select1/Query000076.lean</a></td>
                     <td class="sql-query" title="SELECT A.f1, t1 FROM test1 as A, test2">SELECT A.f1, t1 FROM test1 as A, test2</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>78</td>
-                    <td class="query-name">select1/Query000077.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000077.lean">select1/Query000077.lean</a></td>
                     <td class="sql-query" title="SELECT A.f1, B.f1 FROM test1 as A, test1 as B">SELECT A.f1, B.f1 FROM test1 as A, test1 as B</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>79</td>
-                    <td class="query-name">select1/Query000078.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000078.lean">select1/Query000078.lean</a></td>
                     <td class="sql-query" title="SELECT test1 . f1, test1 . f2 FROM test1 LIMIT 1">SELECT test1 . f1, test1 . f2 FROM test1 LIMIT 1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>80</td>
-                    <td class="query-name">select1/Query000079.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000079.lean">select1/Query000079.lean</a></td>
                     <td class="sql-query" title="SELECT test1 . f1, test1 . f2 FROM test1 LIMIT 1">SELECT test1 . f1, test1 . f2 FROM test1 LIMIT 1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>81</td>
-                    <td class="query-name">select1/Query000080.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000080.lean">select1/Query000080.lean</a></td>
                     <td class="sql-query" title="SELECT 123.45;">SELECT 123.45;</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>82</td>
-                    <td class="query-name">select1/Query000081.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000081.lean">select1/Query000081.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM test1 a, test1 b LIMIT 1">SELECT * FROM test1 a, test1 b LIMIT 1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>83</td>
-                    <td class="query-name">select1/Query000082.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000082.lean">select1/Query000082.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM test1 a, (select 5, 6) LIMIT 1">SELECT * FROM test1 a, (select 5, 6) LIMIT 1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>84</td>
-                    <td class="query-name">select1/Query000083.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000083.lean">select1/Query000083.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM test1 a, (select 5 AS x, 6 AS y) AS b LIMIT 1">SELECT * FROM test1 a, (select 5 AS x, 6 AS y) AS b LIMIT 1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>85</td>
-                    <td class="query-name">select1/Query000084.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000084.lean">select1/Query000084.lean</a></td>
                     <td class="sql-query" title="SELECT a.f1, b.f2 FROM test1 a, test1 b LIMIT 1">SELECT a.f1, b.f2 FROM test1 a, test1 b LIMIT 1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>86</td>
-                    <td class="query-name">select1/Query000085.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000085.lean">select1/Query000085.lean</a></td>
                     <td class="sql-query" title="SELECT f1, t1 FROM test1, test2 LIMIT 1">SELECT f1, t1 FROM test1, test2 LIMIT 1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>87</td>
-                    <td class="query-name">select1/Query000086.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000086.lean">select1/Query000086.lean</a></td>
                     <td class="sql-query" title="SELECT a.f1, b.f2 FROM test1 a, test1 b LIMIT 1">SELECT a.f1, b.f2 FROM test1 a, test1 b LIMIT 1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>88</td>
-                    <td class="query-name">select1/Query000087.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000087.lean">select1/Query000087.lean</a></td>
                     <td class="sql-query" title="SELECT f1, t1 FROM test1, test2 LIMIT 1">SELECT f1, t1 FROM test1, test2 LIMIT 1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>89</td>
-                    <td class="query-name">select1/Query000088.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000088.lean">select1/Query000088.lean</a></td>
                     <td class="sql-query" title="SELECT a.f1, b.f1 FROM test1 a, test1 b LIMIT 1">SELECT a.f1, b.f1 FROM test1 a, test1 b LIMIT 1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>90</td>
-                    <td class="query-name">select1/Query000089.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000089.lean">select1/Query000089.lean</a></td>
                     <td class="sql-query" title="SELECT f1, t1 FROM test1, test2 LIMIT 1">SELECT f1, t1 FROM test1, test2 LIMIT 1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>91</td>
-                    <td class="query-name">select1/Query000090.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000090.lean">select1/Query000090.lean</a></td>
                     <td class="sql-query" title="SELECT a.f1, b.f1 FROM test1 a, test1 b LIMIT 1">SELECT a.f1, b.f1 FROM test1 a, test1 b LIMIT 1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>92</td>
-                    <td class="query-name">select1/Query000091.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000091.lean">select1/Query000091.lean</a></td>
                     <td class="sql-query" title="SELECT f1, t1 FROM test1, test2 LIMIT 1">SELECT f1, t1 FROM test1, test2 LIMIT 1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>93</td>
-                    <td class="query-name">select1/Query000092.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000092.lean">select1/Query000092.lean</a></td>
                     <td class="sql-query" title="SELECT f1 FROM test1 UNION SELECT f2 FROM test1">SELECT f1 FROM test1 UNION SELECT f2 FROM test1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>94</td>
-                    <td class="query-name">select1/Query000093.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000093.lean">select1/Query000093.lean</a></td>
                     <td class="sql-query" title="SELECT a FROM t6 WHERE b IN">SELECT a FROM t6 WHERE b IN</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>95</td>
-                    <td class="query-name">select1/Query000094.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000094.lean">select1/Query000094.lean</a></td>
                     <td class="sql-query" title="SELECT a FROM t6 WHERE b IN">SELECT a FROM t6 WHERE b IN</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>96</td>
-                    <td class="query-name">select1/Query000095.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000095.lean">select1/Query000095.lean</a></td>
                     <td class="sql-query" title="SELECT a FROM t6 WHERE b IN">SELECT a FROM t6 WHERE b IN</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>97</td>
-                    <td class="query-name">select1/Query000096.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000096.lean">select1/Query000096.lean</a></td>
                     <td class="sql-query" title="SELECT a FROM t6 WHERE b IN">SELECT a FROM t6 WHERE b IN</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>98</td>
-                    <td class="query-name">select1/Query000097.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000097.lean">select1/Query000097.lean</a></td>
                     <td class="sql-query" title="SELECT f1 FROM test1 WHERE 4.3+2.4 OR 1 ORDER BY f1">SELECT f1 FROM test1 WHERE 4.3+2.4 OR 1 ORDER BY f1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>99</td>
-                    <td class="query-name">select1/Query000098.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000098.lean">select1/Query000098.lean</a></td>
                     <td class="sql-query" title="SELECT f1 FROM test1 WHERE (&#x27;x&#x27; || f1) BETWEEN &#x27;x10&#x27; AND &#x27;x20&#x27;">SELECT f1 FROM test1 WHERE (&#x27;x&#x27; || f1) BETWEEN &#x27;x10&#x27; AND &#x27;x20&#x27;</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>100</td>
-                    <td class="query-name">select1/Query000099.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000099.lean">select1/Query000099.lean</a></td>
                     <td class="sql-query" title="SELECT f1 FROM test1 WHERE 5-3==2">SELECT f1 FROM test1 WHERE 5-3==2</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>101</td>
-                    <td class="query-name">select1/Query000100.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000100.lean">select1/Query000100.lean</a></td>
                     <td class="sql-query" title="SELECT min(1,2,3), -max(1,2,3)">SELECT min(1,2,3), -max(1,2,3)</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>102</td>
-                    <td class="query-name">select1/Query000101.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000101.lean">select1/Query000101.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM test1 WHERE f1&lt;0">SELECT * FROM test1 WHERE f1&lt;0</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>103</td>
-                    <td class="query-name">select1/Query000102.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000102.lean">select1/Query000102.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM test1 WHERE f1&lt;(select count(*) from test2)">SELECT * FROM test1 WHERE f1&lt;(select count(*) from test2)</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>104</td>
-                    <td class="query-name">select1/Query000103.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000103.lean">select1/Query000103.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM test1 ORDER BY f1">SELECT * FROM test1 ORDER BY f1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>105</td>
-                    <td class="query-name">select1/Query000104.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000104.lean">select1/Query000104.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM test1 WHERE f1&lt;0 ORDER BY f1">SELECT * FROM test1 WHERE f1&lt;0 ORDER BY f1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>106</td>
-                    <td class="query-name">select1/Query000105.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000105.lean">select1/Query000105.lean</a></td>
                     <td class="sql-query" title="SELECT f1 AS x FROM test1 ORDER BY x">SELECT f1 AS x FROM test1 ORDER BY x</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>107</td>
-                    <td class="query-name">select1/Query000106.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000106.lean">select1/Query000106.lean</a></td>
                     <td class="sql-query" title="SELECT f1 AS x FROM test1 ORDER BY -x">SELECT f1 AS x FROM test1 ORDER BY -x</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>108</td>
-                    <td class="query-name">select1/Query000107.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000107.lean">select1/Query000107.lean</a></td>
                     <td class="sql-query" title="SELECT f1-23 AS x FROM test1 ORDER BY abs(x)">SELECT f1-23 AS x FROM test1 ORDER BY abs(x)</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>109</td>
-                    <td class="query-name">select1/Query000108.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000108.lean">select1/Query000108.lean</a></td>
                     <td class="sql-query" title="SELECT f1-23 AS x FROM test1 ORDER BY -abs(x)">SELECT f1-23 AS x FROM test1 ORDER BY -abs(x)</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>110</td>
-                    <td class="query-name">select1/Query000109.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000109.lean">select1/Query000109.lean</a></td>
                     <td class="sql-query" title="SELECT f1-22 AS x, f2-22 as y FROM test1">SELECT f1-22 AS x, f2-22 as y FROM test1</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>111</td>
-                    <td class="query-name">select1/Query000110.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000110.lean">select1/Query000110.lean</a></td>
                     <td class="sql-query" title="SELECT f1-22 AS x, f2-22 as y FROM test1 WHERE x&gt;0 AND y&lt;50">SELECT f1-22 AS x, f2-22 as y FROM test1 WHERE x&gt;0 AND y&lt;50</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>112</td>
-                    <td class="query-name">select1/Query000111.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000111.lean">select1/Query000111.lean</a></td>
                     <td class="sql-query" title="SELECT f1 COLLATE nocase AS x FROM test1 ORDER BY x">SELECT f1 COLLATE nocase AS x FROM test1 ORDER BY x</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
+                <tr>
                     <td>113</td>
-                    <td class="query-name">select1/Query000112.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000112.lean">select1/Query000112.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM t3, t4;">SELECT * FROM t3, t4;</td>
-                    <td class="status-unknown">sorry</td>
                     <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
+                <tr>
                     <td>114</td>
-                    <td class="query-name">select1/Query000113.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000113.lean">select1/Query000113.lean</a></td>
                     <td class="sql-query" title="SELECT t3.*, t4.b FROM t3, t4;">SELECT t3.*, t4.b FROM t3, t4;</td>
-                    <td class="status-unknown">sorry</td>
                     <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
+                <tr>
                     <td>115</td>
-                    <td class="query-name">select1/Query000114.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000114.lean">select1/Query000114.lean</a></td>
                     <td class="sql-query" title="SELECT &quot;t3&quot;.*, t4.b FROM t3, t4;">SELECT &quot;t3&quot;.*, t4.b FROM t3, t4;</td>
-                    <td class="status-unknown">sorry</td>
                     <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
+                <tr>
                     <td>116</td>
-                    <td class="query-name">select1/Query000115.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000115.lean">select1/Query000115.lean</a></td>
                     <td class="sql-query" title="SELECT x.*, y.b FROM t3 AS x, t4 AS y;">SELECT x.*, y.b FROM t3 AS x, t4 AS y;</td>
-                    <td class="status-unknown">sorry</td>
                     <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
+                <tr>
                     <td>117</td>
-                    <td class="query-name">select1/Query000116.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000116.lean">select1/Query000116.lean</a></td>
                     <td class="sql-query" title="SELECT t3.b, t4.* FROM t3, t4;">SELECT t3.b, t4.* FROM t3, t4;</td>
-                    <td class="status-unknown">sorry</td>
                     <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
+                <tr>
                     <td>118</td>
-                    <td class="query-name">select1/Query000117.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000117.lean">select1/Query000117.lean</a></td>
                     <td class="sql-query" title="SELECT x.b, y.* FROM t3 AS x, t4 AS y;">SELECT x.b, y.* FROM t3 AS x, t4 AS y;</td>
-                    <td class="status-unknown">sorry</td>
                     <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>119</td>
-                    <td class="query-name">select1/Query000118.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000118.lean">select1/Query000118.lean</a></td>
                     <td class="sql-query" title="SELECT t3.* FROM t3, (SELECT max(a), max(b) FROM t4)">SELECT t3.* FROM t3, (SELECT max(a), max(b) FROM t4)</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>120</td>
-                    <td class="query-name">select1/Query000119.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000119.lean">select1/Query000119.lean</a></td>
                     <td class="sql-query" title="SELECT t3.* FROM (SELECT max(a), max(b) FROM t4), t3">SELECT t3.* FROM (SELECT max(a), max(b) FROM t4), t3</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>121</td>
-                    <td class="query-name">select1/Query000120.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000120.lean">select1/Query000120.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM t3, (SELECT max(a), max(b) FROM t4) AS &#x27;tx&#x27;">SELECT * FROM t3, (SELECT max(a), max(b) FROM t4) AS &#x27;tx&#x27;</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>122</td>
-                    <td class="query-name">select1/Query000121.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000121.lean">select1/Query000121.lean</a></td>
                     <td class="sql-query" title="SELECT y.*, t3.* FROM t3, (SELECT max(a), max(b) FROM t4) AS y">SELECT y.*, t3.* FROM t3, (SELECT max(a), max(b) FROM t4) AS y</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
-                    <td>-</td>
-                </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
-                    <td>123</td>
-                    <td class="query-name">select1/Query000122.lean</td>
-                    <td class="sql-query" title="SELECT y.* FROM t3 as y, t4 as z">SELECT y.* FROM t3 as y, t4 as z</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-yes">yes</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
+                    <td>123</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000122.lean">select1/Query000122.lean</a></td>
+                    <td class="sql-query" title="SELECT y.* FROM t3 as y, t4 as z">SELECT y.* FROM t3 as y, t4 as z</td>
+                    <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+                <tr>
                     <td>124</td>
-                    <td class="query-name">select1/Query000123.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000123.lean">select1/Query000123.lean</a></td>
                     <td class="sql-query" title="SELECT 1+2+3">SELECT 1+2+3</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
+                <tr>
                     <td>125</td>
-                    <td class="query-name">select1/Query000124.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000124.lean">select1/Query000124.lean</a></td>
                     <td class="sql-query" title="SELECT 1,&#x27;hello&#x27;,2">SELECT 1,&#x27;hello&#x27;,2</td>
-                    <td class="status-unknown">sorry</td>
                     <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
+                <tr>
                     <td>126</td>
-                    <td class="query-name">select1/Query000125.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000125.lean">select1/Query000125.lean</a></td>
                     <td class="sql-query" title="SELECT 1 AS &#x27;a&#x27;,&#x27;hello&#x27; AS &#x27;b&#x27;,2 AS &#x27;c&#x27;">SELECT 1 AS &#x27;a&#x27;,&#x27;hello&#x27; AS &#x27;b&#x27;,2 AS &#x27;c&#x27;</td>
-                    <td class="status-unknown">sorry</td>
                     <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>127</td>
-                    <td class="query-name">select1/Query000126.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000126.lean">select1/Query000126.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM t3 UNION SELECT 3 AS &#x27;a&#x27;, 4 ORDER BY a;">SELECT * FROM t3 UNION SELECT 3 AS &#x27;a&#x27;, 4 ORDER BY a;</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>128</td>
-                    <td class="query-name">select1/Query000127.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000127.lean">select1/Query000127.lean</a></td>
                     <td class="sql-query" title="SELECT 3, 4 UNION SELECT * FROM t3;">SELECT 3, 4 UNION SELECT * FROM t3;</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>129</td>
-                    <td class="query-name">select1/Query000128.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000128.lean">select1/Query000128.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM t3 WHERE a=(SELECT 1);">SELECT * FROM t3 WHERE a=(SELECT 1);</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>130</td>
-                    <td class="query-name">select1/Query000129.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000129.lean">select1/Query000129.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM t3 WHERE a=(SELECT 2);">SELECT * FROM t3 WHERE a=(SELECT 2);</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>131</td>
-                    <td class="query-name">select1/Query000130.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000130.lean">select1/Query000130.lean</a></td>
                     <td class="sql-query" title="SELECT x FROM (">SELECT x FROM (</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>132</td>
-                    <td class="query-name">select1/Query000131.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000131.lean">select1/Query000131.lean</a></td>
                     <td class="sql-query" title="SELECT z.x FROM (">SELECT z.x FROM (</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>133</td>
-                    <td class="query-name">select1/Query000132.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000132.lean">select1/Query000132.lean</a></td>
                     <td class="sql-query" title="SELECT count(">SELECT count(</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
-                    <td>-</td>
-                </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
-                    <td>134</td>
-                    <td class="query-name">select1/Query000133.lean</td>
-                    <td class="sql-query" title="SELECT name FROM sqlite_master WHERE type = &#x27;table&#x27;">SELECT name FROM sqlite_master WHERE type = &#x27;table&#x27;</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-yes">yes</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
+                    <td>134</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000133.lean">select1/Query000133.lean</a></td>
+                    <td class="sql-query" title="SELECT name FROM sqlite_master WHERE type = &#x27;table&#x27;">SELECT name FROM sqlite_master WHERE type = &#x27;table&#x27;</td>
+                    <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+                <tr>
                     <td>135</td>
-                    <td class="query-name">select1/Query000134.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000134.lean">select1/Query000134.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM sqlite_master WHERE rowid&gt;10;">SELECT * FROM sqlite_master WHERE rowid&gt;10;</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>136</td>
-                    <td class="query-name">select1/Query000135.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000135.lean">select1/Query000135.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM sqlite_master WHERE rowid=10;">SELECT * FROM sqlite_master WHERE rowid=10;</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>137</td>
-                    <td class="query-name">select1/Query000136.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000136.lean">select1/Query000136.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM sqlite_master WHERE rowid&lt;10;">SELECT * FROM sqlite_master WHERE rowid&lt;10;</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>138</td>
-                    <td class="query-name">select1/Query000137.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000137.lean">select1/Query000137.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM sqlite_master WHERE rowid&lt;=10;">SELECT * FROM sqlite_master WHERE rowid&lt;=10;</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>139</td>
-                    <td class="query-name">select1/Query000138.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000138.lean">select1/Query000138.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM sqlite_master WHERE rowid&gt;=10;">SELECT * FROM sqlite_master WHERE rowid&gt;=10;</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
-                    <td>-</td>
-                </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-ok">
-                    <td>140</td>
-                    <td class="query-name">select1/Query000139.lean</td>
-                    <td class="sql-query" title="SELECT * FROM sqlite_master;">SELECT * FROM sqlite_master;</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-yes">yes</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
+                    <td>140</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000139.lean">select1/Query000139.lean</a></td>
+                    <td class="sql-query" title="SELECT * FROM sqlite_master;">SELECT * FROM sqlite_master;</td>
+                    <td class="status-yes">yes</td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+                <tr>
                     <td>141</td>
-                    <td class="query-name">select1/Query000140.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000140.lean">select1/Query000140.lean</a></td>
                     <td class="sql-query" title="SELECT 10 IN (SELECT rowid FROM sqlite_master);">SELECT 10 IN (SELECT rowid FROM sqlite_master);</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>142</td>
-                    <td class="query-name">select1/Query000141.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000141.lean">select1/Query000141.lean</a></td>
                     <td class="sql-query" title="SELECT 2 IN (SELECT a FROM t1)">SELECT 2 IN (SELECT a FROM t1)</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>143</td>
-                    <td class="query-name">select1/Query000142.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000142.lean">select1/Query000142.lean</a></td>
                     <td class="sql-query" title="SELECT 2 IN (SELECT a FROM t1)">SELECT 2 IN (SELECT a FROM t1)</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>144</td>
-                    <td class="query-name">select1/Query000143.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000143.lean">select1/Query000143.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM t1,(SELECT * FROM t2 WHERE y=2 ORDER BY y,z);">SELECT * FROM t1,(SELECT * FROM t2 WHERE y=2 ORDER BY y,z);</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>145</td>
-                    <td class="query-name">select1/Query000144.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000144.lean">select1/Query000144.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM t1,(SELECT * FROM t2 WHERE y=2 ORDER BY y,z LIMIT 4);">SELECT * FROM t1,(SELECT * FROM t2 WHERE y=2 ORDER BY y,z LIMIT 4);</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>146</td>
-                    <td class="query-name">select1/Query000145.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000145.lean">select1/Query000145.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM t1,(SELECT * FROM t2 WHERE y=2">SELECT * FROM t1,(SELECT * FROM t2 WHERE y=2</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>147</td>
-                    <td class="query-name">select1/Query000146.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000146.lean">select1/Query000146.lean</a></td>
                     <td class="sql-query" title="SELECT x FROM t2, t1 WHERE x BETWEEN c AND null OR x AND">SELECT x FROM t2, t1 WHERE x BETWEEN c AND null OR x AND</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>148</td>
-                    <td class="query-name">select1/Query000147.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000147.lean">select1/Query000147.lean</a></td>
                     <td class="sql-query" title="SELECT x FROM t2, t1 WHERE x BETWEEN c AND (c+1) OR x AND">SELECT x FROM t2, t1 WHERE x BETWEEN c AND (c+1) OR x AND</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>149</td>
-                    <td class="query-name">select1/Query000148.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000148.lean">select1/Query000148.lean</a></td>
                     <td class="sql-query" title="SELECT 1 FROM t1 WHERE (">SELECT 1 FROM t1 WHERE (</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>150</td>
-                    <td class="query-name">select1/Query000149.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000149.lean">select1/Query000149.lean</a></td>
                     <td class="sql-query" title="SELECT 1 FROM t1, t2 WHERE (">SELECT 1 FROM t1, t2 WHERE (</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>151</td>
-                    <td class="query-name">select1/Query000150.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000150.lean">select1/Query000150.lean</a></td>
                     <td class="sql-query" title="SELECT*FROM&quot;main&quot;.&quot;t1&quot;">SELECT*FROM&quot;main&quot;.&quot;t1&quot;</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>152</td>
-                    <td class="query-name">select1/Query000151.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000151.lean">select1/Query000151.lean</a></td>
                     <td class="sql-query" title="SELECT * FROM t1 JOIN t1 USING(a,b)">SELECT * FROM t1 JOIN t1 USING(a,b)</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>153</td>
-                    <td class="query-name">select1/Query000152.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000152.lean">select1/Query000152.lean</a></td>
                     <td class="sql-query" title="SELECT ifnull(a, max((SELECT 123))), count(a) FROM t1 ;">SELECT ifnull(a, max((SELECT 123))), count(a) FROM t1 ;</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
-                <tr data-status="sorry" data-opcodes="opcodes-missing">
+                <tr>
                     <td>154</td>
-                    <td class="query-name">select1/Query000153.lean</td>
+                    <td class="query-name"><a href="https://github.com/sivukhin/sqlite3-lean-proofs/blob/master/Sqlite3Lean/select1/Query000153.lean">select1/Query000153.lean</a></td>
                     <td class="sql-query" title="SELECT a,(+a)b,(+a)b,(+a)b,NOT EXISTS(SELECT null FROM t2),CASE z WHEN 487 THEN 992 WHEN 391 THEN 203 WHEN 10 THEN &#x27;?k&lt;D Q&#x27; END,&#x27;&#x27; FROM t1 LEFT JOIN v1a ON z=b;">SELECT a,(+a)b,(+a)b,(+a)b,NOT EXISTS(SELECT null FROM t2),CASE z WHEN 487 THEN 992 WHEN 391 THEN 203 WHEN 10 THEN &#x27;?k&lt;D Q&#x27; END,&#x27;&#x27; FROM t1 LEFT JOIN v1a ON z=b;</td>
                     <td class="status-unknown">sorry</td>
-                    <td class="status-no"><span class="status-unknown">sorry</span></td>
+                    <td class="status-unknown">sorry</td>
+                    <td>-</td>
                     <td>-</td>
                 </tr>
             </tbody>
         </table>
-
-        <p class="timestamp">Generated: 2026-01-25 18:29:52</p>
     </div>
-
-    <script>
-        function filterTable(filter) {
-            const rows = document.querySelectorAll('#query-table tbody tr');
-            const buttons = document.querySelectorAll('.filter-btn');
-
-            buttons.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-
-            rows.forEach(row => {
-                const status = row.dataset.status;
-                const opcodes = row.dataset.opcodes;
-                let show = false;
-
-                if (filter === 'all') {
-                    show = true;
-                } else if (filter === 'proved' && status === 'proved') {
-                    show = true;
-                } else if (filter === 'sorry' && status === 'sorry') {
-                    show = true;
-                } else if (filter === 'opcodes-ok' && opcodes === 'opcodes-ok') {
-                    show = true;
-                } else if (filter === 'opcodes-missing' && opcodes === 'opcodes-missing') {
-                    show = true;
-                }
-
-                row.style.display = show ? '' : 'none';
-            });
-        }
-    </script>
 </body>
 </html>
