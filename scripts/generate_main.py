@@ -1,24 +1,35 @@
 #!/usr/bin/env python3
 """Generate Main.lean with axiom checks for all query files."""
 
-import os
+import re
 from pathlib import Path
 
-def find_query_files(base_dir: Path) -> list[str]:
-    """Find all Query*.lean files in select1 directory."""
+def extract_pr_number(file_path: Path) -> int | None:
+    """Extract PR number from file header comment (PR: N)."""
+    try:
+        content = file_path.read_text()
+        match = re.search(r'PR:\s*(\d+)', content)
+        if match:
+            return int(match.group(1))
+    except Exception:
+        pass
+    return None
+
+def find_query_files(base_dir: Path) -> list[tuple[str, int | None]]:
+    """Find all Query*.lean files in select1 directory with PR numbers."""
     select1_dir = base_dir / "Sqlite3Lean" / "select1"
     if not select1_dir.exists():
         return []
 
     query_files = []
     for f in sorted(select1_dir.glob("Query*.lean")):
-        # Extract query name without .lean extension
         name = f.stem  # e.g., "Query000001"
-        query_files.append(name)
+        pr = extract_pr_number(f)
+        query_files.append((name, pr))
 
     return query_files
 
-def generate_main_lean(base_dir: Path, query_files: list[str]) -> str:
+def generate_main_lean(base_dir: Path, query_files: list[tuple[str, int | None]]) -> str:
     """Generate Main.lean content."""
     lines = []
 
@@ -27,7 +38,7 @@ def generate_main_lean(base_dir: Path, query_files: list[str]) -> str:
     lines.append("import Sqlite3Lean.Vdbe")
     lines.append("import Sqlite3Lean.VdbeLemmas")
     lines.append("import Sqlite3Lean.Example")
-    for name in query_files:
+    for name, _ in query_files:
         lines.append(f"import Sqlite3Lean.select1.{name}")
     lines.append("")
 
@@ -47,7 +58,7 @@ def generate_main_lean(base_dir: Path, query_files: list[str]) -> str:
     lines.append("")
 
     # Each query file
-    for name in query_files:
+    for name, _ in query_files:
         namespace = f"Sqlite3Lean.select1.{name}"
         lines.append(f"-- {name}")
         lines.append(f"#print axioms {namespace}.program")
@@ -72,6 +83,10 @@ def main():
 
     query_files = find_query_files(base_dir)
     print(f"Found {len(query_files)} query files")
+
+    # Count files with PR numbers
+    with_pr = sum(1 for _, pr in query_files if pr is not None)
+    print(f"  {with_pr} with PR numbers")
 
     content = generate_main_lean(base_dir, query_files)
 

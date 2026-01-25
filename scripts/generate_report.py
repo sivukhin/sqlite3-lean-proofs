@@ -65,6 +65,7 @@ class QueryInfo:
     formalized: bool
     terminates: Optional[bool]
     gas_bound: Optional[str]
+    pr_number: Optional[int]
 
 @dataclass
 class BuildResult:
@@ -72,7 +73,7 @@ class BuildResult:
 
 def update_build_result(r: BuildResult, key: str, f: Callable[[QueryInfo], None]):
     if key not in r.queries:
-        r.queries[key] = QueryInfo(formalized=False, terminates=None, gas_bound=None)
+        r.queries[key] = QueryInfo(formalized=False, terminates=None, gas_bound=None, pr_number=None)
     f(r.queries[key])
 
 def run_lake_build(project_root: Path) -> BuildResult:
@@ -110,6 +111,14 @@ def run_lake_build(project_root: Path) -> BuildResult:
                 bound = program_gas.group(2)
                 update_build_result(result, name, lambda x: setattr(x, 'gas_bound', None if 'sorry' in bound else bound))
                 continue
+
+            # Parse PR info: "'Sqlite3Lean.select1.Query000001' PR: 1"
+            program_pr = re.search(r"info:.*'Sqlite3Lean.([^']+)' PR: (\d+)", line)
+            if program_pr:
+                name = program_pr.group(1)
+                pr = int(program_pr.group(2))
+                update_build_result(result, name, lambda x: setattr(x, 'pr_number', pr))
+                continue
     except Exception as e:
         print(f"Warning: Could not run lake build: {e}")
     return result
@@ -146,7 +155,10 @@ def analyze_query_file(file_path: Path, build_result: BuildResult, project_root:
     pr_number = get_pr_from_git(str(file_path), project_root)
 
     name = display_path.replace('/', '.')[:-len('.lean')]
-    result = build_result.queries.get(name, QueryInfo(formalized=False, terminates=None, gas_bound=None))
+    result = build_result.queries.get(name, QueryInfo(formalized=False, terminates=None, gas_bound=None, pr_number=None))
+
+    # Use PR from build output if available, otherwise from git
+    pr = result.pr_number if result.pr_number else pr_number
 
     return QueryStatus(
         file_name=display_path,
@@ -157,7 +169,7 @@ def analyze_query_file(file_path: Path, build_result: BuildResult, project_root:
         formalized=result.formalized,
         terminates=result.terminates,
         gas_bound=result.gas_bound,
-        pr_number=pr_number,
+        pr_number=pr,
     )
 
 def generate_html_report(queries: list[QueryStatus], output_path: str, project_root: Path):
