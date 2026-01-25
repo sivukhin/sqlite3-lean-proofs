@@ -1,7 +1,7 @@
 import Sqlite3Lean.Vdbe
 import Sqlite3Lean.VdbeLemmas
 
-namespace Sqlite3Lean.Query000123
+namespace Sqlite3Lean.select1.Query000123
 
 open Sqlite3Lean.Vdbe
 open Sqlite3Lean.VdbeLemmas
@@ -27,20 +27,19 @@ open Sqlite3Lean.VdbeLemmas
 -/
 
 def program : Program := #[
-  .init 0 4 0 0 0,  -- 0: Init
-  .add 3 2 1 0 0,  -- 1: Add
-  .resultRow 1 1 0 0 0,  -- 2: ResultRow
-  .halt 0 0 0 0 0,  -- 3: Halt
-  .integer 1 4 0 0 0,  -- 4: Integer
-  .integer 2 5 0 0 0,  -- 5: Integer
-  .add 5 4 2 0 0,  -- 6: Add
-  .integer 3 3 0 0 0,  -- 7: Integer
-  .goto 0 1 0 0 0  -- 8: Goto
+  vdbeInit 0 4 0 "" 0,  -- 0: Init
+  vdbeAdd 3 2 1 "" 0,  -- 1: Add
+  vdbeResultRow 1 1 0 "" 0,  -- 2: ResultRow
+  vdbeHalt 0 0 0 "" 0,  -- 3: Halt
+  vdbeInteger 1 4 0 "" 0,  -- 4: Integer
+  vdbeInteger 2 5 0 "" 0,  -- 5: Integer
+  vdbeAdd 5 4 2 "" 0,  -- 6: Add
+  vdbeInteger 3 3 0 "" 0,  -- 7: Integer
+  vdbeGoto 0 1 0 "" 0  -- 8: Goto
 ]
 
-/-- Main termination theorem: program terminates for any database -/
-theorem program_terminates (db : Database) :
-    ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := by
-  sorry
+def program_gas (state : VMState) : Nat := sorry
+theorem program_terminates (db : Database) : ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := sorry
+theorem program_terminates' (db : Database) : (runBounded program (mkInitialState db) (program_gas (mkInitialState db))).status ≠ .running := sorry
 
-end Sqlite3Lean.Query000123
+end Sqlite3Lean.select1.Query000123

@@ -1,7 +1,7 @@
 import Sqlite3Lean.Vdbe
 import Sqlite3Lean.VdbeLemmas
 
-namespace Sqlite3Lean.Query000096
+namespace Sqlite3Lean.select1.Query000096
 
 open Sqlite3Lean.Vdbe
 open Sqlite3Lean.VdbeLemmas
@@ -114,103 +114,102 @@ open Sqlite3Lean.VdbeLemmas
 -/
 
 def program : Program := #[
-  .init 0 89 0 0 0,  -- 0: Init
-  .sorterOpen 2 3 0 "k(1,B)" 0,  -- 1: SorterOpen
-  .openRead 0 9 0 2 0,  -- 2: OpenRead
-  .rewind 0 82 0 0 0,  -- 3: Rewind
-  .beginSubrtn 0 1 0 "subrtnsig:2,B" 0,  -- 4: BeginSubrtn
-  .once 0 72 2 0 0,  -- 5: Once
-  .openEphemeral 3 1 0 "k(1,B)" 0,  -- 6: OpenEphemeral
-  .blob 10000 2 0 0 0,  -- 7: Blob
-  .integer 0 3 0 0 0,  -- 8: Integer
-  .integer 2 5 0 0 0,  -- 9: Integer
-  .initCoroutine 6 27 11 0 0,  -- 10: InitCoroutine
-  .sorterOpen 4 3 0 "k(1,-B)" 0,  -- 11: SorterOpen
-  .openRead 1 9 0 2 0,  -- 12: OpenRead
-  .rewind 1 20 0 0 0,  -- 13: Rewind
-  .column 1 0 10 0 0,  -- 14: Column
-  .gt 11 19 10 "BINARY-8" 82,  -- 15: Gt
-  .column 1 1 12 0 0,  -- 16: Column
-  .makeRecord 12 1 14 0 0,  -- 17: MakeRecord
-  .sorterInsert 4 14 12 1 0,  -- 18: SorterInsert
-  .next 1 14 0 0 1,  -- 19: Next
-  .openPseudo 5 15 3 0 0,  -- 20: OpenPseudo
-  .sorterSort 4 26 0 0 0,  -- 21: SorterSort
-  .sorterData 4 15 5 0 0,  -- 22: SorterData
-  .column 5 0 13 0 0,  -- 23: Column
-  .yield 6 0 0 0 0,  -- 24: Yield
-  .sorterNext 4 22 0 0 0,  -- 25: SorterNext
-  .endCoroutine 6 0 0 0 0,  -- 26: EndCoroutine
-  .initCoroutine 7 66 28 0 0,  -- 27: InitCoroutine
-  .noop 6 3 0 0 0,  -- 28: Noop
-  .string8 0 16 0 "3" 0,  -- 29: String8
-  .yield 7 0 0 0 0,  -- 30: Yield
-  .endCoroutine 7 0 0 0 0,  -- 31: EndCoroutine
-  .ifNot 3 35 0 0 0,  -- 32: IfNot
-  .compare 13 4 1 "k(1,B)" 0,  -- 33: Compare
-  .jump 35 41 35 0 0,  -- 34: Jump
-  .copy 13 4 0 0 0,  -- 35: Copy
-  .integer 1 3 0 0 0,  -- 36: Integer
-  .makeRecord 13 1 17 "B" 0,  -- 37: MakeRecord
-  .idxInsert 3 17 13 1 0,  -- 38: IdxInsert
-  .filterAdd 2 0 13 1 0,  -- 39: FilterAdd
-  .decrJumpZero 5 71 0 0 0,  -- 40: DecrJumpZero
-  .return 8 0 0 0 0,  -- 41: Return
-  .ifNot 3 45 0 0 0,  -- 42: IfNot
-  .compare 16 4 1 "k(1,B)" 0,  -- 43: Compare
-  .jump 45 51 45 0 0,  -- 44: Jump
-  .copy 16 4 0 0 0,  -- 45: Copy
-  .integer 1 3 0 0 0,  -- 46: Integer
-  .makeRecord 16 1 17 "B" 0,  -- 47: MakeRecord
-  .idxInsert 3 17 16 1 0,  -- 48: IdxInsert
-  .filterAdd 2 0 16 1 0,  -- 49: FilterAdd
-  .decrJumpZero 5 71 0 0 0,  -- 50: DecrJumpZero
-  .return 9 0 0 0 0,  -- 51: Return
-  .gosub 9 42 0 0 0,  -- 52: Gosub
-  .yield 7 71 0 0 0,  -- 53: Yield
-  .goto 0 52 0 0 0,  -- 54: Goto
-  .gosub 8 32 0 0 0,  -- 55: Gosub
-  .yield 6 71 0 0 0,  -- 56: Yield
-  .goto 0 55 0 0 0,  -- 57: Goto
-  .gosub 8 32 0 0 0,  -- 58: Gosub
-  .yield 6 52 0 0 0,  -- 59: Yield
-  .goto 0 68 0 0 0,  -- 60: Goto
-  .yield 6 52 0 0 0,  -- 61: Yield
-  .goto 0 68 0 0 0,  -- 62: Goto
-  .gosub 9 42 0 0 0,  -- 63: Gosub
-  .yield 7 55 0 0 0,  -- 64: Yield
-  .goto 0 68 0 0 0,  -- 65: Goto
-  .yield 6 53 0 0 0,  -- 66: Yield
-  .yield 7 55 0 0 0,  -- 67: Yield
-  .permutation 0 0 0 "[0]" 0,  -- 68: Permutation
-  .compare 13 16 1 "k(2,-B,)" 1,  -- 69: Compare
-  .jump 58 61 63 0 0,  -- 70: Jump
-  .nullRow 3 0 0 0 0,  -- 71: NullRow
-  .return 1 5 1 0 0,  -- 72: Return
-  .column 0 1 18 0 0,  -- 73: Column
-  .isNull 18 81 0 0 0,  -- 74: IsNull
-  .affinity 18 1 0 "B" 0,  -- 75: Affinity
-  .filter 2 81 18 1 0,  -- 76: Filter
-  .notFound 3 81 18 1 0,  -- 77: NotFound
-  .column 0 0 19 0 0,  -- 78: Column
-  .makeRecord 19 1 21 0 0,  -- 79: MakeRecord
-  .sorterInsert 2 21 19 1 0,  -- 80: SorterInsert
-  .next 0 4 0 0 1,  -- 81: Next
-  .openPseudo 7 22 3 0 0,  -- 82: OpenPseudo
-  .sorterSort 2 88 0 0 0,  -- 83: SorterSort
-  .sorterData 2 22 7 0 0,  -- 84: SorterData
-  .column 7 0 20 0 0,  -- 85: Column
-  .resultRow 20 1 0 0 0,  -- 86: ResultRow
-  .sorterNext 2 84 0 0 0,  -- 87: SorterNext
-  .halt 0 0 0 0 0,  -- 88: Halt
-  .transaction 0 0 9 0 1,  -- 89: Transaction
-  .string8 0 11 0 "b" 0,  -- 90: String8
-  .goto 0 1 0 0 0  -- 91: Goto
+  vdbeInit 0 89 0 "" 0,  -- 0: Init
+  vdbeSorterOpen 2 3 0 "k(1,B)" 0,  -- 1: SorterOpen
+  vdbeOpenRead 0 9 0 "2" 0,  -- 2: OpenRead
+  vdbeRewind 0 82 0 "" 0,  -- 3: Rewind
+  vdbeBeginSubrtn 0 1 0 "subrtnsig:2,B" 0,  -- 4: BeginSubrtn
+  vdbeOnce 0 72 2 "" 0,  -- 5: Once
+  vdbeOpenEphemeral 3 1 0 "k(1,B)" 0,  -- 6: OpenEphemeral
+  vdbeBlob 10000 2 0 "" 0,  -- 7: Blob
+  vdbeInteger 0 3 0 "" 0,  -- 8: Integer
+  vdbeInteger 2 5 0 "" 0,  -- 9: Integer
+  vdbeInitCoroutine 6 27 11 "" 0,  -- 10: InitCoroutine
+  vdbeSorterOpen 4 3 0 "k(1,-B)" 0,  -- 11: SorterOpen
+  vdbeOpenRead 1 9 0 "2" 0,  -- 12: OpenRead
+  vdbeRewind 1 20 0 "" 0,  -- 13: Rewind
+  vdbeColumn 1 0 10 "" 0,  -- 14: Column
+  vdbeGt 11 19 10 "BINARY-8" 82,  -- 15: Gt
+  vdbeColumn 1 1 12 "" 0,  -- 16: Column
+  vdbeMakeRecord 12 1 14 "" 0,  -- 17: MakeRecord
+  vdbeSorterInsert 4 14 12 "1" 0,  -- 18: SorterInsert
+  vdbeNext 1 14 0 "" 1,  -- 19: Next
+  vdbeOpenPseudo 5 15 3 "" 0,  -- 20: OpenPseudo
+  vdbeSorterSort 4 26 0 "" 0,  -- 21: SorterSort
+  vdbeSorterData 4 15 5 "" 0,  -- 22: SorterData
+  vdbeColumn 5 0 13 "" 0,  -- 23: Column
+  vdbeYield 6 0 0 "" 0,  -- 24: Yield
+  vdbeSorterNext 4 22 0 "" 0,  -- 25: SorterNext
+  vdbeEndCoroutine 6 0 0 "" 0,  -- 26: EndCoroutine
+  vdbeInitCoroutine 7 66 28 "" 0,  -- 27: InitCoroutine
+  vdbeNoop 6 3 0 "" 0,  -- 28: Noop
+  vdbeString8 0 16 0 "3" 0,  -- 29: String8
+  vdbeYield 7 0 0 "" 0,  -- 30: Yield
+  vdbeEndCoroutine 7 0 0 "" 0,  -- 31: EndCoroutine
+  vdbeIfNot 3 35 0 "" 0,  -- 32: IfNot
+  vdbeCompare 13 4 1 "k(1,B)" 0,  -- 33: Compare
+  vdbeJump 35 41 35 "" 0,  -- 34: Jump
+  vdbeCopy 13 4 0 "" 0,  -- 35: Copy
+  vdbeInteger 1 3 0 "" 0,  -- 36: Integer
+  vdbeMakeRecord 13 1 17 "B" 0,  -- 37: MakeRecord
+  vdbeIdxInsert 3 17 13 "1" 0,  -- 38: IdxInsert
+  vdbeFilterAdd 2 0 13 "1" 0,  -- 39: FilterAdd
+  vdbeDecrJumpZero 5 71 0 "" 0,  -- 40: DecrJumpZero
+  vdbeReturn 8 0 0 "" 0,  -- 41: Return
+  vdbeIfNot 3 45 0 "" 0,  -- 42: IfNot
+  vdbeCompare 16 4 1 "k(1,B)" 0,  -- 43: Compare
+  vdbeJump 45 51 45 "" 0,  -- 44: Jump
+  vdbeCopy 16 4 0 "" 0,  -- 45: Copy
+  vdbeInteger 1 3 0 "" 0,  -- 46: Integer
+  vdbeMakeRecord 16 1 17 "B" 0,  -- 47: MakeRecord
+  vdbeIdxInsert 3 17 16 "1" 0,  -- 48: IdxInsert
+  vdbeFilterAdd 2 0 16 "1" 0,  -- 49: FilterAdd
+  vdbeDecrJumpZero 5 71 0 "" 0,  -- 50: DecrJumpZero
+  vdbeReturn 9 0 0 "" 0,  -- 51: Return
+  vdbeGosub 9 42 0 "" 0,  -- 52: Gosub
+  vdbeYield 7 71 0 "" 0,  -- 53: Yield
+  vdbeGoto 0 52 0 "" 0,  -- 54: Goto
+  vdbeGosub 8 32 0 "" 0,  -- 55: Gosub
+  vdbeYield 6 71 0 "" 0,  -- 56: Yield
+  vdbeGoto 0 55 0 "" 0,  -- 57: Goto
+  vdbeGosub 8 32 0 "" 0,  -- 58: Gosub
+  vdbeYield 6 52 0 "" 0,  -- 59: Yield
+  vdbeGoto 0 68 0 "" 0,  -- 60: Goto
+  vdbeYield 6 52 0 "" 0,  -- 61: Yield
+  vdbeGoto 0 68 0 "" 0,  -- 62: Goto
+  vdbeGosub 9 42 0 "" 0,  -- 63: Gosub
+  vdbeYield 7 55 0 "" 0,  -- 64: Yield
+  vdbeGoto 0 68 0 "" 0,  -- 65: Goto
+  vdbeYield 6 53 0 "" 0,  -- 66: Yield
+  vdbeYield 7 55 0 "" 0,  -- 67: Yield
+  vdbePermutation 0 0 0 "[0]" 0,  -- 68: Permutation
+  vdbeCompare 13 16 1 "k(2,-B,)" 1,  -- 69: Compare
+  vdbeJump 58 61 63 "" 0,  -- 70: Jump
+  vdbeNullRow 3 0 0 "" 0,  -- 71: NullRow
+  vdbeReturn 1 5 1 "" 0,  -- 72: Return
+  vdbeColumn 0 1 18 "" 0,  -- 73: Column
+  vdbeIsNull 18 81 0 "" 0,  -- 74: IsNull
+  vdbeAffinity 18 1 0 "B" 0,  -- 75: Affinity
+  vdbeFilter 2 81 18 "1" 0,  -- 76: Filter
+  vdbeNotFound 3 81 18 "1" 0,  -- 77: NotFound
+  vdbeColumn 0 0 19 "" 0,  -- 78: Column
+  vdbeMakeRecord 19 1 21 "" 0,  -- 79: MakeRecord
+  vdbeSorterInsert 2 21 19 "1" 0,  -- 80: SorterInsert
+  vdbeNext 0 4 0 "" 1,  -- 81: Next
+  vdbeOpenPseudo 7 22 3 "" 0,  -- 82: OpenPseudo
+  vdbeSorterSort 2 88 0 "" 0,  -- 83: SorterSort
+  vdbeSorterData 2 22 7 "" 0,  -- 84: SorterData
+  vdbeColumn 7 0 20 "" 0,  -- 85: Column
+  vdbeResultRow 20 1 0 "" 0,  -- 86: ResultRow
+  vdbeSorterNext 2 84 0 "" 0,  -- 87: SorterNext
+  vdbeHalt 0 0 0 "" 0,  -- 88: Halt
+  vdbeTransaction 0 0 9 "0" 1,  -- 89: Transaction
+  vdbeString8 0 11 0 "b" 0,  -- 90: String8
+  vdbeGoto 0 1 0 "" 0  -- 91: Goto
 ]
 
-/-- Main termination theorem: program terminates for any database -/
-theorem program_terminates (db : Database) :
-    ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := by
-  sorry
+def program_gas (state : VMState) : Nat := sorry
+theorem program_terminates (db : Database) : ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := sorry
+theorem program_terminates' (db : Database) : (runBounded program (mkInitialState db) (program_gas (mkInitialState db))).status ≠ .running := sorry
 
-end Sqlite3Lean.Query000096
+end Sqlite3Lean.select1.Query000096

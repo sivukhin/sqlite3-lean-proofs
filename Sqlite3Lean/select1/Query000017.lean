@@ -1,7 +1,7 @@
 import Sqlite3Lean.Vdbe
 import Sqlite3Lean.VdbeLemmas
 
-namespace Sqlite3Lean.Query000017
+namespace Sqlite3Lean.select1.Query000017
 
 open Sqlite3Lean.Vdbe
 open Sqlite3Lean.VdbeLemmas
@@ -41,32 +41,31 @@ open Sqlite3Lean.VdbeLemmas
 -/
 
 def program : Program := #[
-  .init 0 19 0 0 0,  -- 0: Init
-  .openRead 0 2 0 2 0,  -- 1: OpenRead
-  .openRead 1 3 0 2 0,  -- 2: OpenRead
-  .rewind 0 18 0 0 0,  -- 3: Rewind
-  .rewind 1 18 0 0 0,  -- 4: Rewind
-  .column 0 0 3 0 0,  -- 5: Column
-  .column 1 0 4 0 0,  -- 6: Column
-  .realAffinity 4 0 0 0 0,  -- 7: RealAffinity
-  .collSeq 0 0 0 "BINARY-8" 0,  -- 8: CollSeq
-  .function 0 3 1 "min(-3)" 0,  -- 9: Function
-  .column 0 1 3 0 0,  -- 10: Column
-  .column 1 1 4 0 0,  -- 11: Column
-  .realAffinity 4 0 0 0 0,  -- 12: RealAffinity
-  .collSeq 0 0 0 "BINARY-8" 0,  -- 13: CollSeq
-  .function 0 3 2 "max(-3)" 0,  -- 14: Function
-  .resultRow 1 2 0 0 0,  -- 15: ResultRow
-  .next 1 5 0 0 1,  -- 16: Next
-  .next 0 4 0 0 1,  -- 17: Next
-  .halt 0 0 0 0 0,  -- 18: Halt
-  .transaction 0 0 2 0 1,  -- 19: Transaction
-  .goto 0 1 0 0 0  -- 20: Goto
+  vdbeInit 0 19 0 "" 0,  -- 0: Init
+  vdbeOpenRead 0 2 0 "2" 0,  -- 1: OpenRead
+  vdbeOpenRead 1 3 0 "2" 0,  -- 2: OpenRead
+  vdbeRewind 0 18 0 "" 0,  -- 3: Rewind
+  vdbeRewind 1 18 0 "" 0,  -- 4: Rewind
+  vdbeColumn 0 0 3 "" 0,  -- 5: Column
+  vdbeColumn 1 0 4 "" 0,  -- 6: Column
+  vdbeRealAffinity 4 0 0 "" 0,  -- 7: RealAffinity
+  vdbeCollSeq 0 0 0 "BINARY-8" 0,  -- 8: CollSeq
+  vdbeFunction 0 3 1 "min(-3)" 0,  -- 9: Function
+  vdbeColumn 0 1 3 "" 0,  -- 10: Column
+  vdbeColumn 1 1 4 "" 0,  -- 11: Column
+  vdbeRealAffinity 4 0 0 "" 0,  -- 12: RealAffinity
+  vdbeCollSeq 0 0 0 "BINARY-8" 0,  -- 13: CollSeq
+  vdbeFunction 0 3 2 "max(-3)" 0,  -- 14: Function
+  vdbeResultRow 1 2 0 "" 0,  -- 15: ResultRow
+  vdbeNext 1 5 0 "" 1,  -- 16: Next
+  vdbeNext 0 4 0 "" 1,  -- 17: Next
+  vdbeHalt 0 0 0 "" 0,  -- 18: Halt
+  vdbeTransaction 0 0 2 "0" 1,  -- 19: Transaction
+  vdbeGoto 0 1 0 "" 0  -- 20: Goto
 ]
 
-/-- Main termination theorem: program terminates for any database -/
-theorem program_terminates (db : Database) :
-    ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := by
-  sorry
+def program_gas (state : VMState) : Nat := sorry
+theorem program_terminates (db : Database) : ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := sorry
+theorem program_terminates' (db : Database) : (runBounded program (mkInitialState db) (program_gas (mkInitialState db))).status ≠ .running := sorry
 
-end Sqlite3Lean.Query000017
+end Sqlite3Lean.select1.Query000017

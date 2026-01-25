@@ -1,7 +1,7 @@
 import Sqlite3Lean.Vdbe
 import Sqlite3Lean.VdbeLemmas
 
-namespace Sqlite3Lean.Query000081
+namespace Sqlite3Lean.select1.Query000081
 
 open Sqlite3Lean.Vdbe
 open Sqlite3Lean.VdbeLemmas
@@ -37,28 +37,27 @@ open Sqlite3Lean.VdbeLemmas
 -/
 
 def program : Program := #[
-  .init 0 15 0 0 0,  -- 0: Init
-  .integer 1 1 0 0 0,  -- 1: Integer
-  .openRead 0 2 0 2 0,  -- 2: OpenRead
-  .openRead 1 2 0 2 0,  -- 3: OpenRead
-  .rewind 0 14 0 0 0,  -- 4: Rewind
-  .rewind 1 14 0 0 0,  -- 5: Rewind
-  .column 0 0 2 0 0,  -- 6: Column
-  .column 0 1 3 0 0,  -- 7: Column
-  .column 1 0 4 0 0,  -- 8: Column
-  .column 1 1 5 0 0,  -- 9: Column
-  .resultRow 2 4 0 0 0,  -- 10: ResultRow
-  .decrJumpZero 1 14 0 0 0,  -- 11: DecrJumpZero
-  .next 1 6 0 0 1,  -- 12: Next
-  .next 0 5 0 0 1,  -- 13: Next
-  .halt 0 0 0 0 0,  -- 14: Halt
-  .transaction 0 0 8 0 1,  -- 15: Transaction
-  .goto 0 1 0 0 0  -- 16: Goto
+  vdbeInit 0 15 0 "" 0,  -- 0: Init
+  vdbeInteger 1 1 0 "" 0,  -- 1: Integer
+  vdbeOpenRead 0 2 0 "2" 0,  -- 2: OpenRead
+  vdbeOpenRead 1 2 0 "2" 0,  -- 3: OpenRead
+  vdbeRewind 0 14 0 "" 0,  -- 4: Rewind
+  vdbeRewind 1 14 0 "" 0,  -- 5: Rewind
+  vdbeColumn 0 0 2 "" 0,  -- 6: Column
+  vdbeColumn 0 1 3 "" 0,  -- 7: Column
+  vdbeColumn 1 0 4 "" 0,  -- 8: Column
+  vdbeColumn 1 1 5 "" 0,  -- 9: Column
+  vdbeResultRow 2 4 0 "" 0,  -- 10: ResultRow
+  vdbeDecrJumpZero 1 14 0 "" 0,  -- 11: DecrJumpZero
+  vdbeNext 1 6 0 "" 1,  -- 12: Next
+  vdbeNext 0 5 0 "" 1,  -- 13: Next
+  vdbeHalt 0 0 0 "" 0,  -- 14: Halt
+  vdbeTransaction 0 0 8 "0" 1,  -- 15: Transaction
+  vdbeGoto 0 1 0 "" 0  -- 16: Goto
 ]
 
-/-- Main termination theorem: program terminates for any database -/
-theorem program_terminates (db : Database) :
-    ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := by
-  sorry
+def program_gas (state : VMState) : Nat := sorry
+theorem program_terminates (db : Database) : ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := sorry
+theorem program_terminates' (db : Database) : (runBounded program (mkInitialState db) (program_gas (mkInitialState db))).status ≠ .running := sorry
 
-end Sqlite3Lean.Query000081
+end Sqlite3Lean.select1.Query000081

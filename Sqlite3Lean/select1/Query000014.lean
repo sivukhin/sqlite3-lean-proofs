@@ -1,7 +1,7 @@
 import Sqlite3Lean.Vdbe
 import Sqlite3Lean.VdbeLemmas
 
-namespace Sqlite3Lean.Query000014
+namespace Sqlite3Lean.select1.Query000014
 
 open Sqlite3Lean.Vdbe
 open Sqlite3Lean.VdbeLemmas
@@ -36,28 +36,27 @@ open Sqlite3Lean.VdbeLemmas
 -/
 
 def program : Program := #[
-  .init 0 15 0 0 0,  -- 0: Init
-  .openRead 0 3 0 2 0,  -- 1: OpenRead
-  .openRead 1 2 0 2 0,  -- 2: OpenRead
-  .rewind 0 14 0 0 0,  -- 3: Rewind
-  .rewind 1 14 0 0 0,  -- 4: Rewind
-  .column 0 0 1 0 0,  -- 5: Column
-  .realAffinity 1 0 0 0 0,  -- 6: RealAffinity
-  .column 0 1 2 0 0,  -- 7: Column
-  .realAffinity 2 0 0 0 0,  -- 8: RealAffinity
-  .column 1 0 3 0 0,  -- 9: Column
-  .column 1 1 4 0 0,  -- 10: Column
-  .resultRow 1 4 0 0 0,  -- 11: ResultRow
-  .next 1 5 0 0 1,  -- 12: Next
-  .next 0 4 0 0 1,  -- 13: Next
-  .halt 0 0 0 0 0,  -- 14: Halt
-  .transaction 0 0 2 0 1,  -- 15: Transaction
-  .goto 0 1 0 0 0  -- 16: Goto
+  vdbeInit 0 15 0 "" 0,  -- 0: Init
+  vdbeOpenRead 0 3 0 "2" 0,  -- 1: OpenRead
+  vdbeOpenRead 1 2 0 "2" 0,  -- 2: OpenRead
+  vdbeRewind 0 14 0 "" 0,  -- 3: Rewind
+  vdbeRewind 1 14 0 "" 0,  -- 4: Rewind
+  vdbeColumn 0 0 1 "" 0,  -- 5: Column
+  vdbeRealAffinity 1 0 0 "" 0,  -- 6: RealAffinity
+  vdbeColumn 0 1 2 "" 0,  -- 7: Column
+  vdbeRealAffinity 2 0 0 "" 0,  -- 8: RealAffinity
+  vdbeColumn 1 0 3 "" 0,  -- 9: Column
+  vdbeColumn 1 1 4 "" 0,  -- 10: Column
+  vdbeResultRow 1 4 0 "" 0,  -- 11: ResultRow
+  vdbeNext 1 5 0 "" 1,  -- 12: Next
+  vdbeNext 0 4 0 "" 1,  -- 13: Next
+  vdbeHalt 0 0 0 "" 0,  -- 14: Halt
+  vdbeTransaction 0 0 2 "0" 1,  -- 15: Transaction
+  vdbeGoto 0 1 0 "" 0  -- 16: Goto
 ]
 
-/-- Main termination theorem: program terminates for any database -/
-theorem program_terminates (db : Database) :
-    ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := by
-  sorry
+def program_gas (state : VMState) : Nat := sorry
+theorem program_terminates (db : Database) : ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := sorry
+theorem program_terminates' (db : Database) : (runBounded program (mkInitialState db) (program_gas (mkInitialState db))).status ≠ .running := sorry
 
-end Sqlite3Lean.Query000014
+end Sqlite3Lean.select1.Query000014

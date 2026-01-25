@@ -8,15 +8,16 @@
 
 import Sqlite3Lean.Vdbe
 import Sqlite3Lean.VdbeLemmas
+import Sqlite3Lean.Tools
 
-namespace Sqlite3Lean.Query0
+namespace Sqlite3Lean.Example
 open Sqlite3Lean.Vdbe
 open Sqlite3Lean.VdbeLemmas
 
 /-! ## Example: SELECT * FROM t -/
 
 /--
-  The program for: SELECT * FROM t
+  Query: SELECT * FROM t
 
   addr  opcode         p1    p2    p3    p4             p5  comment
   ----  -------------  ----  ----  ----  -------------  --  -------------
@@ -31,15 +32,15 @@ open Sqlite3Lean.VdbeLemmas
   8     Goto           0     1     0                    0
 -/
 def program : Program := #[
-  .init 0 7,              -- 0: Jump to 7 (Transaction)
-  .openRead 0 2 0 1,      -- 1: Open cursor 0 on btree 2
-  .rewind 0 6,            -- 2: Rewind cursor 0, jump to 6 if empty
-  .column 0 0 1,          -- 3: Read column 0 from cursor 0 into register 1
-  .resultRow 1 1,         -- 4: Output register 1 as result row
-  .next 0 3,              -- 5: Next row, jump to 3 if more rows
-  .halt 0 0,              -- 6: Halt with success
-  .transaction 0 0 1,     -- 7: Begin read transaction
-  .goto 1                 -- 8: Goto 1 (OpenRead)
+  vdbeInit 0 7 0 "" 0,        -- 0: Jump to 7 (Transaction)
+  vdbeOpenRead 0 2 0 "t" 0,   -- 1: Open cursor 0 on btree 2 (table t)
+  vdbeRewind 0 6 0 "" 0,      -- 2: Rewind cursor 0, jump to 6 if empty
+  vdbeColumn 0 0 1 "" 0,      -- 3: Read column 0 from cursor 0 into register 1
+  vdbeResultRow 1 1 0 "" 0,   -- 4: Output register 1 as result row
+  vdbeNext 0 3 0 "" 1,        -- 5: Next row, jump to 3 if more rows
+  vdbeHalt 0 0 0 "" 0,        -- 6: Halt with success
+  vdbeTransaction 0 0 1 "0" 1, -- 7: Begin read transaction
+  vdbeGoto 0 1 0 "" 0         -- 8: Goto 1 (OpenRead)
 ]
 
 /-- Example database with table t (btree id 2) containing some rows -/
@@ -123,17 +124,13 @@ def phaseOffset (pc : Nat) : Nat :=
   ensuring that when remainingRows decreases by 1 (on Next with more rows),
   the overall gas decreases even though phaseOffset might increase.
 -/
-def selectAllGas (state : VMState) : Nat :=
+def program_gas (state : VMState) : Nat :=
   match state.status with
   | .halted _ | .error _ => 0
-  | .running =>
-    let rows := remainingRows state
-    let loopCost := 10
-    let offset := phaseOffset state.pc
-    rows * loopCost + offset
+  | .running => remainingRows state * 10 + phaseOffset state.pc
 
 /-- Gas is always non-negative (trivial since it's a Nat) -/
-theorem selectAllGas_nonneg (state : VMState) : selectAllGas state ≥ 0 := Nat.zero_le _
+theorem program_gas_nonneg (state : VMState) : program_gas state ≥ 0 := Nat.zero_le _
 
 /-- phaseOffset is always at least 1 -/
 theorem phaseOffset_pos (pc : Nat) : phaseOffset pc ≥ 1 := by
@@ -141,9 +138,9 @@ theorem phaseOffset_pos (pc : Nat) : phaseOffset pc ≥ 1 := by
   split <;> omega
 
 /-- Gas is positive for any running state -/
-theorem selectAllGas_pos_of_running (state : VMState) (h : state.status = .running) :
-    selectAllGas state > 0 := by
-  unfold selectAllGas
+theorem program_gas_pos_of_running (state : VMState) (h : state.status = .running) :
+    program_gas state > 0 := by
+  unfold program_gas
   simp only [h]
   have hOffset : phaseOffset state.pc ≥ 1 := phaseOffset_pos state.pc
   omega
@@ -152,96 +149,96 @@ theorem selectAllGas_pos_of_running (state : VMState) (h : state.status = .runni
 theorem program_size : program.size = 9 := rfl
 
 /-- Get the opcode at each index in program -/
-theorem program_at_0 : program[0]? = some (.init 0 7) := rfl
-theorem program_at_1 : program[1]? = some (.openRead 0 2 0 1) := rfl
-theorem program_at_2 : program[2]? = some (.rewind 0 6) := rfl
-theorem program_at_3 : program[3]? = some (.column 0 0 1) := rfl
-theorem program_at_4 : program[4]? = some (.resultRow 1 1) := rfl
-theorem program_at_5 : program[5]? = some (.next 0 3) := rfl
-theorem program_at_6 : program[6]? = some (.halt 0 0) := rfl
-theorem program_at_7 : program[7]? = some (.transaction 0 0 1) := rfl
-theorem program_at_8 : program[8]? = some (.goto 1) := rfl
+theorem program_at_0 : program[0]? = some (.init 0 7 0 "" 0) := rfl
+theorem program_at_1 : program[1]? = some (.openRead 0 2 0 "t" 0) := rfl
+theorem program_at_2 : program[2]? = some (.rewind 0 6 0 "" 0) := rfl
+theorem program_at_3 : program[3]? = some (.column 0 0 1 "" 0) := rfl
+theorem program_at_4 : program[4]? = some (.resultRow 1 1 0 "" 0) := rfl
+theorem program_at_5 : program[5]? = some (.next 0 3 0 "" 1) := rfl
+theorem program_at_6 : program[6]? = some (.halt 0 0 0 "" 0) := rfl
+theorem program_at_7 : program[7]? = some (.transaction 0 0 1 "0" 1) := rfl
+theorem program_at_8 : program[8]? = some (.goto 0 1 0 "" 0) := rfl
 
 /-! ### Opcode PC behavior lemmas -/
 
 /-- openRead always increments PC by 1 -/
-theorem executeOpcode_openRead_pc (cursorId rootPage dbId numColumns : Nat) (state : VMState)
+theorem executeOpcode_openRead_pc (p1 p2 p3 : Nat) (p4 : String) (p5 : Nat) (state : VMState)
     (hRunning : state.status = .running) :
-    (executeOpcode (.openRead cursorId rootPage dbId numColumns) state).pc = state.pc + 1 := by
+    (executeOpcode (.openRead p1 p2 p3 p4 p5) state).pc = state.pc + 1 := by
   simp [executeOpcode, hRunning]
 
 /-- column always increments PC by 1 -/
-theorem executeOpcode_column_pc (cursorId colIdx destReg : Nat) (state : VMState)
+theorem executeOpcode_column_pc (p1 p2 p3 : Nat) (p4 : String) (p5 : Nat) (state : VMState)
     (hRunning : state.status = .running) :
-    (executeOpcode (.column cursorId colIdx destReg) state).pc = state.pc + 1 := by
+    (executeOpcode (.column p1 p2 p3 p4 p5) state).pc = state.pc + 1 := by
   simp [executeOpcode, hRunning, getCursorColumn]
   split <;> rfl
 
 /-- resultRow always increments PC by 1 -/
-theorem executeOpcode_resultRow_pc (startReg numRegs : Nat) (state : VMState)
+theorem executeOpcode_resultRow_pc (p1 p2 p3 : Nat) (p4 : String) (p5 : Nat) (state : VMState)
     (hRunning : state.status = .running) :
-    (executeOpcode (.resultRow startReg numRegs) state).pc = state.pc + 1 := by
+    (executeOpcode (.resultRow p1 p2 p3 p4 p5) state).pc = state.pc + 1 := by
   simp [executeOpcode, hRunning]
 
 /-- transaction always increments PC by 1 -/
-theorem executeOpcode_transaction_pc (dbId writeFlag schemaVersion : Nat) (state : VMState)
+theorem executeOpcode_transaction_pc (p1 p2 p3 : Nat) (p4 : String) (p5 : Nat) (state : VMState)
     (hRunning : state.status = .running) :
-    (executeOpcode (.transaction dbId writeFlag schemaVersion) state).pc = state.pc + 1 := by
+    (executeOpcode (.transaction p1 p2 p3 p4 p5) state).pc = state.pc + 1 := by
   simp [executeOpcode, hRunning]
 
 /-- init always jumps to p2 -/
-theorem executeOpcode_init_pc (p1 p2 : Nat) (state : VMState)
+theorem executeOpcode_init_pc (p1 p2 p3 : Nat) (p4 : String) (p5 : Nat) (state : VMState)
     (hRunning : state.status = .running) :
-    (executeOpcode (.init p1 p2) state).pc = p2 := by
+    (executeOpcode (.init p1 p2 p3 p4 p5) state).pc = p2 := by
   simp [executeOpcode, hRunning]
 
 /-- goto always jumps to p2 -/
-theorem executeOpcode_goto_pc (p2 : Nat) (state : VMState)
+theorem executeOpcode_goto_pc (p1 p2 p3 : Nat) (p4 : String) (p5 : Nat) (state : VMState)
     (hRunning : state.status = .running) :
-    (executeOpcode (.goto p2) state).pc = p2 := by
+    (executeOpcode (.goto p1 p2 p3 p4 p5) state).pc = p2 := by
   simp [executeOpcode, hRunning]
 
 /-- halt sets status to halted -/
-theorem executeOpcode_halt_status (resultCode errorAction : Nat) (state : VMState)
+theorem executeOpcode_halt_status (p1 p2 p3 : Nat) (p4 : String) (p5 : Nat) (state : VMState)
     (hRunning : state.status = .running) :
-    (executeOpcode (.halt resultCode errorAction) state).status = .halted resultCode := by
+    (executeOpcode (.halt p1 p2 p3 p4 p5) state).status = .halted p1 := by
   simp [executeOpcode, hRunning]
 
 /-- openRead preserves status as running -/
-theorem executeOpcode_openRead_status (cursorId rootPage dbId numColumns : Nat) (state : VMState)
+theorem executeOpcode_openRead_status (p1 p2 p3 : Nat) (p4 : String) (p5 : Nat) (state : VMState)
     (hRunning : state.status = .running) :
-    (executeOpcode (.openRead cursorId rootPage dbId numColumns) state).status = .running := by
+    (executeOpcode (.openRead p1 p2 p3 p4 p5) state).status = .running := by
   simp [executeOpcode, hRunning]
 
 /-- column preserves status as running -/
-theorem executeOpcode_column_status (cursorId colIdx destReg : Nat) (state : VMState)
+theorem executeOpcode_column_status (p1 p2 p3 : Nat) (p4 : String) (p5 : Nat) (state : VMState)
     (hRunning : state.status = .running) :
-    (executeOpcode (.column cursorId colIdx destReg) state).status = .running := by
+    (executeOpcode (.column p1 p2 p3 p4 p5) state).status = .running := by
   simp [executeOpcode, hRunning, getCursorColumn]
   split <;> rfl
 
 /-- resultRow preserves status as running -/
-theorem executeOpcode_resultRow_status (startReg numRegs : Nat) (state : VMState)
+theorem executeOpcode_resultRow_status (p1 p2 p3 : Nat) (p4 : String) (p5 : Nat) (state : VMState)
     (hRunning : state.status = .running) :
-    (executeOpcode (.resultRow startReg numRegs) state).status = .running := by
+    (executeOpcode (.resultRow p1 p2 p3 p4 p5) state).status = .running := by
   simp [executeOpcode, hRunning]
 
 /-- transaction preserves status as running -/
-theorem executeOpcode_transaction_status (dbId writeFlag schemaVersion : Nat) (state : VMState)
+theorem executeOpcode_transaction_status (p1 p2 p3 : Nat) (p4 : String) (p5 : Nat) (state : VMState)
     (hRunning : state.status = .running) :
-    (executeOpcode (.transaction dbId writeFlag schemaVersion) state).status = .running := by
+    (executeOpcode (.transaction p1 p2 p3 p4 p5) state).status = .running := by
   simp [executeOpcode, hRunning]
 
 /-- init preserves status as running -/
-theorem executeOpcode_init_status (p1 p2 : Nat) (state : VMState)
+theorem executeOpcode_init_status (p1 p2 p3 : Nat) (p4 : String) (p5 : Nat) (state : VMState)
     (hRunning : state.status = .running) :
-    (executeOpcode (.init p1 p2) state).status = .running := by
+    (executeOpcode (.init p1 p2 p3 p4 p5) state).status = .running := by
   simp [executeOpcode, hRunning]
 
 /-- goto preserves status as running -/
-theorem executeOpcode_goto_status (p2 : Nat) (state : VMState)
+theorem executeOpcode_goto_status (p1 p2 p3 : Nat) (p4 : String) (p5 : Nat) (state : VMState)
     (hRunning : state.status = .running) :
-    (executeOpcode (.goto p2) state).status = .running := by
+    (executeOpcode (.goto p1 p2 p3 p4 p5) state).status = .running := by
   simp [executeOpcode, hRunning]
 
 /-! ### phaseOffset value lemmas -/
@@ -264,27 +261,27 @@ theorem executeOpcode_goto_status (p2 : Nat) (state : VMState)
   - Before OpenRead (pc ∈ {0, 7, 8, 1}): cursor 0 doesn't exist
   - After OpenRead (pc ∈ {2, 3, 4, 5, 6}): cursor 0 exists with btreeId = 2
 -/
-def selectAllInvariant (state : VMState) : Prop :=
+def programInvariant (state : VMState) : Prop :=
   -- If cursor 0 exists, it points to btree 2
   (∀ cursor, state.cursors 0 = some cursor → cursor.btreeId = 2) ∧
   -- Before OpenRead executes, cursor 0 doesn't exist
   (state.pc ∈ [0, 7, 8, 1] → state.cursors 0 = none)
 
 /-- Initial state satisfies the invariant -/
-theorem selectAllInvariant_initial (db : Database) :
-    selectAllInvariant (mkInitialState db) := by
-  simp [selectAllInvariant, mkInitialState, Cursors.empty]
+theorem programInvariant_initial (db : Database) :
+    programInvariant (mkInitialState db) := by
+  simp [programInvariant, mkInitialState, Cursors.empty]
 
 /-- The invariant is preserved by step -/
-theorem selectAllInvariant_preserved (state : VMState)
-    (hInv : selectAllInvariant state)
+theorem programInvariant_preserved (state : VMState)
+    (hInv : programInvariant state)
     (hRunning : state.status = .running)
     (hValidPc : state.pc < program.size) :
-    selectAllInvariant (step program state) := by
+    programInvariant (step program state) := by
   simp only [program_size] at hValidPc
   have hPc : state.pc = 0 ∨ state.pc = 1 ∨ state.pc = 2 ∨ state.pc = 3 ∨
              state.pc = 4 ∨ state.pc = 5 ∨ state.pc = 6 ∨ state.pc = 7 ∨ state.pc = 8 := by omega
-  simp only [selectAllInvariant] at hInv ⊢
+  simp only [programInvariant] at hInv ⊢
   obtain ⟨hCursorBtree, hNoCursorBefore⟩ := hInv
   rcases hPc with h | h | h | h | h | h | h | h | h
   -- pc = 0: Init → pc = 7, cursors unchanged
@@ -455,17 +452,17 @@ theorem remainingRows_after_openRead_cursor0 (state : VMState)
   simp [remainingRows, Cursors.set, hNoCursor]
 
 /-- Column doesn't change cursors or database -/
-theorem remainingRows_after_column (state : VMState) (cursorId colIdx destReg : Nat)
+theorem remainingRows_after_column (state : VMState) (p1 p2 p3 : Nat) (p4 : String) (p5 : Nat)
     (hRunning : state.status = .running) :
-    remainingRows (executeOpcode (.column cursorId colIdx destReg) state) =
+    remainingRows (executeOpcode (.column p1 p2 p3 p4 p5) state) =
     remainingRows state := by
   simp only [executeOpcode, hRunning, getCursorColumn]
   split <;> rfl
 
 /-- ResultRow doesn't change cursors or database -/
-theorem remainingRows_after_resultRow (state : VMState) (startReg numRegs : Nat)
+theorem remainingRows_after_resultRow (state : VMState) (p1 p2 p3 : Nat) (p4 : String) (p5 : Nat)
     (hRunning : state.status = .running) :
-    remainingRows (executeOpcode (.resultRow startReg numRegs) state) =
+    remainingRows (executeOpcode (.resultRow p1 p2 p3 p4 p5) state) =
     remainingRows state := by
   simp only [executeOpcode, hRunning]
   rfl
@@ -477,12 +474,12 @@ theorem remainingRows_after_resultRow (state : VMState) (startReg numRegs : Nat)
   The proof proceeds by case analysis on state.pc ∈ {0,1,2,3,4,5,6,7,8}.
   For each case, we show that the gas strictly decreases.
 -/
-theorem selectAllGas_decreases_step (state : VMState)
-    (hInv : selectAllInvariant state)
+theorem program_gas_decreases_step (state : VMState)
+    (hInv : programInvariant state)
     (hRewind : rewindPositionInvariant state)
     (hRunning : state.status = .running)
     (hValidPc : state.pc < program.size) :
-    selectAllGas (step program state) < selectAllGas state := by
+    program_gas (step program state) < program_gas state := by
   -- Establish pc ∈ {0..8}
   simp only [program_size] at hValidPc
   have hPc : state.pc = 0 ∨
@@ -497,12 +494,12 @@ theorem selectAllGas_decreases_step (state : VMState)
   rcases hPc with h | h | h | h | h | h | h | h | h
   -- Case pc = 0: Init 0 7 → jump to pc = 7
   · simp [step, hRunning, h, program_at_0, executeOpcode]
-    simp [h, selectAllGas, hRunning, phaseOffset, remainingRows]
+    simp [h, program_gas, hRunning, phaseOffset, remainingRows]
   -- Case pc = 1: OpenRead → pc = 2
   -- Use invariant: at pc=1, cursor 0 doesn't exist
   · have hNoCursor : state.cursors 0 = none := hInv.2 (by simp [h])
     simp only [step, hRunning, h, program_at_1, executeOpcode]
-    simp only [selectAllGas, hRunning, remainingRows, Cursors.set, h]
+    simp only [program_gas, hRunning, remainingRows, Cursors.set, h]
     simp only [beq_self_eq_true, ↓reduceIte, hNoCursor, phaseOffset]
     omega
   -- Case pc = 2: Rewind → pc = 3 or pc = 6
@@ -510,13 +507,13 @@ theorem selectAllGas_decreases_step (state : VMState)
     cases hCursor : state.cursors 0 with
     | none =>
       -- Error case: gas becomes 0, which is less than positive gas
-      simp only [selectAllGas, hRunning, h, remainingRows, hCursor, phaseOffset]
+      simp only [program_gas, hRunning, h, remainingRows, hCursor, phaseOffset]
       omega
     | some cursor =>
       cases hBtree : state.database cursor.btreeId with
       | none =>
         -- Error case: gas becomes 0
-        simp only [hBtree, selectAllGas, hRunning, h, remainingRows, hCursor, phaseOffset]
+        simp only [hBtree, program_gas, hRunning, h, remainingRows, hCursor, phaseOffset]
         omega
       | some btree =>
         simp only [hBtree]
@@ -525,14 +522,14 @@ theorem selectAllGas_decreases_step (state : VMState)
         have hDb2 : state.database 2 = some btree := by rw [← hBtreeId]; exact hBtree
         by_cases hEmpty : btree.tuples.isEmpty
         · -- Empty btree: jump to pc = 6
-          simp only [hEmpty, ↓reduceIte, selectAllGas, remainingRows, hCursor, hBtreeId, hPosNone,
+          simp only [hEmpty, ↓reduceIte, program_gas, remainingRows, hCursor, hBtreeId, hPosNone,
                      phaseOffset, hRunning, h, hDb2]
           have hLen : btree.tuples.length = 0 :=
             List.length_eq_zero_iff.mpr (List.isEmpty_iff.mp hEmpty)
           omega
         · -- Non-empty btree: pc = 3, cursor position := 0
           have hNotEmpty : btree.tuples.isEmpty = false := Bool.eq_false_iff.mpr hEmpty
-          simp only [hNotEmpty, Bool.false_eq_true, ↓reduceIte, selectAllGas, Cursors.set,
+          simp only [hNotEmpty, Bool.false_eq_true, ↓reduceIte, program_gas, Cursors.set,
                      beq_self_eq_true, remainingRows, hBtreeId, hCursor, hPosNone, phaseOffset,
                      hRunning, h, hDb2]
           have hLen : btree.tuples.length > 0 :=
@@ -544,26 +541,26 @@ theorem selectAllGas_decreases_step (state : VMState)
     -- But phaseOffset decreases from 4 to 3
     cases hCol : getCursorTuple state 0 >>= fun t => t[0]? with
     | none =>
-      simp only [selectAllGas, remainingRows, phaseOffset, hRunning, h]
+      simp only [program_gas, remainingRows, phaseOffset, hRunning, h]
       omega
     | some val =>
-      simp only [selectAllGas, remainingRows, phaseOffset, hRunning, h]
+      simp only [program_gas, remainingRows, phaseOffset, hRunning, h]
       omega
   -- Case pc = 4: ResultRow → pc = 5
   · simp [step, hRunning, h, program_at_4, executeOpcode]
-    simp [h, selectAllGas, hRunning, phaseOffset, remainingRows]
+    simp [h, program_gas, hRunning, phaseOffset, remainingRows]
   -- Case pc = 5: Next → pc = 3 (more rows) or pc = 6 (done)
   · simp only [step, hRunning, h, program_at_5, executeOpcode]
     cases hCursor : state.cursors 0 with
     | none =>
       -- Error case: gas becomes 0
-      simp only [selectAllGas, hRunning, h, remainingRows, hCursor, phaseOffset]
+      simp only [program_gas, hRunning, h, remainingRows, hCursor, phaseOffset]
       omega
     | some cursor =>
       cases hBtree : state.database cursor.btreeId with
       | none =>
         -- Error case: gas becomes 0
-        simp only [hBtree, selectAllGas, hRunning, h, remainingRows, hCursor, phaseOffset]
+        simp only [hBtree, program_gas, hRunning, h, remainingRows, hCursor, phaseOffset]
         omega
       | some btree =>
         simp only [hBtree]
@@ -572,7 +569,7 @@ theorem selectAllGas_decreases_step (state : VMState)
         cases hPos : cursor.position with
         | none =>
           -- Error case: cursor not positioned
-          simp only [selectAllGas, hRunning, h, remainingRows, hCursor, hBtreeId, hDb2, phaseOffset]
+          simp only [program_gas, hRunning, h, remainingRows, hCursor, hBtreeId, hDb2, phaseOffset]
           omega
         | some pos =>
           by_cases hMore : pos + 1 < btree.tuples.length
@@ -580,27 +577,27 @@ theorem selectAllGas_decreases_step (state : VMState)
             -- remainingRows decreases: (length - pos) → (length - (pos + 1))
             -- phaseOffset increases: 2 → 4
             -- But loopCost (10) > max phaseOffset (9), so gas still decreases
-            simp only [hMore, ↓reduceIte, selectAllGas, Cursors.set, beq_self_eq_true,
+            simp only [hMore, ↓reduceIte, program_gas, Cursors.set, beq_self_eq_true,
                        remainingRows, hBtreeId, hCursor, hDb2, phaseOffset, hRunning, h, hPos]
             -- Gas before: (btree.tuples.length - pos) * 10 + 2
             -- Gas after:  (btree.tuples.length - (pos + 1)) * 10 + 4
             omega
           · -- No more rows: pc = 6, position unchanged
             -- phaseOffset decreases: 2 → 1
-            simp only [hMore, ↓reduceIte, selectAllGas, remainingRows,
+            simp only [hMore, ↓reduceIte, program_gas, remainingRows,
                        hCursor, hBtreeId, hDb2, hPos, phaseOffset, hRunning, h]
             omega
   -- Case pc = 6: Halt → status = halted, gas = 0
-  · simp only [step, hRunning, h, program_at_6, executeOpcode, selectAllGas, phaseOffset_6]
-    have hGasPos := selectAllGas_pos_of_running state hRunning
-    simp only [selectAllGas, hRunning, h] at hGasPos
+  · simp only [step, hRunning, h, program_at_6, executeOpcode, program_gas, phaseOffset_6]
+    have hGasPos := program_gas_pos_of_running state hRunning
+    simp only [program_gas, hRunning, h] at hGasPos
     exact hGasPos
   -- Case pc = 7: Transaction → pc = 8
   · simp [step, hRunning, h, program_at_7, executeOpcode]
-    simp [h, selectAllGas, hRunning, phaseOffset, remainingRows]
+    simp [h, program_gas, hRunning, phaseOffset, remainingRows]
   -- Case pc = 8: Goto 1 → pc = 1
   · simp [step, hRunning, h, program_at_8, executeOpcode]
-    simp [h, selectAllGas, hRunning, phaseOffset, remainingRows]
+    simp [h, program_gas, hRunning, phaseOffset, remainingRows]
 
 /-! ## Termination Proof for program -/
 
@@ -620,60 +617,60 @@ theorem step_invalid_pc (state : VMState)
   simp [hNone]
 
 /-- Gas becomes 0 for non-running states -/
-theorem selectAllGas_zero_of_not_running (state : VMState)
-    (h : state.status ≠ .running) : selectAllGas state = 0 := by
-  simp only [selectAllGas]
+theorem program_gas_zero_of_not_running (state : VMState)
+    (h : state.status ≠ .running) : program_gas state = 0 := by
+  simp only [program_gas]
   cases hStatus : state.status with
   | running => exact absurd hStatus h
   | halted _ => rfl
   | error _ => rfl
 
 /-- Combined invariant for program -/
-def selectAllCombinedInvariant (state : VMState) : Prop :=
-  selectAllInvariant state ∧ rewindPositionInvariant state
+def programCombinedInvariant (state : VMState) : Prop :=
+  programInvariant state ∧ rewindPositionInvariant state
 
 /-- Initial state satisfies combined invariant -/
-theorem selectAllCombinedInvariant_initial (db : Database) :
-    selectAllCombinedInvariant (mkInitialState db) :=
-  ⟨selectAllInvariant_initial db, rewindPositionInvariant_initial db⟩
+theorem programCombinedInvariant_initial (db : Database) :
+    programCombinedInvariant (mkInitialState db) :=
+  ⟨programInvariant_initial db, rewindPositionInvariant_initial db⟩
 
 /-- Combined invariant is preserved by step when PC is valid -/
-theorem selectAllCombinedInvariant_preserved (state : VMState)
-    (hInv : selectAllCombinedInvariant state)
+theorem programCombinedInvariant_preserved (state : VMState)
+    (hInv : programCombinedInvariant state)
     (hRunning : state.status = .running)
     (hValidPc : state.pc < program.size) :
-    selectAllCombinedInvariant (step program state) :=
-  ⟨selectAllInvariant_preserved state hInv.1 hRunning hValidPc,
+    programCombinedInvariant (step program state) :=
+  ⟨programInvariant_preserved state hInv.1 hRunning hValidPc,
    rewindPositionInvariant_preserved state hInv.2 hRunning hValidPc⟩
 
 /-- Gas decreases on every step (extended to handle invalid PC) -/
-theorem selectAllGas_decreases (state : VMState)
-    (hInv : selectAllCombinedInvariant state)
+theorem program_gas_decreases (state : VMState)
+    (hInv : programCombinedInvariant state)
     (hRunning : state.status = .running) :
-    selectAllGas (step program state) < selectAllGas state := by
+    program_gas (step program state) < program_gas state := by
   by_cases hValidPc : state.pc < program.size
-  · exact selectAllGas_decreases_step state hInv.1 hInv.2 hRunning hValidPc
+  · exact program_gas_decreases_step state hInv.1 hInv.2 hRunning hValidPc
   · -- Invalid PC: step produces error, gas becomes 0
     have hInvalidPc : state.pc ≥ program.size := Nat.not_lt.mp hValidPc
     have hError := step_invalid_pc state hRunning hInvalidPc
     have hNotRunning : (step program state).status ≠ .running := by
       simp [hError]
-    rw [selectAllGas_zero_of_not_running _ hNotRunning]
-    exact selectAllGas_pos_of_running state hRunning
+    rw [program_gas_zero_of_not_running _ hNotRunning]
+    exact program_gas_pos_of_running state hRunning
 
 /-- runBounded terminates with halted/error status when given enough fuel -/
 theorem runBounded_terminates (state : VMState)
-    (hInv : selectAllCombinedInvariant state)
+    (hInv : programCombinedInvariant state)
     (fuel : Nat)
-    (hFuel : fuel ≥ selectAllGas state) :
+    (hFuel : fuel ≥ program_gas state) :
     (runBounded program state fuel).status ≠ .running := by
   -- Induction on fuel
   induction fuel generalizing state with
   | zero =>
-    -- fuel = 0 means selectAllGas state = 0, so state is not running
+    -- fuel = 0 means program_gas state = 0, so state is not running
     simp only [runBounded]
     intro hRunning
-    have hGasPos := selectAllGas_pos_of_running state hRunning
+    have hGasPos := program_gas_pos_of_running state hRunning
     omega
   | succ n ih =>
     -- Use runBounded_step_comm: runBounded state (n+1) = runBounded (step state) n
@@ -696,10 +693,10 @@ theorem runBounded_terminates (state : VMState)
       apply ih
       · -- Invariant preserved by step
         by_cases hValidPc : state.pc < program.size
-        · exact selectAllCombinedInvariant_preserved state hInv hStatus hValidPc
+        · exact programCombinedInvariant_preserved state hInv hStatus hValidPc
         · -- Invalid PC: step produces error state
           have hInvalidPc : state.pc ≥ program.size := Nat.not_lt.mp hValidPc
-          simp only [selectAllCombinedInvariant, selectAllInvariant, rewindPositionInvariant]
+          simp only [programCombinedInvariant, programInvariant, rewindPositionInvariant]
           simp only [step, hStatus, program_size] at *
           have hNone : program[state.pc]? = none := array_getElem?_ge_size _ _ hInvalidPc
           simp only [hNone]
@@ -712,15 +709,15 @@ theorem runBounded_terminates (state : VMState)
           · intro hPc
             omega
       · -- Fuel sufficient for stepped state
-        have hDecrease := selectAllGas_decreases state hInv hStatus
+        have hDecrease := program_gas_decreases state hInv hStatus
         omega
 
 /-- Main termination theorem: program terminates for any database -/
 theorem program_terminates (db : Database) :
     ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := by
-  refine ⟨selectAllGas (mkInitialState db), ?_⟩
-  exact runBounded_terminates (mkInitialState db) (selectAllCombinedInvariant_initial db)
-    (selectAllGas (mkInitialState db)) (Nat.le_refl _)
+  refine ⟨program_gas (mkInitialState db), ?_⟩
+  exact runBounded_terminates (mkInitialState db) (programCombinedInvariant_initial db)
+    (program_gas (mkInitialState db)) (Nat.le_refl _)
 
 /-- The final state is either halted or an error -/
 theorem program_final_status (db : Database) :
@@ -736,17 +733,20 @@ theorem program_final_status (db : Database) :
   | running => exact hn h
 
 /-- Compute the required fuel for termination based on database size -/
-def selectAllRequiredFuel (db : Database) : Nat :=
-  selectAllGas (mkInitialState db)
+def programRequiredFuel (db : Database) : Nat :=
+  program_gas (mkInitialState db)
 
 /-- runBounded with required fuel terminates -/
 theorem program_terminates' (db : Database) :
-    (runBounded program (mkInitialState db) (selectAllRequiredFuel db)).status ≠ .running :=
-  runBounded_terminates (mkInitialState db) (selectAllCombinedInvariant_initial db)
-    (selectAllRequiredFuel db) (Nat.le_refl _)
+    (runBounded program (mkInitialState db) (programRequiredFuel db)).status ≠ .running :=
+  runBounded_terminates (mkInitialState db) (programCombinedInvariant_initial db)
+    (programRequiredFuel db) (Nat.le_refl _)
 
 #check program_terminates
 -- program_terminates : ∀ (db : Database),
 --   ∃ n, (runBounded program (mkInitialState db) n).status ≠ Status.running
 
-end Sqlite3Lean.Query0
+-- Test the gas analysis macro
+#analyze_def Sqlite3Lean.Example.program_gas
+
+end Sqlite3Lean.Example

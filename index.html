@@ -172,16 +172,12 @@
                 <div class="label">Total Queries</div>
             </div>
             <div class="stat-card">
-                <div class="number">1</div>
-                <div class="label">Fully Proved</div>
-            </div>
-            <div class="stat-card">
-                <div class="number">153</div>
-                <div class="label">With Sorry</div>
-            </div>
-            <div class="stat-card">
                 <div class="number">31</div>
-                <div class="label">All Opcodes OK</div>
+                <div class="label">Formalized</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">1</div>
+                <div class="label">Termination proved</div>
             </div>
         </div>
 
@@ -201,1401 +197,1246 @@
                     <th>SQL Query</th>
                     <th>Termination</th>
                     <th>Opcodes</th>
-                    <th>Runtime Bound</th>
-                    <th>PR #</th>
+                    <th>Gas Bound</th>
                 </tr>
             </thead>
             <tbody>
                 <tr data-status="proved" data-opcodes="opcodes-ok">
                     <td>1</td>
-                    <td class="query-name">Query0.lean</td>
+                    <td class="query-name">Example.lean</td>
                     <td class="sql-query" title="SELECT * FROM t">SELECT * FROM t</td>
                     <td class="status-yes">yes</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">O(remainingRows * loopCost + phaseOffset)</td>
-                    <td>-</td>
+                    <td class="status-yes">yes</td>
+                    <td><span class="runtime">10 * n + 9</span></td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>2</td>
                     <td class="query-name">select1/Query000001.lean</td>
                     <td class="sql-query" title="SELECT f1 FROM test1">SELECT f1 FROM test1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>3</td>
                     <td class="query-name">select1/Query000002.lean</td>
                     <td class="sql-query" title="SELECT f2 FROM test1">SELECT f2 FROM test1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>4</td>
                     <td class="query-name">select1/Query000003.lean</td>
                     <td class="sql-query" title="SELECT f2, f1 FROM test1">SELECT f2, f1 FROM test1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>5</td>
                     <td class="query-name">select1/Query000004.lean</td>
                     <td class="sql-query" title="SELECT f1, f2 FROM test1">SELECT f1, f2 FROM test1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>6</td>
                     <td class="query-name">select1/Query000005.lean</td>
                     <td class="sql-query" title="SELECT * FROM test1">SELECT * FROM test1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>7</td>
                     <td class="query-name">select1/Query000006.lean</td>
                     <td class="sql-query" title="SELECT *, * FROM test1">SELECT *, * FROM test1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>8</td>
                     <td class="query-name">select1/Query000007.lean</td>
                     <td class="sql-query" title="SELECT *, min(f1,f2), max(f1,f2) FROM test1">SELECT *, min(f1,f2), max(f1,f2) FROM test1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">collSeq, function</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>9</td>
                     <td class="query-name">select1/Query000008.lean</td>
                     <td class="sql-query" title="SELECT &#x27;one&#x27;, *, &#x27;two&#x27;, * FROM test1">SELECT &#x27;one&#x27;, *, &#x27;two&#x27;, * FROM test1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>10</td>
                     <td class="query-name">select1/Query000009.lean</td>
                     <td class="sql-query" title="SELECT * FROM test1, test2">SELECT * FROM test1, test2</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">realAffinity</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>11</td>
                     <td class="query-name">select1/Query000010.lean</td>
                     <td class="sql-query" title="SELECT *, &#x27;hi&#x27; FROM test1, test2">SELECT *, &#x27;hi&#x27; FROM test1, test2</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">realAffinity</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>12</td>
                     <td class="query-name">select1/Query000011.lean</td>
                     <td class="sql-query" title="SELECT &#x27;one&#x27;, *, &#x27;two&#x27;, * FROM test1, test2">SELECT &#x27;one&#x27;, *, &#x27;two&#x27;, * FROM test1, test2</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">realAffinity</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>13</td>
                     <td class="query-name">select1/Query000012.lean</td>
                     <td class="sql-query" title="SELECT test1.f1, test2.r1 FROM test1, test2">SELECT test1.f1, test2.r1 FROM test1, test2</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">realAffinity</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>14</td>
                     <td class="query-name">select1/Query000013.lean</td>
                     <td class="sql-query" title="SELECT test1.f1, test2.r1 FROM test2, test1">SELECT test1.f1, test2.r1 FROM test2, test1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">realAffinity</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>15</td>
                     <td class="query-name">select1/Query000014.lean</td>
                     <td class="sql-query" title="SELECT * FROM test2, test1">SELECT * FROM test2, test1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">realAffinity</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>16</td>
                     <td class="query-name">select1/Query000015.lean</td>
                     <td class="sql-query" title="SELECT * FROM test1 AS a, test1 AS b">SELECT * FROM test1 AS a, test1 AS b</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>17</td>
                     <td class="query-name">select1/Query000016.lean</td>
                     <td class="sql-query" title="SELECT max(test1.f1,test2.r1), min(test1.f2,test2.r2)">SELECT max(test1.f1,test2.r1), min(test1.f2,test2.r2)</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">collSeq, realAffinity, function</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>18</td>
                     <td class="query-name">select1/Query000017.lean</td>
                     <td class="sql-query" title="SELECT min(test1.f1,test2.r1), max(test1.f2,test2.r2)">SELECT min(test1.f1,test2.r1), max(test1.f2,test2.r2)</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">collSeq, realAffinity, function</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>19</td>
                     <td class="query-name">select1/Query000018.lean</td>
                     <td class="sql-query" title="SELECT * FROM t3;">SELECT * FROM t3;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>20</td>
                     <td class="query-name">select1/Query000019.lean</td>
                     <td class="sql-query" title="SELECT count(f1) FROM test1">SELECT count(f1) FROM test1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>21</td>
                     <td class="query-name">select1/Query000020.lean</td>
                     <td class="sql-query" title="SELECT Count() FROM test1">SELECT Count() FROM test1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">close, count</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>22</td>
                     <td class="query-name">select1/Query000021.lean</td>
                     <td class="sql-query" title="SELECT COUNT(*) FROM test1">SELECT COUNT(*) FROM test1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">close, count</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>23</td>
                     <td class="query-name">select1/Query000022.lean</td>
                     <td class="sql-query" title="SELECT COUNT(*)+1 FROM test1">SELECT COUNT(*)+1 FROM test1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">add</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>24</td>
                     <td class="query-name">select1/Query000023.lean</td>
                     <td class="sql-query" title="SELECT count(*),count(a),count(b) FROM t3">SELECT count(*),count(a),count(b) FROM t3</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>25</td>
                     <td class="query-name">select1/Query000024.lean</td>
                     <td class="sql-query" title="SELECT count(*),count(a),count(b) FROM t4">SELECT count(*),count(a),count(b) FROM t4</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>26</td>
                     <td class="query-name">select1/Query000025.lean</td>
                     <td class="sql-query" title="SELECT count(*),count(a),count(b) FROM t4 WHERE b=5">SELECT count(*),count(a),count(b) FROM t4 WHERE b=5</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>27</td>
                     <td class="query-name">select1/Query000026.lean</td>
                     <td class="sql-query" title="SELECT Min(f1) FROM test1">SELECT Min(f1) FROM test1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">collSeq</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>28</td>
                     <td class="query-name">select1/Query000027.lean</td>
                     <td class="sql-query" title="SELECT MIN(f1,f2) FROM test1">SELECT MIN(f1,f2) FROM test1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">collSeq, function</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>29</td>
                     <td class="query-name">select1/Query000028.lean</td>
                     <td class="sql-query" title="SELECT coalesce(min(a),&#x27;xyzzy&#x27;) FROM t3">SELECT coalesce(min(a),&#x27;xyzzy&#x27;) FROM t3</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">scopy, collSeq, notNull</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>30</td>
                     <td class="query-name">select1/Query000029.lean</td>
                     <td class="sql-query" title="SELECT min(coalesce(a,&#x27;xyzzy&#x27;)) FROM t3">SELECT min(coalesce(a,&#x27;xyzzy&#x27;)) FROM t3</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">collSeq, notNull</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>31</td>
                     <td class="query-name">select1/Query000030.lean</td>
                     <td class="sql-query" title="SELECT min(b), min(b) FROM t4">SELECT min(b), min(b) FROM t4</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">collSeq</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>32</td>
                     <td class="query-name">select1/Query000031.lean</td>
                     <td class="sql-query" title="SELECT Max(f1) FROM test1">SELECT Max(f1) FROM test1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">collSeq</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>33</td>
                     <td class="query-name">select1/Query000032.lean</td>
                     <td class="sql-query" title="SELECT max(f1,f2) FROM test1">SELECT max(f1,f2) FROM test1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">collSeq, function</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>34</td>
                     <td class="query-name">select1/Query000033.lean</td>
                     <td class="sql-query" title="SELECT MAX(f1,f2)+1 FROM test1">SELECT MAX(f1,f2)+1 FROM test1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">add, collSeq, function</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>35</td>
                     <td class="query-name">select1/Query000034.lean</td>
                     <td class="sql-query" title="SELECT MAX(f1)+1 FROM test1">SELECT MAX(f1)+1 FROM test1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">collSeq, add</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>36</td>
                     <td class="query-name">select1/Query000035.lean</td>
                     <td class="sql-query" title="SELECT coalesce(max(a),&#x27;xyzzy&#x27;) FROM t3">SELECT coalesce(max(a),&#x27;xyzzy&#x27;) FROM t3</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">scopy, collSeq, notNull</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>37</td>
                     <td class="query-name">select1/Query000036.lean</td>
                     <td class="sql-query" title="SELECT max(coalesce(a,&#x27;xyzzy&#x27;)) FROM t3">SELECT max(coalesce(a,&#x27;xyzzy&#x27;)) FROM t3</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">collSeq, notNull</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>38</td>
                     <td class="query-name">select1/Query000037.lean</td>
                     <td class="sql-query" title="SELECT Sum(f1) FROM test1">SELECT Sum(f1) FROM test1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>39</td>
                     <td class="query-name">select1/Query000038.lean</td>
                     <td class="sql-query" title="SELECT SUM(f1)+1 FROM test1">SELECT SUM(f1)+1 FROM test1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">add</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>40</td>
                     <td class="query-name">select1/Query000039.lean</td>
                     <td class="sql-query" title="SELECT sum(a) FROM t3">SELECT sum(a) FROM t3</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>41</td>
                     <td class="query-name">select1/Query000040.lean</td>
                     <td class="sql-query" title="SELECT SUM(min(f1,f2)) FROM test1">SELECT SUM(min(f1,f2)) FROM test1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">collSeq, function</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>42</td>
                     <td class="query-name">select1/Query000041.lean</td>
                     <td class="sql-query" title="SELECT f1 FROM test1 WHERE f1&lt;11">SELECT f1 FROM test1 WHERE f1&lt;11</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">ge</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>43</td>
                     <td class="query-name">select1/Query000042.lean</td>
                     <td class="sql-query" title="SELECT f1 FROM test1 WHERE f1&lt;=11">SELECT f1 FROM test1 WHERE f1&lt;=11</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">gt</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>44</td>
                     <td class="query-name">select1/Query000043.lean</td>
                     <td class="sql-query" title="SELECT f1 FROM test1 WHERE f1=11">SELECT f1 FROM test1 WHERE f1=11</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>45</td>
                     <td class="query-name">select1/Query000044.lean</td>
                     <td class="sql-query" title="SELECT f1 FROM test1 WHERE f1&gt;=11">SELECT f1 FROM test1 WHERE f1&gt;=11</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">lt</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>46</td>
                     <td class="query-name">select1/Query000045.lean</td>
                     <td class="sql-query" title="SELECT f1 FROM test1 WHERE f1&gt;11">SELECT f1 FROM test1 WHERE f1&gt;11</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">le</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>47</td>
                     <td class="query-name">select1/Query000046.lean</td>
                     <td class="sql-query" title="SELECT f1 FROM test1 WHERE f1!=11">SELECT f1 FROM test1 WHERE f1!=11</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>48</td>
                     <td class="query-name">select1/Query000047.lean</td>
                     <td class="sql-query" title="SELECT f1 FROM test1 WHERE min(f1,f2)!=11">SELECT f1 FROM test1 WHERE min(f1,f2)!=11</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">collSeq, function</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>49</td>
                     <td class="query-name">select1/Query000048.lean</td>
                     <td class="sql-query" title="SELECT f1 FROM test1 WHERE max(f1,f2)!=11">SELECT f1 FROM test1 WHERE max(f1,f2)!=11</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">collSeq, function</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>50</td>
                     <td class="query-name">select1/Query000049.lean</td>
                     <td class="sql-query" title="SELECT f1 FROM test1 ORDER BY f1">SELECT f1 FROM test1 ORDER BY f1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+2)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>51</td>
                     <td class="query-name">select1/Query000050.lean</td>
                     <td class="sql-query" title="SELECT f1 FROM test1 ORDER BY -f1">SELECT f1 FROM test1 ORDER BY -f1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+3)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>52</td>
                     <td class="query-name">select1/Query000051.lean</td>
                     <td class="sql-query" title="SELECT f1 FROM test1 ORDER BY min(f1,f2)">SELECT f1 FROM test1 ORDER BY min(f1,f2)</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, collSeq, sorterOpen, function (+4)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>53</td>
                     <td class="query-name">select1/Query000052.lean</td>
                     <td class="sql-query" title="SELECT f1 FROM test1 ORDER BY 8.4">SELECT f1 FROM test1 ORDER BY 8.4</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+3)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>54</td>
                     <td class="query-name">select1/Query000053.lean</td>
                     <td class="sql-query" title="SELECT f1 FROM test1 ORDER BY &#x27;8.4&#x27;">SELECT f1 FROM test1 ORDER BY &#x27;8.4&#x27;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+2)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>55</td>
                     <td class="query-name">select1/Query000054.lean</td>
                     <td class="sql-query" title="SELECT * FROM t5 ORDER BY 1;">SELECT * FROM t5 ORDER BY 1;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+2)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>56</td>
                     <td class="query-name">select1/Query000055.lean</td>
                     <td class="sql-query" title="SELECT * FROM t5 ORDER BY 2;">SELECT * FROM t5 ORDER BY 2;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+2)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>57</td>
                     <td class="query-name">select1/Query000056.lean</td>
                     <td class="sql-query" title="SELECT * FROM t5 ORDER BY +2;">SELECT * FROM t5 ORDER BY +2;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+2)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>58</td>
                     <td class="query-name">select1/Query000057.lean</td>
                     <td class="sql-query" title="SELECT * FROM t5 ORDER BY 2, 1 DESC;">SELECT * FROM t5 ORDER BY 2, 1 DESC;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+2)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>59</td>
                     <td class="query-name">select1/Query000058.lean</td>
                     <td class="sql-query" title="SELECT * FROM t5 ORDER BY 1 DESC, b;">SELECT * FROM t5 ORDER BY 1 DESC, b;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+2)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>60</td>
                     <td class="query-name">select1/Query000059.lean</td>
                     <td class="sql-query" title="SELECT * FROM t5 ORDER BY b DESC, 1;">SELECT * FROM t5 ORDER BY b DESC, 1;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+2)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>61</td>
                     <td class="query-name">select1/Query000060.lean</td>
                     <td class="sql-query" title="SELECT max(f1) FROM test1 ORDER BY f2">SELECT max(f1) FROM test1 ORDER BY f2</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">if, collSeq, sorterOpen</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>62</td>
                     <td class="query-name">select1/Query000061.lean</td>
                     <td class="sql-query" title="SELECT f1 FROM test1 ORDER BY f2">SELECT f1 FROM test1 ORDER BY f2</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+2)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>63</td>
                     <td class="query-name">select1/Query000062.lean</td>
                     <td class="sql-query" title="SELECT f1 FROM test1 ORDER BY f2">SELECT f1 FROM test1 ORDER BY f2</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+2)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>64</td>
                     <td class="query-name">select1/Query000063.lean</td>
                     <td class="sql-query" title="SELECT f1 as &#x27;f1&#x27; FROM test1 ORDER BY f2">SELECT f1 as &#x27;f1&#x27; FROM test1 ORDER BY f2</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+2)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>65</td>
                     <td class="query-name">select1/Query000064.lean</td>
                     <td class="sql-query" title="SELECT * FROM test1 WHERE f1==11">SELECT * FROM test1 WHERE f1==11</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>66</td>
                     <td class="query-name">select1/Query000065.lean</td>
                     <td class="sql-query" title="SELECT DISTINCT * FROM test1 WHERE f1==11">SELECT DISTINCT * FROM test1 WHERE f1==11</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">found, makeRecord, idxInsert, openEphemeral</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>67</td>
                     <td class="query-name">select1/Query000066.lean</td>
                     <td class="sql-query" title="SELECT * FROM test1 WHERE f1==11">SELECT * FROM test1 WHERE f1==11</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>68</td>
                     <td class="query-name">select1/Query000067.lean</td>
                     <td class="sql-query" title="SELECT DISTINCT * FROM test1 WHERE f1==11">SELECT DISTINCT * FROM test1 WHERE f1==11</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">found, makeRecord, idxInsert, openEphemeral</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>69</td>
                     <td class="query-name">select1/Query000068.lean</td>
                     <td class="sql-query" title="SELECT f1 as xyzzy FROM test1 ORDER BY f2">SELECT f1 as xyzzy FROM test1 ORDER BY f2</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+2)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>70</td>
                     <td class="query-name">select1/Query000069.lean</td>
                     <td class="sql-query" title="SELECT f1 as &quot;xyzzy&quot; FROM test1 ORDER BY f2">SELECT f1 as &quot;xyzzy&quot; FROM test1 ORDER BY f2</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+2)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>71</td>
                     <td class="query-name">select1/Query000070.lean</td>
                     <td class="sql-query" title="SELECT f1 as &#x27;xyzzy &#x27; FROM test1 ORDER BY f2">SELECT f1 as &#x27;xyzzy &#x27; FROM test1 ORDER BY f2</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+2)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>72</td>
                     <td class="query-name">select1/Query000071.lean</td>
                     <td class="sql-query" title="SELECT f1+F2 as xyzzy FROM test1 ORDER BY f2">SELECT f1+F2 as xyzzy FROM test1 ORDER BY f2</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+3)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>73</td>
                     <td class="query-name">select1/Query000072.lean</td>
                     <td class="sql-query" title="SELECT f1+F2 FROM test1 ORDER BY f2">SELECT f1+F2 FROM test1 ORDER BY f2</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+3)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>74</td>
                     <td class="query-name">select1/Query000073.lean</td>
                     <td class="sql-query" title="SELECT test1.f1+F2 FROM test1 ORDER BY f2">SELECT test1.f1+F2 FROM test1 ORDER BY f2</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+3)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>75</td>
                     <td class="query-name">select1/Query000074.lean</td>
                     <td class="sql-query" title="SELECT test1.f1+F2 FROM test1 ORDER BY f2">SELECT test1.f1+F2 FROM test1 ORDER BY f2</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+3)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>76</td>
                     <td class="query-name">select1/Query000075.lean</td>
                     <td class="sql-query" title="SELECT test1.f1+F2, t1 FROM test1, test2">SELECT test1.f1+F2, t1 FROM test1, test2</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+3)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>77</td>
                     <td class="query-name">select1/Query000076.lean</td>
                     <td class="sql-query" title="SELECT A.f1, t1 FROM test1 as A, test2">SELECT A.f1, t1 FROM test1 as A, test2</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+2)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>78</td>
                     <td class="query-name">select1/Query000077.lean</td>
                     <td class="sql-query" title="SELECT A.f1, B.f1 FROM test1 as A, test1 as B">SELECT A.f1, B.f1 FROM test1 as A, test1 as B</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+2)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>79</td>
                     <td class="query-name">select1/Query000078.lean</td>
                     <td class="sql-query" title="SELECT test1 . f1, test1 . f2 FROM test1 LIMIT 1">SELECT test1 . f1, test1 . f2 FROM test1 LIMIT 1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">decrJumpZero</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>80</td>
                     <td class="query-name">select1/Query000079.lean</td>
                     <td class="sql-query" title="SELECT test1 . f1, test1 . f2 FROM test1 LIMIT 1">SELECT test1 . f1, test1 . f2 FROM test1 LIMIT 1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">decrJumpZero</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>81</td>
                     <td class="query-name">select1/Query000080.lean</td>
                     <td class="sql-query" title="SELECT 123.45;">SELECT 123.45;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">real</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>82</td>
                     <td class="query-name">select1/Query000081.lean</td>
                     <td class="sql-query" title="SELECT * FROM test1 a, test1 b LIMIT 1">SELECT * FROM test1 a, test1 b LIMIT 1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">decrJumpZero</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>83</td>
                     <td class="query-name">select1/Query000082.lean</td>
                     <td class="sql-query" title="SELECT * FROM test1 a, (select 5, 6) LIMIT 1">SELECT * FROM test1 a, (select 5, 6) LIMIT 1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">yield, initCoroutine, endCoroutine, decrJumpZero</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>84</td>
                     <td class="query-name">select1/Query000083.lean</td>
                     <td class="sql-query" title="SELECT * FROM test1 a, (select 5 AS x, 6 AS y) AS b LIMIT 1">SELECT * FROM test1 a, (select 5 AS x, 6 AS y) AS b LIMIT 1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">yield, initCoroutine, endCoroutine, decrJumpZero</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>85</td>
                     <td class="query-name">select1/Query000084.lean</td>
                     <td class="sql-query" title="SELECT a.f1, b.f2 FROM test1 a, test1 b LIMIT 1">SELECT a.f1, b.f2 FROM test1 a, test1 b LIMIT 1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">decrJumpZero</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>86</td>
                     <td class="query-name">select1/Query000085.lean</td>
                     <td class="sql-query" title="SELECT f1, t1 FROM test1, test2 LIMIT 1">SELECT f1, t1 FROM test1, test2 LIMIT 1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">decrJumpZero</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>87</td>
                     <td class="query-name">select1/Query000086.lean</td>
                     <td class="sql-query" title="SELECT a.f1, b.f2 FROM test1 a, test1 b LIMIT 1">SELECT a.f1, b.f2 FROM test1 a, test1 b LIMIT 1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">decrJumpZero</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>88</td>
                     <td class="query-name">select1/Query000087.lean</td>
                     <td class="sql-query" title="SELECT f1, t1 FROM test1, test2 LIMIT 1">SELECT f1, t1 FROM test1, test2 LIMIT 1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">decrJumpZero</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>89</td>
                     <td class="query-name">select1/Query000088.lean</td>
                     <td class="sql-query" title="SELECT a.f1, b.f1 FROM test1 a, test1 b LIMIT 1">SELECT a.f1, b.f1 FROM test1 a, test1 b LIMIT 1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">decrJumpZero</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>90</td>
                     <td class="query-name">select1/Query000089.lean</td>
                     <td class="sql-query" title="SELECT f1, t1 FROM test1, test2 LIMIT 1">SELECT f1, t1 FROM test1, test2 LIMIT 1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">decrJumpZero</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>91</td>
                     <td class="query-name">select1/Query000090.lean</td>
                     <td class="sql-query" title="SELECT a.f1, b.f1 FROM test1 a, test1 b LIMIT 1">SELECT a.f1, b.f1 FROM test1 a, test1 b LIMIT 1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">decrJumpZero</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>92</td>
                     <td class="query-name">select1/Query000091.lean</td>
                     <td class="sql-query" title="SELECT f1, t1 FROM test1, test2 LIMIT 1">SELECT f1, t1 FROM test1, test2 LIMIT 1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">decrJumpZero</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>93</td>
                     <td class="query-name">select1/Query000092.lean</td>
                     <td class="sql-query" title="SELECT f1 FROM test1 UNION SELECT f2 FROM test1">SELECT f1 FROM test1 UNION SELECT f2 FROM test1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">initCoroutine, sorterData, sorterInsert, sorterOpen, ifNot (+11)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>94</td>
                     <td class="query-name">select1/Query000093.lean</td>
                     <td class="sql-query" title="SELECT a FROM t6 WHERE b IN">SELECT a FROM t6 WHERE b IN</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">blob, sorterInsert, jump, filterAdd, isNull (+25)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>95</td>
                     <td class="query-name">select1/Query000094.lean</td>
                     <td class="sql-query" title="SELECT a FROM t6 WHERE b IN">SELECT a FROM t6 WHERE b IN</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">blob, sorterInsert, jump, filterAdd, isNull (+25)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>96</td>
                     <td class="query-name">select1/Query000095.lean</td>
                     <td class="sql-query" title="SELECT a FROM t6 WHERE b IN">SELECT a FROM t6 WHERE b IN</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">blob, sorterInsert, jump, filterAdd, isNull (+25)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>97</td>
                     <td class="query-name">select1/Query000096.lean</td>
                     <td class="sql-query" title="SELECT a FROM t6 WHERE b IN">SELECT a FROM t6 WHERE b IN</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">blob, sorterInsert, jump, filterAdd, isNull (+25)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>98</td>
                     <td class="query-name">select1/Query000097.lean</td>
                     <td class="sql-query" title="SELECT f1 FROM test1 WHERE 4.3+2.4 OR 1 ORDER BY f1">SELECT f1 FROM test1 WHERE 4.3+2.4 OR 1 ORDER BY f1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+2)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>99</td>
                     <td class="query-name">select1/Query000098.lean</td>
                     <td class="sql-query" title="SELECT f1 FROM test1 WHERE (&#x27;x&#x27; || f1) BETWEEN &#x27;x10&#x27; AND &#x27;x20&#x27;">SELECT f1 FROM test1 WHERE (&#x27;x&#x27; || f1) BETWEEN &#x27;x10&#x27; AND &#x27;x20&#x27;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, lt, gt (+5)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>100</td>
                     <td class="query-name">select1/Query000099.lean</td>
                     <td class="sql-query" title="SELECT f1 FROM test1 WHERE 5-3==2">SELECT f1 FROM test1 WHERE 5-3==2</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+3)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>101</td>
                     <td class="query-name">select1/Query000100.lean</td>
                     <td class="sql-query" title="SELECT min(1,2,3), -max(1,2,3)">SELECT min(1,2,3), -max(1,2,3)</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">once, sorterData, sorterInsert, sorterOpen, collSeq (+6)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>102</td>
                     <td class="query-name">select1/Query000101.lean</td>
                     <td class="sql-query" title="SELECT * FROM test1 WHERE f1&lt;0">SELECT * FROM test1 WHERE f1&lt;0</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">ge</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>103</td>
                     <td class="query-name">select1/Query000102.lean</td>
                     <td class="sql-query" title="SELECT * FROM test1 WHERE f1&lt;(select count(*) from test2)">SELECT * FROM test1 WHERE f1&lt;(select count(*) from test2)</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">once, decrJumpZero, count, ge, beginSubrtn (+3)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>104</td>
                     <td class="query-name">select1/Query000103.lean</td>
                     <td class="sql-query" title="SELECT * FROM test1 ORDER BY f1">SELECT * FROM test1 ORDER BY f1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+2)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>105</td>
                     <td class="query-name">select1/Query000104.lean</td>
                     <td class="sql-query" title="SELECT * FROM test1 WHERE f1&lt;0 ORDER BY f1">SELECT * FROM test1 WHERE f1&lt;0 ORDER BY f1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, ge, openPseudo (+3)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>106</td>
                     <td class="query-name">select1/Query000105.lean</td>
                     <td class="sql-query" title="SELECT f1 AS x FROM test1 ORDER BY x">SELECT f1 AS x FROM test1 ORDER BY x</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+2)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>107</td>
                     <td class="query-name">select1/Query000106.lean</td>
                     <td class="sql-query" title="SELECT f1 AS x FROM test1 ORDER BY -x">SELECT f1 AS x FROM test1 ORDER BY -x</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+3)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>108</td>
                     <td class="query-name">select1/Query000107.lean</td>
                     <td class="sql-query" title="SELECT f1-23 AS x FROM test1 ORDER BY abs(x)">SELECT f1-23 AS x FROM test1 ORDER BY abs(x)</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, function, openPseudo (+4)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>109</td>
                     <td class="query-name">select1/Query000108.lean</td>
                     <td class="sql-query" title="SELECT f1-23 AS x FROM test1 ORDER BY -abs(x)">SELECT f1-23 AS x FROM test1 ORDER BY -abs(x)</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, function, openPseudo (+4)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>110</td>
                     <td class="query-name">select1/Query000109.lean</td>
                     <td class="sql-query" title="SELECT f1-22 AS x, f2-22 as y FROM test1">SELECT f1-22 AS x, f2-22 as y FROM test1</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">subtract</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>111</td>
                     <td class="query-name">select1/Query000110.lean</td>
                     <td class="sql-query" title="SELECT f1-22 AS x, f2-22 as y FROM test1 WHERE x&gt;0 AND y&lt;50">SELECT f1-22 AS x, f2-22 as y FROM test1 WHERE x&gt;0 AND y&lt;50</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">subtract, ge, le</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>112</td>
                     <td class="query-name">select1/Query000111.lean</td>
                     <td class="sql-query" title="SELECT f1 COLLATE nocase AS x FROM test1 ORDER BY x">SELECT f1 COLLATE nocase AS x FROM test1 ORDER BY x</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">sorterData, sorterInsert, sorterOpen, openPseudo, makeRecord (+2)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>113</td>
                     <td class="query-name">select1/Query000112.lean</td>
                     <td class="sql-query" title="SELECT * FROM t3, t4;">SELECT * FROM t3, t4;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>114</td>
                     <td class="query-name">select1/Query000113.lean</td>
                     <td class="sql-query" title="SELECT t3.*, t4.b FROM t3, t4;">SELECT t3.*, t4.b FROM t3, t4;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>115</td>
                     <td class="query-name">select1/Query000114.lean</td>
                     <td class="sql-query" title="SELECT &quot;t3&quot;.*, t4.b FROM t3, t4;">SELECT &quot;t3&quot;.*, t4.b FROM t3, t4;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>116</td>
                     <td class="query-name">select1/Query000115.lean</td>
                     <td class="sql-query" title="SELECT x.*, y.b FROM t3 AS x, t4 AS y;">SELECT x.*, y.b FROM t3 AS x, t4 AS y;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>117</td>
                     <td class="query-name">select1/Query000116.lean</td>
                     <td class="sql-query" title="SELECT t3.b, t4.* FROM t3, t4;">SELECT t3.b, t4.* FROM t3, t4;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>118</td>
                     <td class="query-name">select1/Query000117.lean</td>
                     <td class="sql-query" title="SELECT x.b, y.* FROM t3 AS x, t4 AS y;">SELECT x.b, y.* FROM t3 AS x, t4 AS y;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>119</td>
                     <td class="query-name">select1/Query000118.lean</td>
                     <td class="sql-query" title="SELECT t3.* FROM t3, (SELECT max(a), max(b) FROM t4)">SELECT t3.* FROM t3, (SELECT max(a), max(b) FROM t4)</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">yield, initCoroutine, endCoroutine, collSeq</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>120</td>
                     <td class="query-name">select1/Query000119.lean</td>
                     <td class="sql-query" title="SELECT t3.* FROM (SELECT max(a), max(b) FROM t4), t3">SELECT t3.* FROM (SELECT max(a), max(b) FROM t4), t3</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">yield, initCoroutine, endCoroutine, collSeq</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>121</td>
                     <td class="query-name">select1/Query000120.lean</td>
                     <td class="sql-query" title="SELECT * FROM t3, (SELECT max(a), max(b) FROM t4) AS &#x27;tx&#x27;">SELECT * FROM t3, (SELECT max(a), max(b) FROM t4) AS &#x27;tx&#x27;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">yield, initCoroutine, endCoroutine, collSeq</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>122</td>
                     <td class="query-name">select1/Query000121.lean</td>
                     <td class="sql-query" title="SELECT y.*, t3.* FROM t3, (SELECT max(a), max(b) FROM t4) AS y">SELECT y.*, t3.* FROM t3, (SELECT max(a), max(b) FROM t4) AS y</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">yield, initCoroutine, endCoroutine, collSeq</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>123</td>
                     <td class="query-name">select1/Query000122.lean</td>
                     <td class="sql-query" title="SELECT y.* FROM t3 as y, t4 as z">SELECT y.* FROM t3 as y, t4 as z</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>124</td>
                     <td class="query-name">select1/Query000123.lean</td>
                     <td class="sql-query" title="SELECT 1+2+3">SELECT 1+2+3</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">add</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>125</td>
                     <td class="query-name">select1/Query000124.lean</td>
                     <td class="sql-query" title="SELECT 1,&#x27;hello&#x27;,2">SELECT 1,&#x27;hello&#x27;,2</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>126</td>
                     <td class="query-name">select1/Query000125.lean</td>
                     <td class="sql-query" title="SELECT 1 AS &#x27;a&#x27;,&#x27;hello&#x27; AS &#x27;b&#x27;,2 AS &#x27;c&#x27;">SELECT 1 AS &#x27;a&#x27;,&#x27;hello&#x27; AS &#x27;b&#x27;,2 AS &#x27;c&#x27;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>127</td>
                     <td class="query-name">select1/Query000126.lean</td>
                     <td class="sql-query" title="SELECT * FROM t3 UNION SELECT 3 AS &#x27;a&#x27;, 4 ORDER BY a;">SELECT * FROM t3 UNION SELECT 3 AS &#x27;a&#x27;, 4 ORDER BY a;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">initCoroutine, sorterData, sorterInsert, sorterOpen, ifNot (+12)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>128</td>
                     <td class="query-name">select1/Query000127.lean</td>
                     <td class="sql-query" title="SELECT 3, 4 UNION SELECT * FROM t3;">SELECT 3, 4 UNION SELECT * FROM t3;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">close, makeRecord, idxInsert, openEphemeral</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>129</td>
                     <td class="query-name">select1/Query000128.lean</td>
                     <td class="sql-query" title="SELECT * FROM t3 WHERE a=(SELECT 1);">SELECT * FROM t3 WHERE a=(SELECT 1);</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">once, decrJumpZero, beginSubrtn, return, isNull</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>130</td>
                     <td class="query-name">select1/Query000129.lean</td>
                     <td class="sql-query" title="SELECT * FROM t3 WHERE a=(SELECT 2);">SELECT * FROM t3 WHERE a=(SELECT 2);</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">once, decrJumpZero, beginSubrtn, return, isNull</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>131</td>
                     <td class="query-name">select1/Query000130.lean</td>
                     <td class="sql-query" title="SELECT x FROM (">SELECT x FROM (</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">initCoroutine, sorterData, sorterInsert, sorterOpen, openPseudo (+8)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>132</td>
                     <td class="query-name">select1/Query000131.lean</td>
                     <td class="sql-query" title="SELECT z.x FROM (">SELECT z.x FROM (</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">initCoroutine, sorterData, sorterInsert, sorterOpen, openPseudo (+8)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>133</td>
                     <td class="query-name">select1/Query000132.lean</td>
                     <td class="sql-query" title="SELECT count(">SELECT count(</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">seekGE, decrJumpZero, beginSubrtn, return, isNull (+1)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>134</td>
                     <td class="query-name">select1/Query000133.lean</td>
                     <td class="sql-query" title="SELECT name FROM sqlite_master WHERE type = &#x27;table&#x27;">SELECT name FROM sqlite_master WHERE type = &#x27;table&#x27;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>135</td>
                     <td class="query-name">select1/Query000134.lean</td>
                     <td class="sql-query" title="SELECT * FROM sqlite_master WHERE rowid&gt;10;">SELECT * FROM sqlite_master WHERE rowid&gt;10;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">seekGT</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>136</td>
                     <td class="query-name">select1/Query000135.lean</td>
                     <td class="sql-query" title="SELECT * FROM sqlite_master WHERE rowid=10;">SELECT * FROM sqlite_master WHERE rowid=10;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">seekRowid</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>137</td>
                     <td class="query-name">select1/Query000136.lean</td>
                     <td class="sql-query" title="SELECT * FROM sqlite_master WHERE rowid&lt;10;">SELECT * FROM sqlite_master WHERE rowid&lt;10;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">rowid, ge</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>138</td>
                     <td class="query-name">select1/Query000137.lean</td>
                     <td class="sql-query" title="SELECT * FROM sqlite_master WHERE rowid&lt;=10;">SELECT * FROM sqlite_master WHERE rowid&lt;=10;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">gt, rowid</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>139</td>
                     <td class="query-name">select1/Query000138.lean</td>
                     <td class="sql-query" title="SELECT * FROM sqlite_master WHERE rowid&gt;=10;">SELECT * FROM sqlite_master WHERE rowid&gt;=10;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">seekGE</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-ok">
                     <td>140</td>
                     <td class="query-name">select1/Query000139.lean</td>
                     <td class="sql-query" title="SELECT * FROM sqlite_master;">SELECT * FROM sqlite_master;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-yes">ok</td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-yes">yes</td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>141</td>
                     <td class="query-name">select1/Query000140.lean</td>
                     <td class="sql-query" title="SELECT 10 IN (SELECT rowid FROM sqlite_master);">SELECT 10 IN (SELECT rowid FROM sqlite_master);</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">once, seekRowid, addImm</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>142</td>
                     <td class="query-name">select1/Query000141.lean</td>
                     <td class="sql-query" title="SELECT 2 IN (SELECT a FROM t1)">SELECT 2 IN (SELECT a FROM t1)</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">once, affinity, found, addImm, notNull</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>143</td>
                     <td class="query-name">select1/Query000142.lean</td>
                     <td class="sql-query" title="SELECT 2 IN (SELECT a FROM t1)">SELECT 2 IN (SELECT a FROM t1)</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">notNull, once, blob, affinity, filterAdd (+8)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>144</td>
                     <td class="query-name">select1/Query000143.lean</td>
                     <td class="sql-query" title="SELECT * FROM t1,(SELECT * FROM t2 WHERE y=2 ORDER BY y,z);">SELECT * FROM t1,(SELECT * FROM t2 WHERE y=2 ORDER BY y,z);</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">deferredSeek, seekGE, idxGT</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>145</td>
                     <td class="query-name">select1/Query000144.lean</td>
                     <td class="sql-query" title="SELECT * FROM t1,(SELECT * FROM t2 WHERE y=2 ORDER BY y,z LIMIT 4);">SELECT * FROM t1,(SELECT * FROM t2 WHERE y=2 ORDER BY y,z LIMIT 4);</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">seekGE, jump, idxLE, endCoroutine, sort (+17)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>146</td>
                     <td class="query-name">select1/Query000145.lean</td>
                     <td class="sql-query" title="SELECT * FROM t1,(SELECT * FROM t2 WHERE y=2">SELECT * FROM t1,(SELECT * FROM t2 WHERE y=2</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">seekGE, jump, idxLE, endCoroutine, sort (+19)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>147</td>
                     <td class="query-name">select1/Query000146.lean</td>
                     <td class="sql-query" title="SELECT x FROM t2, t1 WHERE x BETWEEN c AND null OR x AND">SELECT x FROM t2, t1 WHERE x BETWEEN c AND null OR x AND</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">idxRowid, seekGE, lt, zeroOrNull, filterAdd (+25)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>148</td>
                     <td class="query-name">select1/Query000147.lean</td>
                     <td class="sql-query" title="SELECT x FROM t2, t1 WHERE x BETWEEN c AND (c+1) OR x AND">SELECT x FROM t2, t1 WHERE x BETWEEN c AND (c+1) OR x AND</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">idxRowid, seekGE, lt, zeroOrNull, filterAdd (+26)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>149</td>
                     <td class="query-name">select1/Query000148.lean</td>
                     <td class="sql-query" title="SELECT 1 FROM t1 WHERE (">SELECT 1 FROM t1 WHERE (</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">initCoroutine, deferredSeek, idxRowid, ifNot, decrJumpZero (+11)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>150</td>
                     <td class="query-name">select1/Query000149.lean</td>
                     <td class="sql-query" title="SELECT 1 FROM t1, t2 WHERE (">SELECT 1 FROM t1, t2 WHERE (</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">initCoroutine, deferredSeek, seekGE, decrJumpZero, ifNot (+11)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>151</td>
                     <td class="query-name">select1/Query000150.lean</td>
                     <td class="sql-query" title="SELECT*FROM&quot;main&quot;.&quot;t1&quot;">SELECT*FROM&quot;main&quot;.&quot;t1&quot;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">ifNullRow, rowid</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>152</td>
                     <td class="query-name">select1/Query000151.lean</td>
                     <td class="sql-query" title="SELECT * FROM t1 JOIN t1 USING(a,b)">SELECT * FROM t1 JOIN t1 USING(a,b)</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">idxRowid, seekGE, jump, ifPos, ifNullRow (+14)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>153</td>
                     <td class="query-name">select1/Query000152.lean</td>
                     <td class="sql-query" title="SELECT ifnull(a, max((SELECT 123))), count(a) FROM t1 ;">SELECT ifnull(a, max((SELECT 123))), count(a) FROM t1 ;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">once, collSeq, decrJumpZero, if, rowid (+4)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
                 <tr data-status="sorry" data-opcodes="opcodes-missing">
                     <td>154</td>
                     <td class="query-name">select1/Query000153.lean</td>
                     <td class="sql-query" title="SELECT a,(+a)b,(+a)b,(+a)b,NOT EXISTS(SELECT null FROM t2),CASE z WHEN 487 THEN 992 WHEN 391 THEN 203 WHEN 10 THEN &#x27;?k&lt;D Q&#x27; END,&#x27;&#x27; FROM t1 LEFT JOIN v1a ON z=b;">SELECT a,(+a)b,(+a)b,(+a)b,NOT EXISTS(SELECT null FROM t2),CASE z WHEN 487 THEN 992 WHEN 391 THEN 203 WHEN 10 THEN &#x27;?k&lt;D Q&#x27; END,&#x27;&#x27; FROM t1 LEFT JOIN v1a ON z=b;</td>
-                    <td class="status-unknown">?</td>
-                    <td class="status-no"><span class="missing-opcodes">once, not, decrJumpZero, ifPos, beginSubrtn (+4)</span></td>
-                    <td class="runtime">-</td>
+                    <td class="status-unknown">sorry</td>
+                    <td class="status-no"><span class="status-unknown">sorry</span></td>
                     <td>-</td>
                 </tr>
             </tbody>
         </table>
 
-        <p class="timestamp">Generated: 2026-01-25 15:54:15</p>
+        <p class="timestamp">Generated: 2026-01-25 18:29:52</p>
     </div>
 
     <script>

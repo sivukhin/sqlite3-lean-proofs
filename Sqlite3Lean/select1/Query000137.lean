@@ -1,7 +1,7 @@
 import Sqlite3Lean.Vdbe
 import Sqlite3Lean.VdbeLemmas
 
-namespace Sqlite3Lean.Query000137
+namespace Sqlite3Lean.select1.Query000137
 
 open Sqlite3Lean.Vdbe
 open Sqlite3Lean.VdbeLemmas
@@ -34,27 +34,26 @@ open Sqlite3Lean.VdbeLemmas
 -/
 
 def program : Program := #[
-  .init 0 14 0 0 0,  -- 0: Init
-  .openRead 0 1 0 5 0,  -- 1: OpenRead
-  .rewind 0 13 0 0 0,  -- 2: Rewind
-  .integer 10 1 0 0 0,  -- 3: Integer
-  .rowid 0 2 0 0 0,  -- 4: Rowid
-  .gt 1 13 2 0 83,  -- 5: Gt
-  .column 0 0 3 0 0,  -- 6: Column
-  .column 0 1 4 0 0,  -- 7: Column
-  .column 0 2 5 0 0,  -- 8: Column
-  .column 0 3 6 0 0,  -- 9: Column
-  .column 0 4 7 0 0,  -- 10: Column
-  .resultRow 3 5 0 0 0,  -- 11: ResultRow
-  .next 0 4 0 0 0,  -- 12: Next
-  .halt 0 0 0 0 0,  -- 13: Halt
-  .transaction 0 0 18 0 1,  -- 14: Transaction
-  .goto 0 1 0 0 0  -- 15: Goto
+  vdbeInit 0 14 0 "" 0,  -- 0: Init
+  vdbeOpenRead 0 1 0 "5" 0,  -- 1: OpenRead
+  vdbeRewind 0 13 0 "" 0,  -- 2: Rewind
+  vdbeInteger 10 1 0 "" 0,  -- 3: Integer
+  vdbeRowid 0 2 0 "" 0,  -- 4: Rowid
+  vdbeGt 1 13 2 "" 83,  -- 5: Gt
+  vdbeColumn 0 0 3 "" 0,  -- 6: Column
+  vdbeColumn 0 1 4 "" 0,  -- 7: Column
+  vdbeColumn 0 2 5 "" 0,  -- 8: Column
+  vdbeColumn 0 3 6 "" 0,  -- 9: Column
+  vdbeColumn 0 4 7 "" 0,  -- 10: Column
+  vdbeResultRow 3 5 0 "" 0,  -- 11: ResultRow
+  vdbeNext 0 4 0 "" 0,  -- 12: Next
+  vdbeHalt 0 0 0 "" 0,  -- 13: Halt
+  vdbeTransaction 0 0 18 "0" 1,  -- 14: Transaction
+  vdbeGoto 0 1 0 "" 0  -- 15: Goto
 ]
 
-/-- Main termination theorem: program terminates for any database -/
-theorem program_terminates (db : Database) :
-    ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := by
-  sorry
+def program_gas (state : VMState) : Nat := sorry
+theorem program_terminates (db : Database) : ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := sorry
+theorem program_terminates' (db : Database) : (runBounded program (mkInitialState db) (program_gas (mkInitialState db))).status ≠ .running := sorry
 
-end Sqlite3Lean.Query000137
+end Sqlite3Lean.select1.Query000137

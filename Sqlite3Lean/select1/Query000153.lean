@@ -1,7 +1,7 @@
 import Sqlite3Lean.Vdbe
 import Sqlite3Lean.VdbeLemmas
 
-namespace Sqlite3Lean.Query000153
+namespace Sqlite3Lean.select1.Query000153
 
 open Sqlite3Lean.Vdbe
 open Sqlite3Lean.VdbeLemmas
@@ -77,68 +77,67 @@ open Sqlite3Lean.VdbeLemmas
 -/
 
 def program : Program := #[
-  .init 0 52 0 0 0,  -- 0: Init
-  .openRead 4 3 0 "k(2,,)" 0,  -- 1: OpenRead
-  .openRead 2 4 0 1 0,  -- 2: OpenRead
-  .rewind 4 51 1 0 0,  -- 3: Rewind
-  .integer 0 1 0 0 0,  -- 4: Integer
-  .rewind 2 47 0 0 0,  -- 5: Rewind
-  .ifNullRow 2 11 2 0 0,  -- 6: IfNullRow
-  .integer 1 2 0 0 0,  -- 7: Integer
-  .column 2 0 3 0 0,  -- 8: Column
-  .isNull 3 11 0 0 0,  -- 9: IsNull
-  .integer 0 2 0 0 0,  -- 10: Integer
-  .column 4 0 3 0 0,  -- 11: Column
-  .ne 3 46 2 "BINARY-8" 80,  -- 12: Ne
-  .integer 1 1 0 0 0,  -- 13: Integer
-  .column 4 0 4 0 0,  -- 14: Column
-  .column 4 0 5 0 0,  -- 15: Column
-  .column 4 0 6 0 0,  -- 16: Column
-  .column 4 0 7 0 0,  -- 17: Column
-  .beginSubrtn 0 11 0 0 0,  -- 18: BeginSubrtn
-  .once 0 27 0 0 0,  -- 19: Once
-  .integer 0 12 0 0 0,  -- 20: Integer
-  .integer 1 13 0 0 0,  -- 21: Integer
-  .openRead 3 4 0 0 0,  -- 22: OpenRead
-  .rewind 3 27 0 0 0,  -- 23: Rewind
-  .integer 1 12 0 0 0,  -- 24: Integer
-  .decrJumpZero 13 27 0 0 0,  -- 25: DecrJumpZero
-  .next 3 24 0 0 1,  -- 26: Next
-  .return 11 19 1 0 0,  -- 27: Return
-  .not 12 8 0 0 0,  -- 28: Not
-  .ifNullRow 2 34 3 0 0,  -- 29: IfNullRow
-  .integer 1 3 0 0 0,  -- 30: Integer
-  .column 2 0 15 0 0,  -- 31: Column
-  .isNull 15 34 0 0 0,  -- 32: IsNull
-  .integer 0 3 0 0 0,  -- 33: Integer
-  .ne 16 37 3 "BINARY-8" 80,  -- 34: Ne
-  .integer 992 9 0 0 0,  -- 35: Integer
-  .goto 0 44 0 0 0,  -- 36: Goto
-  .ne 17 40 3 "BINARY-8" 80,  -- 37: Ne
-  .integer 203 9 0 0 0,  -- 38: Integer
-  .goto 0 44 0 0 0,  -- 39: Goto
-  .ne 18 43 3 "BINARY-8" 80,  -- 40: Ne
-  .string8 0 9 0 "?k<D Q" 0,  -- 41: String8
-  .goto 0 44 0 0 0,  -- 42: Goto
-  .null 0 9 0 0 0,  -- 43: Null
-  .string8 0 10 0 "" 0,  -- 44: String8
-  .resultRow 4 7 0 0 0,  -- 45: ResultRow
-  .next 2 6 0 0 1,  -- 46: Next
-  .ifPos 1 50 0 0 0,  -- 47: IfPos
-  .nullRow 2 0 0 0 0,  -- 48: NullRow
-  .goto 0 13 0 0 0,  -- 49: Goto
-  .next 4 4 0 0 1,  -- 50: Next
-  .halt 0 0 0 0 0,  -- 51: Halt
-  .transaction 0 0 3 0 1,  -- 52: Transaction
-  .integer 487 16 0 0 0,  -- 53: Integer
-  .integer 391 17 0 0 0,  -- 54: Integer
-  .integer 10 18 0 0 0,  -- 55: Integer
-  .goto 0 1 0 0 0  -- 56: Goto
+  vdbeInit 0 52 0 "" 0,  -- 0: Init
+  vdbeOpenRead 4 3 0 "k(2,,)" 0,  -- 1: OpenRead
+  vdbeOpenRead 2 4 0 "1" 0,  -- 2: OpenRead
+  vdbeRewind 4 51 1 "0" 0,  -- 3: Rewind
+  vdbeInteger 0 1 0 "" 0,  -- 4: Integer
+  vdbeRewind 2 47 0 "" 0,  -- 5: Rewind
+  vdbeIfNullRow 2 11 2 "" 0,  -- 6: IfNullRow
+  vdbeInteger 1 2 0 "" 0,  -- 7: Integer
+  vdbeColumn 2 0 3 "" 0,  -- 8: Column
+  vdbeIsNull 3 11 0 "" 0,  -- 9: IsNull
+  vdbeInteger 0 2 0 "" 0,  -- 10: Integer
+  vdbeColumn 4 0 3 "" 0,  -- 11: Column
+  vdbeNe 3 46 2 "BINARY-8" 80,  -- 12: Ne
+  vdbeInteger 1 1 0 "" 0,  -- 13: Integer
+  vdbeColumn 4 0 4 "" 0,  -- 14: Column
+  vdbeColumn 4 0 5 "" 0,  -- 15: Column
+  vdbeColumn 4 0 6 "" 0,  -- 16: Column
+  vdbeColumn 4 0 7 "" 0,  -- 17: Column
+  vdbeBeginSubrtn 0 11 0 "" 0,  -- 18: BeginSubrtn
+  vdbeOnce 0 27 0 "" 0,  -- 19: Once
+  vdbeInteger 0 12 0 "" 0,  -- 20: Integer
+  vdbeInteger 1 13 0 "" 0,  -- 21: Integer
+  vdbeOpenRead 3 4 0 "0" 0,  -- 22: OpenRead
+  vdbeRewind 3 27 0 "" 0,  -- 23: Rewind
+  vdbeInteger 1 12 0 "" 0,  -- 24: Integer
+  vdbeDecrJumpZero 13 27 0 "" 0,  -- 25: DecrJumpZero
+  vdbeNext 3 24 0 "" 1,  -- 26: Next
+  vdbeReturn 11 19 1 "" 0,  -- 27: Return
+  vdbeNot 12 8 0 "" 0,  -- 28: Not
+  vdbeIfNullRow 2 34 3 "" 0,  -- 29: IfNullRow
+  vdbeInteger 1 3 0 "" 0,  -- 30: Integer
+  vdbeColumn 2 0 15 "" 0,  -- 31: Column
+  vdbeIsNull 15 34 0 "" 0,  -- 32: IsNull
+  vdbeInteger 0 3 0 "" 0,  -- 33: Integer
+  vdbeNe 16 37 3 "BINARY-8" 80,  -- 34: Ne
+  vdbeInteger 992 9 0 "" 0,  -- 35: Integer
+  vdbeGoto 0 44 0 "" 0,  -- 36: Goto
+  vdbeNe 17 40 3 "BINARY-8" 80,  -- 37: Ne
+  vdbeInteger 203 9 0 "" 0,  -- 38: Integer
+  vdbeGoto 0 44 0 "" 0,  -- 39: Goto
+  vdbeNe 18 43 3 "BINARY-8" 80,  -- 40: Ne
+  vdbeString8 0 9 0 "?k<D Q" 0,  -- 41: String8
+  vdbeGoto 0 44 0 "" 0,  -- 42: Goto
+  vdbeNull 0 9 0 "" 0,  -- 43: Null
+  vdbeString8 0 10 0 "" 0,  -- 44: String8
+  vdbeResultRow 4 7 0 "" 0,  -- 45: ResultRow
+  vdbeNext 2 6 0 "" 1,  -- 46: Next
+  vdbeIfPos 1 50 0 "" 0,  -- 47: IfPos
+  vdbeNullRow 2 0 0 "" 0,  -- 48: NullRow
+  vdbeGoto 0 13 0 "" 0,  -- 49: Goto
+  vdbeNext 4 4 0 "" 1,  -- 50: Next
+  vdbeHalt 0 0 0 "" 0,  -- 51: Halt
+  vdbeTransaction 0 0 3 "0" 1,  -- 52: Transaction
+  vdbeInteger 487 16 0 "" 0,  -- 53: Integer
+  vdbeInteger 391 17 0 "" 0,  -- 54: Integer
+  vdbeInteger 10 18 0 "" 0,  -- 55: Integer
+  vdbeGoto 0 1 0 "" 0  -- 56: Goto
 ]
 
-/-- Main termination theorem: program terminates for any database -/
-theorem program_terminates (db : Database) :
-    ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := by
-  sorry
+def program_gas (state : VMState) : Nat := sorry
+theorem program_terminates (db : Database) : ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := sorry
+theorem program_terminates' (db : Database) : (runBounded program (mkInitialState db) (program_gas (mkInitialState db))).status ≠ .running := sorry
 
-end Sqlite3Lean.Query000153
+end Sqlite3Lean.select1.Query000153

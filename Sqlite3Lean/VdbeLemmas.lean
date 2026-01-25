@@ -81,71 +81,71 @@ theorem step_invalid_pc (program : Program) (state : VMState)
 
 /-- init always jumps to p2 -/
 @[simp]
-theorem executeOpcode_anyState_init_pc (p1 p2 : Nat) (state : VMState) :
-    let pc := (executeOpcode (.init p1 p2) state).pc
+theorem executeOpcode_anyState_init_pc (p1 p2 p3 : Nat) (p4 : String) (p5 : Nat) (state : VMState) :
+    let pc := (executeOpcode (.init p1 p2 p3 p4 p5) state).pc
     pc = p2 ∨ pc = state.pc := by
   simp [executeOpcode]
   split_simp
 
 /-- openRead always increments PC by 1 -/
 @[simp]
-theorem executeOpcode_anyState_openRead_pc (p1 p2 p3 p4 : Nat) (state : VMState) :
-    let pc := (executeOpcode (.openRead p1 p2 p3 p4) state).pc
+theorem executeOpcode_anyState_openRead_pc (p1 p2 p3 : Nat) (p4 : String) (p5 : Nat) (state : VMState) :
+    let pc := (executeOpcode (.openRead p1 p2 p3 p4 p5) state).pc
     pc = state.pc + 1 ∨ pc = state.pc := by
   simp [executeOpcode]
   split_simp
 
 /-- rewind: PC jumps to p2 or increments -/
 @[simp]
-theorem executeOpcode_anyState_rewind_pc (p1 p2 : Nat) (state : VMState) :
-    let pc := (executeOpcode (.rewind p1 p2) state).pc
+theorem executeOpcode_anyState_rewind_pc (p1 p2 p3 : Nat) (p4 : String) (p5 : Nat) (state : VMState) :
+    let pc := (executeOpcode (.rewind p1 p2 p3 p4 p5) state).pc
     pc = state.pc + 1 ∨ pc = p2 ∨ pc = state.pc := by
   simp only [executeOpcode]
   split_simp
 
 /-- column always increments PC by 1 -/
 @[simp]
-theorem executeOpcode_anyState_column_pc (p1 p2 p3 : Nat) (state : VMState) :
-    let pc := (executeOpcode (.column p1 p2 p3) state).pc
+theorem executeOpcode_anyState_column_pc (p1 p2 p3 : Nat) (p4 : String) (p5 : Nat) (state : VMState) :
+    let pc := (executeOpcode (.column p1 p2 p3 p4 p5) state).pc
     pc = state.pc + 1 ∨ pc = state.pc := by
   simp [executeOpcode, getCursorColumn]
   split_simp
 
 /-- resultRow always increments PC by 1 -/
 @[simp]
-theorem executeOpcode_anyState_resultRow_pc (p1 p2 : Nat) (state : VMState) :
-    let pc := (executeOpcode (.resultRow p1 p2) state).pc
+theorem executeOpcode_anyState_resultRow_pc (p1 p2 p3 : Nat) (p4 : String) (p5 : Nat) (state : VMState) :
+    let pc := (executeOpcode (.resultRow p1 p2 p3 p4 p5) state).pc
     pc = state.pc + 1 ∨ pc = state.pc := by
   simp [executeOpcode]
   split_simp
 
 /-- next: PC jumps to p2 or increments -/
 @[simp]
-theorem executeOpcode_anyState_next_pc (p1 p2 : Nat) (state : VMState) :
-    let pc := (executeOpcode (.next p1 p2) state).pc
+theorem executeOpcode_anyState_next_pc (p1 p2 p3 : Nat) (p4 : String) (p5 : Nat) (state : VMState) :
+    let pc := (executeOpcode (.next p1 p2 p3 p4 p5) state).pc
     pc = state.pc + 1 ∨ pc = p2 ∨ pc = state.pc := by
   simp only [executeOpcode]
   split_simp
 
 /-- halt preserves PC -/
 @[simp]
-theorem executeOpcode_anyState_halt_pc (p1 p2 : Nat) (state : VMState) :
-    (executeOpcode (.halt p1 p2) state).pc = state.pc := by
+theorem executeOpcode_anyState_halt_pc (p1 p2 p3 : Nat) (p4 : String) (p5 : Nat) (state : VMState) :
+    (executeOpcode (.halt p1 p2 p3 p4 p5) state).pc = state.pc := by
   simp only [executeOpcode]
   split_simp
 
 /-- transaction always increments PC by 1 -/
 @[simp]
-theorem executeOpcode_anyState_transaction_pc (p1 p2 p3 : Nat) (state : VMState) :
-    let pc := (executeOpcode (.transaction p1 p2 p3) state).pc
+theorem executeOpcode_anyState_transaction_pc (p1 p2 p3 : Nat) (p4 : String) (p5 : Nat) (state : VMState) :
+    let pc := (executeOpcode (.transaction p1 p2 p3 p4 p5) state).pc
     pc = state.pc + 1 ∨ pc = state.pc := by
   simp [executeOpcode]
   split_simp
 
 /-- goto always jumps to p2 -/
 @[simp]
-theorem executeOpcode_anyState_goto_pc (p2 : Nat) (state : VMState) :
-    let pc := (executeOpcode (.goto p2) state).pc
+theorem executeOpcode_anyState_goto_pc (p1 p2 p3 : Nat) (p4 : String) (p5 : Nat) (state : VMState) :
+    let pc := (executeOpcode (.goto p1 p2 p3 p4 p5) state).pc
     pc = p2 ∨ pc = state.pc := by
   simp [executeOpcode]
   split_simp

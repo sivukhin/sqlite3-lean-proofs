@@ -1,7 +1,7 @@
 import Sqlite3Lean.Vdbe
 import Sqlite3Lean.VdbeLemmas
 
-namespace Sqlite3Lean.Query000080
+namespace Sqlite3Lean.select1.Query000080
 
 open Sqlite3Lean.Vdbe
 open Sqlite3Lean.VdbeLemmas
@@ -22,16 +22,15 @@ open Sqlite3Lean.VdbeLemmas
 -/
 
 def program : Program := #[
-  .init 0 4 0 0 0,  -- 0: Init
-  .real 0 1 0 "123.45" 0,  -- 1: Real
-  .resultRow 1 1 0 0 0,  -- 2: ResultRow
-  .halt 0 0 0 0 0,  -- 3: Halt
-  .goto 0 1 0 0 0  -- 4: Goto
+  vdbeInit 0 4 0 "" 0,  -- 0: Init
+  vdbeReal 0 1 0 "123.45" 0,  -- 1: Real
+  vdbeResultRow 1 1 0 "" 0,  -- 2: ResultRow
+  vdbeHalt 0 0 0 "" 0,  -- 3: Halt
+  vdbeGoto 0 1 0 "" 0  -- 4: Goto
 ]
 
-/-- Main termination theorem: program terminates for any database -/
-theorem program_terminates (db : Database) :
-    ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := by
-  sorry
+def program_gas (state : VMState) : Nat := sorry
+theorem program_terminates (db : Database) : ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := sorry
+theorem program_terminates' (db : Database) : (runBounded program (mkInitialState db) (program_gas (mkInitialState db))).status ≠ .running := sorry
 
-end Sqlite3Lean.Query000080
+end Sqlite3Lean.select1.Query000080

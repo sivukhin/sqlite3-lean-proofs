@@ -1,7 +1,7 @@
 import Sqlite3Lean.Vdbe
 import Sqlite3Lean.VdbeLemmas
 
-namespace Sqlite3Lean.Query000099
+namespace Sqlite3Lean.select1.Query000099
 
 open Sqlite3Lean.Vdbe
 open Sqlite3Lean.VdbeLemmas
@@ -42,33 +42,32 @@ open Sqlite3Lean.VdbeLemmas
 -/
 
 def program : Program := #[
-  .init 0 16 0 0 0,  -- 0: Init
-  .sorterOpen 1 3 0 "k(1,B)" 0,  -- 1: SorterOpen
-  .ne 2 9 1 0 80,  -- 2: Ne
-  .openRead 0 2 0 1 0,  -- 3: OpenRead
-  .rewind 0 9 0 0 0,  -- 4: Rewind
-  .column 0 0 3 0 0,  -- 5: Column
-  .makeRecord 3 1 5 0 0,  -- 6: MakeRecord
-  .sorterInsert 1 5 3 1 0,  -- 7: SorterInsert
-  .next 0 5 0 0 1,  -- 8: Next
-  .openPseudo 2 6 3 0 0,  -- 9: OpenPseudo
-  .sorterSort 1 15 0 0 0,  -- 10: SorterSort
-  .sorterData 1 6 2 0 0,  -- 11: SorterData
-  .column 2 0 4 0 0,  -- 12: Column
-  .resultRow 4 1 0 0 0,  -- 13: ResultRow
-  .sorterNext 1 11 0 0 0,  -- 14: SorterNext
-  .halt 0 0 0 0 0,  -- 15: Halt
-  .transaction 0 0 9 0 1,  -- 16: Transaction
-  .integer 5 7 0 0 0,  -- 17: Integer
-  .integer 3 8 0 0 0,  -- 18: Integer
-  .subtract 8 7 1 0 0,  -- 19: Subtract
-  .integer 2 2 0 0 0,  -- 20: Integer
-  .goto 0 1 0 0 0  -- 21: Goto
+  vdbeInit 0 16 0 "" 0,  -- 0: Init
+  vdbeSorterOpen 1 3 0 "k(1,B)" 0,  -- 1: SorterOpen
+  vdbeNe 2 9 1 "" 80,  -- 2: Ne
+  vdbeOpenRead 0 2 0 "1" 0,  -- 3: OpenRead
+  vdbeRewind 0 9 0 "" 0,  -- 4: Rewind
+  vdbeColumn 0 0 3 "" 0,  -- 5: Column
+  vdbeMakeRecord 3 1 5 "" 0,  -- 6: MakeRecord
+  vdbeSorterInsert 1 5 3 "1" 0,  -- 7: SorterInsert
+  vdbeNext 0 5 0 "" 1,  -- 8: Next
+  vdbeOpenPseudo 2 6 3 "" 0,  -- 9: OpenPseudo
+  vdbeSorterSort 1 15 0 "" 0,  -- 10: SorterSort
+  vdbeSorterData 1 6 2 "" 0,  -- 11: SorterData
+  vdbeColumn 2 0 4 "" 0,  -- 12: Column
+  vdbeResultRow 4 1 0 "" 0,  -- 13: ResultRow
+  vdbeSorterNext 1 11 0 "" 0,  -- 14: SorterNext
+  vdbeHalt 0 0 0 "" 0,  -- 15: Halt
+  vdbeTransaction 0 0 9 "0" 1,  -- 16: Transaction
+  vdbeInteger 5 7 0 "" 0,  -- 17: Integer
+  vdbeInteger 3 8 0 "" 0,  -- 18: Integer
+  vdbeSubtract 8 7 1 "" 0,  -- 19: Subtract
+  vdbeInteger 2 2 0 "" 0,  -- 20: Integer
+  vdbeGoto 0 1 0 "" 0  -- 21: Goto
 ]
 
-/-- Main termination theorem: program terminates for any database -/
-theorem program_terminates (db : Database) :
-    ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := by
-  sorry
+def program_gas (state : VMState) : Nat := sorry
+theorem program_terminates (db : Database) : ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := sorry
+theorem program_terminates' (db : Database) : (runBounded program (mkInitialState db) (program_gas (mkInitialState db))).status ≠ .running := sorry
 
-end Sqlite3Lean.Query000099
+end Sqlite3Lean.select1.Query000099

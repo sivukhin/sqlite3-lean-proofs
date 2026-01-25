@@ -1,7 +1,7 @@
 import Sqlite3Lean.Vdbe
 import Sqlite3Lean.VdbeLemmas
 
-namespace Sqlite3Lean.Query000007
+namespace Sqlite3Lean.select1.Query000007
 
 open Sqlite3Lean.Vdbe
 open Sqlite3Lean.VdbeLemmas
@@ -36,29 +36,28 @@ open Sqlite3Lean.VdbeLemmas
 -/
 
 def program : Program := #[
-  .init 0 16 0 0 0,  -- 0: Init
-  .openRead 0 2 0 2 0,  -- 1: OpenRead
-  .rewind 0 15 0 0 0,  -- 2: Rewind
-  .column 0 0 1 0 0,  -- 3: Column
-  .column 0 1 2 0 0,  -- 4: Column
-  .column 0 0 5 0 0,  -- 5: Column
-  .column 0 1 6 0 0,  -- 6: Column
-  .collSeq 0 0 0 "BINARY-8" 0,  -- 7: CollSeq
-  .function 0 5 3 "min(-3)" 0,  -- 8: Function
-  .column 0 0 5 0 0,  -- 9: Column
-  .column 0 1 6 0 0,  -- 10: Column
-  .collSeq 0 0 0 "BINARY-8" 0,  -- 11: CollSeq
-  .function 0 5 4 "max(-3)" 0,  -- 12: Function
-  .resultRow 1 4 0 0 0,  -- 13: ResultRow
-  .next 0 3 0 0 1,  -- 14: Next
-  .halt 0 0 0 0 0,  -- 15: Halt
-  .transaction 0 0 1 0 1,  -- 16: Transaction
-  .goto 0 1 0 0 0  -- 17: Goto
+  vdbeInit 0 16 0 "" 0,  -- 0: Init
+  vdbeOpenRead 0 2 0 "2" 0,  -- 1: OpenRead
+  vdbeRewind 0 15 0 "" 0,  -- 2: Rewind
+  vdbeColumn 0 0 1 "" 0,  -- 3: Column
+  vdbeColumn 0 1 2 "" 0,  -- 4: Column
+  vdbeColumn 0 0 5 "" 0,  -- 5: Column
+  vdbeColumn 0 1 6 "" 0,  -- 6: Column
+  vdbeCollSeq 0 0 0 "BINARY-8" 0,  -- 7: CollSeq
+  vdbeFunction 0 5 3 "min(-3)" 0,  -- 8: Function
+  vdbeColumn 0 0 5 "" 0,  -- 9: Column
+  vdbeColumn 0 1 6 "" 0,  -- 10: Column
+  vdbeCollSeq 0 0 0 "BINARY-8" 0,  -- 11: CollSeq
+  vdbeFunction 0 5 4 "max(-3)" 0,  -- 12: Function
+  vdbeResultRow 1 4 0 "" 0,  -- 13: ResultRow
+  vdbeNext 0 3 0 "" 1,  -- 14: Next
+  vdbeHalt 0 0 0 "" 0,  -- 15: Halt
+  vdbeTransaction 0 0 1 "0" 1,  -- 16: Transaction
+  vdbeGoto 0 1 0 "" 0  -- 17: Goto
 ]
 
-/-- Main termination theorem: program terminates for any database -/
-theorem program_terminates (db : Database) :
-    ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := by
-  sorry
+def program_gas (state : VMState) : Nat := sorry
+theorem program_terminates (db : Database) : ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := sorry
+theorem program_terminates' (db : Database) : (runBounded program (mkInitialState db) (program_gas (mkInitialState db))).status ≠ .running := sorry
 
-end Sqlite3Lean.Query000007
+end Sqlite3Lean.select1.Query000007

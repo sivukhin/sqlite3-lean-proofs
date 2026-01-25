@@ -1,7 +1,7 @@
 import Sqlite3Lean.Vdbe
 import Sqlite3Lean.VdbeLemmas
 
-namespace Sqlite3Lean.Query000019
+namespace Sqlite3Lean.select1.Query000019
 
 open Sqlite3Lean.Vdbe
 open Sqlite3Lean.VdbeLemmas
@@ -31,24 +31,23 @@ open Sqlite3Lean.VdbeLemmas
 -/
 
 def program : Program := #[
-  .init 0 11 0 0 0,  -- 0: Init
-  .null 0 1 2 0 0,  -- 1: Null
-  .openRead 0 2 0 1 0,  -- 2: OpenRead
-  .rewind 0 7 0 0 0,  -- 3: Rewind
-  .column 0 0 3 0 0,  -- 4: Column
-  .aggStep 0 3 2 "count(1)" 1,  -- 5: AggStep
-  .next 0 4 0 0 1,  -- 6: Next
-  .aggFinal 2 1 0 "count(1)" 0,  -- 7: AggFinal
-  .copy 2 4 0 0 0,  -- 8: Copy
-  .resultRow 4 1 0 0 0,  -- 9: ResultRow
-  .halt 0 0 0 0 0,  -- 10: Halt
-  .transaction 0 0 5 0 1,  -- 11: Transaction
-  .goto 0 1 0 0 0  -- 12: Goto
+  vdbeInit 0 11 0 "" 0,  -- 0: Init
+  vdbeNull 0 1 2 "" 0,  -- 1: Null
+  vdbeOpenRead 0 2 0 "1" 0,  -- 2: OpenRead
+  vdbeRewind 0 7 0 "" 0,  -- 3: Rewind
+  vdbeColumn 0 0 3 "" 0,  -- 4: Column
+  vdbeAggStep 0 3 2 "count(1)" 1,  -- 5: AggStep
+  vdbeNext 0 4 0 "" 1,  -- 6: Next
+  vdbeAggFinal 2 1 0 "count(1)" 0,  -- 7: AggFinal
+  vdbeCopy 2 4 0 "" 0,  -- 8: Copy
+  vdbeResultRow 4 1 0 "" 0,  -- 9: ResultRow
+  vdbeHalt 0 0 0 "" 0,  -- 10: Halt
+  vdbeTransaction 0 0 5 "0" 1,  -- 11: Transaction
+  vdbeGoto 0 1 0 "" 0  -- 12: Goto
 ]
 
-/-- Main termination theorem: program terminates for any database -/
-theorem program_terminates (db : Database) :
-    ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := by
-  sorry
+def program_gas (state : VMState) : Nat := sorry
+theorem program_terminates (db : Database) : ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := sorry
+theorem program_terminates' (db : Database) : (runBounded program (mkInitialState db) (program_gas (mkInitialState db))).status ≠ .running := sorry
 
-end Sqlite3Lean.Query000019
+end Sqlite3Lean.select1.Query000019

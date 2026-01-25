@@ -19,27 +19,22 @@ import subprocess
 import argparse
 from pathlib import Path
 from dataclasses import dataclass
-from typing import Optional
+from typing import Callable, Optional
 import html
 
 @dataclass
 class QueryStatus:
     file_name: str
     query_name: str
+    namespace: str
     sql_query: Optional[str]
-    has_sorry: bool
-    termination_proved: bool
-    all_opcodes_formalized: bool
-    opcodes_used: list[str]
-    unknown_opcodes: list[str]
-    gas_function: Optional[str]
-    runtime_bound: Optional[str]
-    pr_number: Optional[str]
-    error_message: Optional[str]
+    formalized: bool
+    terminates: Optional[bool]
+    gas_bound: Optional[str]
 
 def extract_sql_query(content: str) -> Optional[str]:
     """Extract SQL query from the doc comment."""
-    match = re.search(r'The program for:\s*(.+?)(?:\n|$)', content)
+    match = re.search(r'Query:\s*(.+?)(?:\n|$)', content)
     if match:
         return match.group(1).strip()
     return None
@@ -104,14 +99,23 @@ def get_pr_from_git(file_path: str) -> Optional[str]:
     return None
 
 @dataclass
+class QueryInfo:
+    formalized: bool
+    terminates: Optional[bool]
+    gas_bound: Optional[str]
+
+@dataclass
 class BuildResult:
-    sorry_files: dict[str, list[str]]  # file -> list of sorry warnings
-    unknown_opcodes: dict[str, list[str]]  # file -> list of unknown opcodes
-    other_errors: dict[str, list[str]]  # file -> list of other errors
+    queries: dict[str, QueryInfo]
+
+def update_build_result(r: BuildResult, key: str, f: Callable[[QueryInfo], []]):
+    if key not in r.queries:
+        r.queries[key] = QueryInfo(formalized=False, terminates=None, gas_bound=None)
+    f(r.queries[key])
 
 def run_lake_build(project_root: Path) -> BuildResult:
     """Run lake build and collect errors/warnings."""
-    result = BuildResult(sorry_files={}, unknown_opcodes={}, other_errors={})
+    result = BuildResult(queries={})
 
     try:
         proc = subprocess.run(
@@ -122,39 +126,44 @@ def run_lake_build(project_root: Path) -> BuildResult:
         output = proc.stdout + proc.stderr
 
         for line in output.split('\n'):
-            # Parse file path from error/warning
-            file_match = re.search(r'(\S+\.lean):\d+:\d+:', line)
-            if not file_match:
+            print(line)
+            # Parse info messages for axiom dependencies
+            # e.g., "info: Main.lean:163:0: 'Sqlite3Lean.Example.program' does not depend on any axioms"
+            program_definition = re.search(r"info:.*'Sqlite3Lean.([^']+).program' (.*)", line)
+            if program_definition:
+                name = program_definition.group(1)
+                bound = program_definition.group(2)
+                update_build_result(result, name, lambda x: setattr(x, 'formalized', 'sorry' not in bound))
                 continue
-
-            file_path = file_match.group(1)
-
-            # Check for sorry warnings
-            if 'sorry' in line.lower():
-                if file_path not in result.sorry_files:
-                    result.sorry_files[file_path] = []
-                result.sorry_files[file_path].append(line)
-
-            # Check for unknown opcode errors
-            # e.g., "Unknown constant `Sqlite3Lean.Vdbe.Opcode.lt`"
-            opcode_match = re.search(r'Unknown constant.*Opcode\.(\w+)', line)
-            if opcode_match:
-                opcode = opcode_match.group(1)
-                if file_path not in result.unknown_opcodes:
-                    result.unknown_opcodes[file_path] = []
-                if opcode not in result.unknown_opcodes[file_path]:
-                    result.unknown_opcodes[file_path].append(opcode)
-
-            # Check for other errors
-            elif 'error:' in line.lower() and file_path:
-                if file_path not in result.other_errors:
-                    result.other_errors[file_path] = []
-                result.other_errors[file_path].append(line)
-
+            
+            program_termination = re.search(r"info:.*'Sqlite3Lean.([^']+).program_terminates' (.*)", line)
+            if program_termination:
+                name = program_termination.group(1)
+                bound = program_termination.group(2)
+                update_build_result(result, name, lambda x: setattr(x, 'terminates', None if 'sorry' in bound else True))
+                continue
+            
+            program_gas = re.search(r"info:.*'Sqlite3Lean.([^']+).program_gas' has gas bound: (.*)", line)
+            if program_gas:
+                name = program_gas.group(1)
+                bound = program_gas.group(2)
+                update_build_result(result, name, lambda x: setattr(x, 'gas_bound', None if 'sorry' in bound else bound))
+                continue
     except Exception as e:
         print(f"Warning: Could not run lake build: {e}")
-
     return result
+
+def get_namespace_from_path(file_path: Path, project_root: Path) -> str:
+    """Convert file path to Lean namespace."""
+    try:
+        rel_path = file_path.relative_to(project_root)
+        # Convert path like Sqlite3Lean/select1/Query000001.lean to Sqlite3Lean.select1.Query000001
+        parts = list(rel_path.parts)
+        if parts[-1].endswith('.lean'):
+            parts[-1] = parts[-1][:-5]  # Remove .lean
+        return '.'.join(parts)
+    except ValueError:
+        return file_path.stem
 
 def analyze_query_file(file_path: Path, build_result: BuildResult, project_root: Path) -> QueryStatus:
     """Analyze a single query file and return its status."""
@@ -167,59 +176,21 @@ def analyze_query_file(file_path: Path, build_result: BuildResult, project_root:
     except ValueError:
         rel_path = file_path.name
 
-    try:
-        content = file_path.read_text()
-    except Exception as e:
-        return QueryStatus(
-            file_name=rel_path,
-            query_name=file_path.stem,
-            sql_query=None,
-            has_sorry=True,
-            termination_proved=False,
-            all_opcodes_formalized=False,
-            opcodes_used=[],
-            unknown_opcodes=[],
-            gas_function=None,
-            runtime_bound=None,
-            pr_number=None,
-            error_message=str(e)
-        )
-
+    # Get namespace for looking up axiom info
+    namespace = get_namespace_from_path(file_path, project_root)
+    content = file_path.read_text()
     sql_query = extract_sql_query(content)
-    has_sorry = check_for_sorry(content)
-    opcodes = extract_opcodes(content)
-    gas_function = extract_gas_function(content)
-    runtime_bound = extract_runtime_bound(content)
-    pr_number = get_pr_from_git(str(file_path))
-
-    # Check for termination theorem
-    has_termination_theorem = bool(re.search(r'theorem\s+\w*terminates', content))
-    termination_proved = has_termination_theorem and not has_sorry
-
-    # Get unknown opcodes from build result
-    # Match against both the short path and full path with Sqlite3Lean/ prefix
-    unknown_opcodes = []
-    full_rel_path = str(file_path.relative_to(project_root)) if file_path.is_relative_to(project_root) else file_path.name
-    for build_path, opcodes_list in build_result.unknown_opcodes.items():
-        if rel_path in build_path or build_path in rel_path or full_rel_path in build_path or build_path in full_rel_path:
-            unknown_opcodes.extend(opcodes_list)
-    unknown_opcodes = list(set(unknown_opcodes))
-
-    all_opcodes_formalized = len(unknown_opcodes) == 0
-
+    print(content)
+    name = rel_path.replace('/', '.')[:-len('.lean')]
+    result = build_result.queries[name]
     return QueryStatus(
         file_name=rel_path,
         query_name=file_path.stem,
+        namespace=namespace,
         sql_query=sql_query,
-        has_sorry=has_sorry,
-        termination_proved=termination_proved,
-        all_opcodes_formalized=all_opcodes_formalized,
-        opcodes_used=opcodes,
-        unknown_opcodes=unknown_opcodes,
-        gas_function=gas_function,
-        runtime_bound=runtime_bound,
-        pr_number=pr_number,
-        error_message=None
+        formalized=result.formalized,
+        terminates=result.terminates,
+        gas_bound=result.gas_bound,
     )
 
 def generate_html_report(queries: list[QueryStatus], output_path: str, project_root: Path):
@@ -227,10 +198,9 @@ def generate_html_report(queries: list[QueryStatus], output_path: str, project_r
 
     # Calculate statistics
     total = len(queries)
-    proved = sum(1 for q in queries if q.termination_proved)
-    with_sorry = sum(1 for q in queries if q.has_sorry)
-    all_opcodes = sum(1 for q in queries if q.all_opcodes_formalized)
-
+    formalized = len([q for q in queries if q.formalized])
+    termination_proved = len([q for q in queries if q.terminates])
+    
     html_content = f'''<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -405,16 +375,12 @@ def generate_html_report(queries: list[QueryStatus], output_path: str, project_r
                 <div class="label">Total Queries</div>
             </div>
             <div class="stat-card">
-                <div class="number">{proved}</div>
-                <div class="label">Fully Proved</div>
+                <div class="number">{formalized}</div>
+                <div class="label">Formalized</div>
             </div>
             <div class="stat-card">
-                <div class="number">{with_sorry}</div>
-                <div class="label">With Sorry</div>
-            </div>
-            <div class="stat-card">
-                <div class="number">{all_opcodes}</div>
-                <div class="label">All Opcodes OK</div>
+                <div class="number">{termination_proved}</div>
+                <div class="label">Termination proved</div>
             </div>
         </div>
 
@@ -434,40 +400,41 @@ def generate_html_report(queries: list[QueryStatus], output_path: str, project_r
                     <th>SQL Query</th>
                     <th>Termination</th>
                     <th>Opcodes</th>
-                    <th>Runtime Bound</th>
-                    <th>PR #</th>
+                    <th>Gas Bound</th>
                 </tr>
             </thead>
             <tbody>
 '''
 
     for i, q in enumerate(queries, 1):
-        if q.termination_proved:
+        # Termination status - based on axioms
+        if q.terminates:
             termination_class = 'status-yes'
             termination_text = 'yes'
-        elif q.has_sorry:
+        elif q.terminates is None:
             termination_class = 'status-unknown'
-            termination_text = '?'
+            termination_text = 'sorry'
         else:
             termination_class = 'status-no'
             termination_text = 'no'
 
-        opcodes_class = 'status-yes' if q.all_opcodes_formalized else 'status-no'
-        if q.all_opcodes_formalized:
-            opcodes_text = 'ok'
+        # Opcodes status
+        opcodes_class = 'status-yes' if q.formalized else 'status-no'
+        if q.formalized:
+            opcodes_text = 'yes'
         else:
-            missing = ', '.join(q.unknown_opcodes[:5])
-            if len(q.unknown_opcodes) > 5:
-                missing += f' (+{len(q.unknown_opcodes) - 5})'
-            opcodes_text = f'<span class="missing-opcodes">{html.escape(missing)}</span>'
+            opcodes_text = f'<span class="status-unknown">{html.escape('sorry')}</span>'
 
-        pr_html = f'<a class="pr-link" href="https://github.com/user/repo/pull/{q.pr_number}">#{q.pr_number}</a>' if q.pr_number else '-'
+        # Gas bound from build info
+        if q.gas_bound:
+            gas_bound_html = f'<span class="runtime">{html.escape(q.gas_bound)}</span>'
+        else:
+            gas_bound_html = '-'
 
-        runtime_html = html.escape(q.runtime_bound) if q.runtime_bound else '-'
         sql_html = html.escape(q.sql_query) if q.sql_query else '-'
 
-        data_status = 'proved' if q.termination_proved else 'sorry'
-        data_opcodes = 'opcodes-ok' if q.all_opcodes_formalized else 'opcodes-missing'
+        data_status = 'proved' if q.terminates else 'sorry'
+        data_opcodes = 'opcodes-ok' if q.formalized else 'opcodes-missing'
 
         html_content += f'''                <tr data-status="{data_status}" data-opcodes="{data_opcodes}">
                     <td>{i}</td>
@@ -475,8 +442,7 @@ def generate_html_report(queries: list[QueryStatus], output_path: str, project_r
                     <td class="sql-query" title="{sql_html}">{sql_html}</td>
                     <td class="{termination_class}">{termination_text}</td>
                     <td class="{opcodes_class}">{opcodes_text}</td>
-                    <td class="runtime">{runtime_html}</td>
-                    <td>{pr_html}</td>
+                    <td>{gas_bound_html}</td>
                 </tr>
 '''
 
@@ -527,49 +493,35 @@ def generate_html_report(queries: list[QueryStatus], output_path: str, project_r
 
     print(f"Report generated: {output_path}")
     print(f"  Total queries: {total}")
-    print(f"  Fully proved: {proved} ({proved/total*100 if total > 0 else 0:.1f}%)")
-    print(f"  With sorry: {with_sorry}")
+    print(f"  Formalized: {formalized} ({formalized/total*100 if total > 0 else 0:.1f}%)")
+    print(f"  Termination proved: {termination_proved} ({termination_proved/total*100 if total > 0 else 0:.1f}%)")
 
 def main():
     parser = argparse.ArgumentParser(description='Generate HTML report for query verification progress')
-    parser.add_argument('--output', '-o', default='report.html', help='Output HTML file path')
-    parser.add_argument('--dir', '-d', action='append', default=[], help='Directory containing query files (can be repeated)')
-    parser.add_argument('--file', '-f', action='append', default=[], help='Additional individual files to include')
-    parser.add_argument('--include-query0', action='store_true', help='Include Sqlite3Lean/Query0.lean')
+    parser.add_argument('--output', '-o', default='index.html', help='Output HTML file path')
+    parser.add_argument('--include-example', action='store_true', help='Include Sqlite3Lean/Example.lean')
     args = parser.parse_args()
 
     # Find project root
     script_dir = Path(__file__).parent
     project_root = script_dir.parent
 
-    # Default directories if none specified
-    if not args.dir:
-        args.dir = ['Sqlite3Lean/select1']
-
     # Collect all query files
     query_files = []
 
-    # Add Query0 if requested
-    if args.include_query0:
-        query0_path = project_root / 'Sqlite3Lean' / 'Query0.lean'
-        if query0_path.exists():
-            query_files.append(query0_path)
+    # Add Example if requested
+    if args.include_example:
+        example_path = project_root / 'Sqlite3Lean' / 'Example.lean'
+        if example_path.exists():
+            query_files.append(example_path)
 
     # Add files from directories
-    for dir_path in args.dir:
+    for dir_path in ['Sqlite3Lean/select1']:
         query_dir = project_root / dir_path
         if query_dir.exists():
             query_files.extend(sorted(query_dir.glob('Query*.lean')))
         else:
             print(f"Warning: Directory not found: {query_dir}")
-
-    # Add individual files
-    for file_path in args.file:
-        fp = project_root / file_path
-        if fp.exists():
-            query_files.append(fp)
-        else:
-            print(f"Warning: File not found: {fp}")
 
     if not query_files:
         print("No query files found")
@@ -580,9 +532,6 @@ def main():
 
     # Run lake build to get actual error information
     build_result = run_lake_build(project_root)
-    print(f"  Found {len(build_result.unknown_opcodes)} files with unknown opcodes")
-    print(f"  Found {len(build_result.sorry_files)} files with sorry")
-
     print("Analyzing query files...")
 
     # Analyze each file

@@ -1,7 +1,7 @@
 import Sqlite3Lean.Vdbe
 import Sqlite3Lean.VdbeLemmas
 
-namespace Sqlite3Lean.Query000149
+namespace Sqlite3Lean.select1.Query000149
 
 open Sqlite3Lean.Vdbe
 open Sqlite3Lean.VdbeLemmas
@@ -85,72 +85,71 @@ open Sqlite3Lean.VdbeLemmas
 -/
 
 def program : Program := #[
-  .init 0 59 0 0 0,  -- 0: Init
-  .openRead 0 3 0 1 0,  -- 1: OpenRead
-  .openRead 5 5 0 "k(2,,)" 0,  -- 2: OpenRead
-  .rewind 0 58 0 0 0,  -- 3: Rewind
-  .beginSubrtn 0 2 0 0 0,  -- 4: BeginSubrtn
-  .null 0 3 3 0 0,  -- 5: Null
-  .integer 1 4 0 0 0,  -- 6: Integer
-  .openRead 3 4 0 1 0,  -- 7: OpenRead
-  .null 0 6 0 0 0,  -- 8: Null
-  .integer 28 5 0 0 0,  -- 9: Integer
-  .reopenIdx 6 5 0 "k(2,,)" 0,  -- 10: ReopenIdx
-  .column 0 0 8 0 0,  -- 11: Column
-  .isNull 8 19 0 0 0,  -- 12: IsNull
-  .seekGT 6 19 8 1 0,  -- 13: SeekGT
-  .deferredSeek 6 0 3 "[1,0]" 0,  -- 14: DeferredSeek
-  .idxRowid 6 7 0 0 0,  -- 15: IdxRowid
-  .rowSetTest 6 18 7 0 0,  -- 16: RowSetTest
-  .gosub 5 29 0 0 0,  -- 17: Gosub
-  .next 6 14 0 0 0,  -- 18: Next
-  .reopenIdx 6 5 0 "k(2,,)" 2,  -- 19: ReopenIdx
-  .column 0 0 9 0 0,  -- 20: Column
-  .isNull 9 28 0 0 0,  -- 21: IsNull
-  .seekGE 6 28 9 1 0,  -- 22: SeekGE
-  .idxGT 6 28 9 1 0,  -- 23: IdxGT
-  .deferredSeek 6 0 3 "[1,0]" 0,  -- 24: DeferredSeek
-  .idxRowid 6 7 0 0 0,  -- 25: IdxRowid
-  .rowSetTest 6 28 7 1 0,  -- 26: RowSetTest
-  .gosub 5 29 0 0 0,  -- 27: Gosub
-  .goto 0 51 0 0 0,  -- 28: Goto
-  .column 6 0 10 0 0,  -- 29: Column
-  .column 0 0 11 0 0,  -- 30: Column
-  .eq 11 48 10 "BINARY-8" 65,  -- 31: Eq
-  .column 6 0 11 0 0,  -- 32: Column
-  .isNull 11 50 0 0 0,  -- 33: IsNull
-  .beginSubrtn 0 12 0 0 0,  -- 34: BeginSubrtn
-  .null 0 13 13 0 0,  -- 35: Null
-  .initCoroutine 14 40 37 0 0,  -- 36: InitCoroutine
-  .null 0 15 0 0 0,  -- 37: Null
-  .yield 14 0 0 0 0,  -- 38: Yield
-  .endCoroutine 14 0 0 0 0,  -- 39: EndCoroutine
-  .integer 1 16 0 0 0,  -- 40: Integer
-  .initCoroutine 14 0 37 0 0,  -- 41: InitCoroutine
-  .yield 14 46 0 0 0,  -- 42: Yield
-  .column 6 0 13 0 0,  -- 43: Column
-  .decrJumpZero 16 46 0 0 0,  -- 44: DecrJumpZero
-  .goto 0 42 0 0 0,  -- 45: Goto
-  .return 12 35 1 0 0,  -- 46: Return
-  .ne 13 50 11 "BINARY-8" 81,  -- 47: Ne
-  .integer 3 3 0 0 0,  -- 48: Integer
-  .decrJumpZero 4 51 0 0 0,  -- 49: DecrJumpZero
-  .return 5 29 0 0 0,  -- 50: Return
-  .return 2 5 1 0 0,  -- 51: Return
-  .ifNot 3 57 1 0 0,  -- 52: IfNot
-  .rewind 5 57 17 0 0,  -- 53: Rewind
-  .integer 1 17 0 0 0,  -- 54: Integer
-  .resultRow 17 1 0 0 0,  -- 55: ResultRow
-  .next 5 54 0 0 1,  -- 56: Next
-  .next 0 4 0 0 1,  -- 57: Next
-  .halt 0 0 0 0 0,  -- 58: Halt
-  .transaction 0 0 33 1 1,  -- 59: Transaction
-  .goto 0 1 0 0 0  -- 60: Goto
+  vdbeInit 0 59 0 "" 0,  -- 0: Init
+  vdbeOpenRead 0 3 0 "1" 0,  -- 1: OpenRead
+  vdbeOpenRead 5 5 0 "k(2,,)" 0,  -- 2: OpenRead
+  vdbeRewind 0 58 0 "" 0,  -- 3: Rewind
+  vdbeBeginSubrtn 0 2 0 "" 0,  -- 4: BeginSubrtn
+  vdbeNull 0 3 3 "" 0,  -- 5: Null
+  vdbeInteger 1 4 0 "" 0,  -- 6: Integer
+  vdbeOpenRead 3 4 0 "1" 0,  -- 7: OpenRead
+  vdbeNull 0 6 0 "" 0,  -- 8: Null
+  vdbeInteger 28 5 0 "" 0,  -- 9: Integer
+  vdbeReopenIdx 6 5 0 "k(2,,)" 0,  -- 10: ReopenIdx
+  vdbeColumn 0 0 8 "" 0,  -- 11: Column
+  vdbeIsNull 8 19 0 "" 0,  -- 12: IsNull
+  vdbeSeekGT 6 19 8 "1" 0,  -- 13: SeekGT
+  vdbeDeferredSeek 6 0 3 "[1,0]" 0,  -- 14: DeferredSeek
+  vdbeIdxRowid 6 7 0 "" 0,  -- 15: IdxRowid
+  vdbeRowSetTest 6 18 7 "0" 0,  -- 16: RowSetTest
+  vdbeGosub 5 29 0 "" 0,  -- 17: Gosub
+  vdbeNext 6 14 0 "" 0,  -- 18: Next
+  vdbeReopenIdx 6 5 0 "k(2,,)" 2,  -- 19: ReopenIdx
+  vdbeColumn 0 0 9 "" 0,  -- 20: Column
+  vdbeIsNull 9 28 0 "" 0,  -- 21: IsNull
+  vdbeSeekGE 6 28 9 "1" 0,  -- 22: SeekGE
+  vdbeIdxGT 6 28 9 "1" 0,  -- 23: IdxGT
+  vdbeDeferredSeek 6 0 3 "[1,0]" 0,  -- 24: DeferredSeek
+  vdbeIdxRowid 6 7 0 "" 0,  -- 25: IdxRowid
+  vdbeRowSetTest 6 28 7 "1" 0,  -- 26: RowSetTest
+  vdbeGosub 5 29 0 "" 0,  -- 27: Gosub
+  vdbeGoto 0 51 0 "" 0,  -- 28: Goto
+  vdbeColumn 6 0 10 "" 0,  -- 29: Column
+  vdbeColumn 0 0 11 "" 0,  -- 30: Column
+  vdbeEq 11 48 10 "BINARY-8" 65,  -- 31: Eq
+  vdbeColumn 6 0 11 "" 0,  -- 32: Column
+  vdbeIsNull 11 50 0 "" 0,  -- 33: IsNull
+  vdbeBeginSubrtn 0 12 0 "" 0,  -- 34: BeginSubrtn
+  vdbeNull 0 13 13 "" 0,  -- 35: Null
+  vdbeInitCoroutine 14 40 37 "" 0,  -- 36: InitCoroutine
+  vdbeNull 0 15 0 "" 0,  -- 37: Null
+  vdbeYield 14 0 0 "" 0,  -- 38: Yield
+  vdbeEndCoroutine 14 0 0 "" 0,  -- 39: EndCoroutine
+  vdbeInteger 1 16 0 "" 0,  -- 40: Integer
+  vdbeInitCoroutine 14 0 37 "" 0,  -- 41: InitCoroutine
+  vdbeYield 14 46 0 "" 0,  -- 42: Yield
+  vdbeColumn 6 0 13 "" 0,  -- 43: Column
+  vdbeDecrJumpZero 16 46 0 "" 0,  -- 44: DecrJumpZero
+  vdbeGoto 0 42 0 "" 0,  -- 45: Goto
+  vdbeReturn 12 35 1 "" 0,  -- 46: Return
+  vdbeNe 13 50 11 "BINARY-8" 81,  -- 47: Ne
+  vdbeInteger 3 3 0 "" 0,  -- 48: Integer
+  vdbeDecrJumpZero 4 51 0 "" 0,  -- 49: DecrJumpZero
+  vdbeReturn 5 29 0 "" 0,  -- 50: Return
+  vdbeReturn 2 5 1 "" 0,  -- 51: Return
+  vdbeIfNot 3 57 1 "" 0,  -- 52: IfNot
+  vdbeRewind 5 57 17 "0" 0,  -- 53: Rewind
+  vdbeInteger 1 17 0 "" 0,  -- 54: Integer
+  vdbeResultRow 17 1 0 "" 0,  -- 55: ResultRow
+  vdbeNext 5 54 0 "" 1,  -- 56: Next
+  vdbeNext 0 4 0 "" 1,  -- 57: Next
+  vdbeHalt 0 0 0 "" 0,  -- 58: Halt
+  vdbeTransaction 0 0 33 "1" 1,  -- 59: Transaction
+  vdbeGoto 0 1 0 "" 0  -- 60: Goto
 ]
 
-/-- Main termination theorem: program terminates for any database -/
-theorem program_terminates (db : Database) :
-    ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := by
-  sorry
+def program_gas (state : VMState) : Nat := sorry
+theorem program_terminates (db : Database) : ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := sorry
+theorem program_terminates' (db : Database) : (runBounded program (mkInitialState db) (program_gas (mkInitialState db))).status ≠ .running := sorry
 
-end Sqlite3Lean.Query000149
+end Sqlite3Lean.select1.Query000149

@@ -1,7 +1,7 @@
 import Sqlite3Lean.Vdbe
 import Sqlite3Lean.VdbeLemmas
 
-namespace Sqlite3Lean.Query000100
+namespace Sqlite3Lean.select1.Query000100
 
 open Sqlite3Lean.Vdbe
 open Sqlite3Lean.VdbeLemmas
@@ -53,44 +53,43 @@ open Sqlite3Lean.VdbeLemmas
 -/
 
 def program : Program := #[
-  .init 0 30 0 0 0,  -- 0: Init
-  .sorterOpen 1 4 0 "k(1,B)" 0,  -- 1: SorterOpen
-  .openRead 0 2 0 1 0,  -- 2: OpenRead
-  .rewind 0 22 0 0 0,  -- 3: Rewind
-  .once 0 10 0 0 0,  -- 4: Once
-  .integer 1 5 0 0 0,  -- 5: Integer
-  .integer 2 6 0 0 0,  -- 6: Integer
-  .integer 3 7 0 0 0,  -- 7: Integer
-  .collSeq 0 0 0 "BINARY-8" 0,  -- 8: CollSeq
-  .function 7 5 4 "min(-3)" 0,  -- 9: Function
-  .copy 4 2 0 0 0,  -- 10: Copy
-  .once 0 17 0 0 0,  -- 11: Once
-  .integer 1 10 0 0 0,  -- 12: Integer
-  .integer 2 11 0 0 0,  -- 13: Integer
-  .integer 3 12 0 0 0,  -- 14: Integer
-  .collSeq 0 0 0 "BINARY-8" 0,  -- 15: CollSeq
-  .function 7 10 9 "max(-3)" 0,  -- 16: Function
-  .subtract 9 8 3 0 0,  -- 17: Subtract
-  .column 0 0 1 0 0,  -- 18: Column
-  .makeRecord 1 3 13 0 0,  -- 19: MakeRecord
-  .sorterInsert 1 13 1 3 0,  -- 20: SorterInsert
-  .next 0 4 0 0 1,  -- 21: Next
-  .openPseudo 2 14 4 0 0,  -- 22: OpenPseudo
-  .sorterSort 1 29 0 0 0,  -- 23: SorterSort
-  .sorterData 1 14 2 0 0,  -- 24: SorterData
-  .column 2 2 3 0 0,  -- 25: Column
-  .column 2 1 2 0 0,  -- 26: Column
-  .resultRow 2 2 0 0 0,  -- 27: ResultRow
-  .sorterNext 1 24 0 0 0,  -- 28: SorterNext
-  .halt 0 0 0 0 0,  -- 29: Halt
-  .transaction 0 0 9 0 1,  -- 30: Transaction
-  .integer 0 8 0 0 0,  -- 31: Integer
-  .goto 0 1 0 0 0  -- 32: Goto
+  vdbeInit 0 30 0 "" 0,  -- 0: Init
+  vdbeSorterOpen 1 4 0 "k(1,B)" 0,  -- 1: SorterOpen
+  vdbeOpenRead 0 2 0 "1" 0,  -- 2: OpenRead
+  vdbeRewind 0 22 0 "" 0,  -- 3: Rewind
+  vdbeOnce 0 10 0 "" 0,  -- 4: Once
+  vdbeInteger 1 5 0 "" 0,  -- 5: Integer
+  vdbeInteger 2 6 0 "" 0,  -- 6: Integer
+  vdbeInteger 3 7 0 "" 0,  -- 7: Integer
+  vdbeCollSeq 0 0 0 "BINARY-8" 0,  -- 8: CollSeq
+  vdbeFunction 7 5 4 "min(-3)" 0,  -- 9: Function
+  vdbeCopy 4 2 0 "" 0,  -- 10: Copy
+  vdbeOnce 0 17 0 "" 0,  -- 11: Once
+  vdbeInteger 1 10 0 "" 0,  -- 12: Integer
+  vdbeInteger 2 11 0 "" 0,  -- 13: Integer
+  vdbeInteger 3 12 0 "" 0,  -- 14: Integer
+  vdbeCollSeq 0 0 0 "BINARY-8" 0,  -- 15: CollSeq
+  vdbeFunction 7 10 9 "max(-3)" 0,  -- 16: Function
+  vdbeSubtract 9 8 3 "" 0,  -- 17: Subtract
+  vdbeColumn 0 0 1 "" 0,  -- 18: Column
+  vdbeMakeRecord 1 3 13 "" 0,  -- 19: MakeRecord
+  vdbeSorterInsert 1 13 1 "3" 0,  -- 20: SorterInsert
+  vdbeNext 0 4 0 "" 1,  -- 21: Next
+  vdbeOpenPseudo 2 14 4 "" 0,  -- 22: OpenPseudo
+  vdbeSorterSort 1 29 0 "" 0,  -- 23: SorterSort
+  vdbeSorterData 1 14 2 "" 0,  -- 24: SorterData
+  vdbeColumn 2 2 3 "" 0,  -- 25: Column
+  vdbeColumn 2 1 2 "" 0,  -- 26: Column
+  vdbeResultRow 2 2 0 "" 0,  -- 27: ResultRow
+  vdbeSorterNext 1 24 0 "" 0,  -- 28: SorterNext
+  vdbeHalt 0 0 0 "" 0,  -- 29: Halt
+  vdbeTransaction 0 0 9 "0" 1,  -- 30: Transaction
+  vdbeInteger 0 8 0 "" 0,  -- 31: Integer
+  vdbeGoto 0 1 0 "" 0  -- 32: Goto
 ]
 
-/-- Main termination theorem: program terminates for any database -/
-theorem program_terminates (db : Database) :
-    ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := by
-  sorry
+def program_gas (state : VMState) : Nat := sorry
+theorem program_terminates (db : Database) : ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := sorry
+theorem program_terminates' (db : Database) : (runBounded program (mkInitialState db) (program_gas (mkInitialState db))).status ≠ .running := sorry
 
-end Sqlite3Lean.Query000100
+end Sqlite3Lean.select1.Query000100

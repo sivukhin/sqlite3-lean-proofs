@@ -1,7 +1,7 @@
 import Sqlite3Lean.Vdbe
 import Sqlite3Lean.VdbeLemmas
 
-namespace Sqlite3Lean.Query000130
+namespace Sqlite3Lean.select1.Query000130
 
 open Sqlite3Lean.Vdbe
 open Sqlite3Lean.VdbeLemmas
@@ -61,51 +61,50 @@ open Sqlite3Lean.VdbeLemmas
 -/
 
 def program : Program := #[
-  .init 0 38 0 0 0,  -- 0: Init
-  .initCoroutine 1 24 2 0 0,  -- 1: InitCoroutine
-  .openEphemeral 3 2 0 "k(2,B,B)" 0,  -- 2: OpenEphemeral
-  .openRead 2 3 0 2 0,  -- 3: OpenRead
-  .rewind 2 10 0 0 0,  -- 4: Rewind
-  .column 2 0 2 0 0,  -- 5: Column
-  .column 2 1 3 0 0,  -- 6: Column
-  .makeRecord 2 2 4 0 0,  -- 7: MakeRecord
-  .idxInsert 3 4 2 2 0,  -- 8: IdxInsert
-  .next 2 5 0 0 1,  -- 9: Next
-  .openRead 1 4 0 2 0,  -- 10: OpenRead
-  .rewind 1 17 0 0 0,  -- 11: Rewind
-  .column 1 0 2 0 0,  -- 12: Column
-  .column 1 1 3 0 0,  -- 13: Column
-  .makeRecord 2 2 4 0 0,  -- 14: MakeRecord
-  .idxInsert 3 4 2 2 0,  -- 15: IdxInsert
-  .next 1 12 0 0 1,  -- 16: Next
-  .rewind 3 22 0 0 0,  -- 17: Rewind
-  .column 3 0 5 0 0,  -- 18: Column
-  .column 3 1 6 0 0,  -- 19: Column
-  .yield 1 0 0 0 0,  -- 20: Yield
-  .next 3 18 0 0 0,  -- 21: Next
-  .close 3 0 0 0 0,  -- 22: Close
-  .endCoroutine 1 0 0 0 0,  -- 23: EndCoroutine
-  .sorterOpen 4 3 0 "k(1,B)" 0,  -- 24: SorterOpen
-  .initCoroutine 1 0 2 0 0,  -- 25: InitCoroutine
-  .yield 1 31 0 0 0,  -- 26: Yield
-  .copy 5 7 0 0 2,  -- 27: Copy
-  .makeRecord 7 1 9 0 0,  -- 28: MakeRecord
-  .sorterInsert 4 9 7 1 0,  -- 29: SorterInsert
-  .goto 0 26 0 0 0,  -- 30: Goto
-  .openPseudo 5 10 3 0 0,  -- 31: OpenPseudo
-  .sorterSort 4 37 0 0 0,  -- 32: SorterSort
-  .sorterData 4 10 5 0 0,  -- 33: SorterData
-  .column 5 0 8 0 0,  -- 34: Column
-  .resultRow 8 1 0 0 0,  -- 35: ResultRow
-  .sorterNext 4 33 0 0 0,  -- 36: SorterNext
-  .halt 0 0 0 0 0,  -- 37: Halt
-  .transaction 0 0 9 0 1,  -- 38: Transaction
-  .goto 0 1 0 0 0  -- 39: Goto
+  vdbeInit 0 38 0 "" 0,  -- 0: Init
+  vdbeInitCoroutine 1 24 2 "" 0,  -- 1: InitCoroutine
+  vdbeOpenEphemeral 3 2 0 "k(2,B,B)" 0,  -- 2: OpenEphemeral
+  vdbeOpenRead 2 3 0 "2" 0,  -- 3: OpenRead
+  vdbeRewind 2 10 0 "" 0,  -- 4: Rewind
+  vdbeColumn 2 0 2 "" 0,  -- 5: Column
+  vdbeColumn 2 1 3 "" 0,  -- 6: Column
+  vdbeMakeRecord 2 2 4 "" 0,  -- 7: MakeRecord
+  vdbeIdxInsert 3 4 2 "2" 0,  -- 8: IdxInsert
+  vdbeNext 2 5 0 "" 1,  -- 9: Next
+  vdbeOpenRead 1 4 0 "2" 0,  -- 10: OpenRead
+  vdbeRewind 1 17 0 "" 0,  -- 11: Rewind
+  vdbeColumn 1 0 2 "" 0,  -- 12: Column
+  vdbeColumn 1 1 3 "" 0,  -- 13: Column
+  vdbeMakeRecord 2 2 4 "" 0,  -- 14: MakeRecord
+  vdbeIdxInsert 3 4 2 "2" 0,  -- 15: IdxInsert
+  vdbeNext 1 12 0 "" 1,  -- 16: Next
+  vdbeRewind 3 22 0 "" 0,  -- 17: Rewind
+  vdbeColumn 3 0 5 "" 0,  -- 18: Column
+  vdbeColumn 3 1 6 "" 0,  -- 19: Column
+  vdbeYield 1 0 0 "" 0,  -- 20: Yield
+  vdbeNext 3 18 0 "" 0,  -- 21: Next
+  vdbeClose 3 0 0 "" 0,  -- 22: Close
+  vdbeEndCoroutine 1 0 0 "" 0,  -- 23: EndCoroutine
+  vdbeSorterOpen 4 3 0 "k(1,B)" 0,  -- 24: SorterOpen
+  vdbeInitCoroutine 1 0 2 "" 0,  -- 25: InitCoroutine
+  vdbeYield 1 31 0 "" 0,  -- 26: Yield
+  vdbeCopy 5 7 0 "" 2,  -- 27: Copy
+  vdbeMakeRecord 7 1 9 "" 0,  -- 28: MakeRecord
+  vdbeSorterInsert 4 9 7 "1" 0,  -- 29: SorterInsert
+  vdbeGoto 0 26 0 "" 0,  -- 30: Goto
+  vdbeOpenPseudo 5 10 3 "" 0,  -- 31: OpenPseudo
+  vdbeSorterSort 4 37 0 "" 0,  -- 32: SorterSort
+  vdbeSorterData 4 10 5 "" 0,  -- 33: SorterData
+  vdbeColumn 5 0 8 "" 0,  -- 34: Column
+  vdbeResultRow 8 1 0 "" 0,  -- 35: ResultRow
+  vdbeSorterNext 4 33 0 "" 0,  -- 36: SorterNext
+  vdbeHalt 0 0 0 "" 0,  -- 37: Halt
+  vdbeTransaction 0 0 9 "0" 1,  -- 38: Transaction
+  vdbeGoto 0 1 0 "" 0  -- 39: Goto
 ]
 
-/-- Main termination theorem: program terminates for any database -/
-theorem program_terminates (db : Database) :
-    ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := by
-  sorry
+def program_gas (state : VMState) : Nat := sorry
+theorem program_terminates (db : Database) : ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := sorry
+theorem program_terminates' (db : Database) : (runBounded program (mkInitialState db) (program_gas (mkInitialState db))).status ≠ .running := sorry
 
-end Sqlite3Lean.Query000130
+end Sqlite3Lean.select1.Query000130

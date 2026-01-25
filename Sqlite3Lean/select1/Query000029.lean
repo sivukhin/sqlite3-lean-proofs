@@ -1,7 +1,7 @@
 import Sqlite3Lean.Vdbe
 import Sqlite3Lean.VdbeLemmas
 
-namespace Sqlite3Lean.Query000029
+namespace Sqlite3Lean.select1.Query000029
 
 open Sqlite3Lean.Vdbe
 open Sqlite3Lean.VdbeLemmas
@@ -34,27 +34,26 @@ open Sqlite3Lean.VdbeLemmas
 -/
 
 def program : Program := #[
-  .init 0 14 0 0 0,  -- 0: Init
-  .null 0 1 2 0 0,  -- 1: Null
-  .openRead 0 3 0 1 0,  -- 2: OpenRead
-  .rewind 0 10 0 0 0,  -- 3: Rewind
-  .column 0 0 3 0 0,  -- 4: Column
-  .notNull 3 7 0 0 0,  -- 5: NotNull
-  .string8 0 3 0 "xyzzy" 0,  -- 6: String8
-  .collSeq 0 0 0 "BINARY-8" 0,  -- 7: CollSeq
-  .aggStep 0 3 2 "min(1)" 1,  -- 8: AggStep
-  .next 0 4 0 0 1,  -- 9: Next
-  .aggFinal 2 1 0 "min(1)" 0,  -- 10: AggFinal
-  .copy 2 4 0 0 0,  -- 11: Copy
-  .resultRow 4 1 0 0 0,  -- 12: ResultRow
-  .halt 0 0 0 0 0,  -- 13: Halt
-  .transaction 0 0 5 0 1,  -- 14: Transaction
-  .goto 0 1 0 0 0  -- 15: Goto
+  vdbeInit 0 14 0 "" 0,  -- 0: Init
+  vdbeNull 0 1 2 "" 0,  -- 1: Null
+  vdbeOpenRead 0 3 0 "1" 0,  -- 2: OpenRead
+  vdbeRewind 0 10 0 "" 0,  -- 3: Rewind
+  vdbeColumn 0 0 3 "" 0,  -- 4: Column
+  vdbeNotNull 3 7 0 "" 0,  -- 5: NotNull
+  vdbeString8 0 3 0 "xyzzy" 0,  -- 6: String8
+  vdbeCollSeq 0 0 0 "BINARY-8" 0,  -- 7: CollSeq
+  vdbeAggStep 0 3 2 "min(1)" 1,  -- 8: AggStep
+  vdbeNext 0 4 0 "" 1,  -- 9: Next
+  vdbeAggFinal 2 1 0 "min(1)" 0,  -- 10: AggFinal
+  vdbeCopy 2 4 0 "" 0,  -- 11: Copy
+  vdbeResultRow 4 1 0 "" 0,  -- 12: ResultRow
+  vdbeHalt 0 0 0 "" 0,  -- 13: Halt
+  vdbeTransaction 0 0 5 "0" 1,  -- 14: Transaction
+  vdbeGoto 0 1 0 "" 0  -- 15: Goto
 ]
 
-/-- Main termination theorem: program terminates for any database -/
-theorem program_terminates (db : Database) :
-    ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := by
-  sorry
+def program_gas (state : VMState) : Nat := sorry
+theorem program_terminates (db : Database) : ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := sorry
+theorem program_terminates' (db : Database) : (runBounded program (mkInitialState db) (program_gas (mkInitialState db))).status ≠ .running := sorry
 
-end Sqlite3Lean.Query000029
+end Sqlite3Lean.select1.Query000029
