@@ -399,11 +399,8 @@ partial def run (program : Program) (state : VMState) : VMState :=
 /-- Execute program with a step limit (for termination proof) -/
 def runBounded (program : Program) (state : VMState) (fuel : Nat) : VMState :=
   match fuel with
-  | 0 => { state with status := .error "Out of fuel" }
-  | fuel' + 1 =>
-    match state.status with
-    | .halted _ | .error _ => state
-    | .running => runBounded program (step program state) fuel'
+  | 0 => state
+  | fuel' + 1 => step program (runBounded program state fuel')
 
 /-! ## Initial State Construction -/
 

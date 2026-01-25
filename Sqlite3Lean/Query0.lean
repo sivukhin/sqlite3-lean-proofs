@@ -7,9 +7,11 @@
 -/
 
 import Sqlite3Lean.Vdbe
+import Sqlite3Lean.VdbeLemmas
 
 namespace Sqlite3Lean.Query0
 open Sqlite3Lean.Vdbe
+open Sqlite3Lean.VdbeLemmas
 
 /-! ## Example: SELECT * FROM t -/
 
@@ -28,7 +30,7 @@ open Sqlite3Lean.Vdbe
   7     Transaction    0     0     1     0              1   usesStmtJournal=0
   8     Goto           0     1     0                    0
 -/
-def selectAllProgram : Program := #[
+def program : Program := #[
   .init 0 7,              -- 0: Jump to 7 (Transaction)
   .openRead 0 2 0 1,      -- 1: Open cursor 0 on btree 2
   .rewind 0 6,            -- 2: Rewind cursor 0, jump to 6 if empty
@@ -58,7 +60,7 @@ def exampleDatabase : Database := fun btreeId =>
 /-- Run the SELECT * FROM t example -/
 def runSelectExample : VMState :=
   let initialState := mkInitialState exampleDatabase
-  runBounded selectAllProgram initialState 100
+  runBounded program initialState 100
 
 #eval runSelectExample.output
 -- Expected: [[integer 1], [integer 2], [integer 3]]
@@ -66,11 +68,11 @@ def runSelectExample : VMState :=
 #eval runSelectExample.status
 -- Expected: halted 0
 
-/-! ## Termination Proof for selectAllProgram -/
+/-! ## Termination Proof for program -/
 
 /--
   Compute the number of remaining rows to process based on cursor state.
-  This looks at cursor 0 (the cursor used by selectAllProgram) and determines
+  This looks at cursor 0 (the cursor used by program) and determines
   how many rows are left to iterate over.
 -/
 def remainingRows (state : VMState) : Nat :=
@@ -107,7 +109,7 @@ def phaseOffset (pc : Nat) : Nat :=
   | _ => 1  -- Invalid PC (will error, but gas > 0 ensures decrease to error state)
 
 /--
-  The "gas" (or measure) function for proving termination of selectAllProgram.
+  The "gas" (or measure) function for proving termination of program.
 
   Gas = remainingRows * loopCost + phaseOffset
 
@@ -146,19 +148,19 @@ theorem selectAllGas_pos_of_running (state : VMState) (h : state.status = .runni
   have hOffset : phaseOffset state.pc ≥ 1 := phaseOffset_pos state.pc
   omega
 
-/-- selectAllProgram has exactly 9 instructions (indices 0-8) -/
-theorem selectAllProgram_size : selectAllProgram.size = 9 := rfl
+/-- program has exactly 9 instructions (indices 0-8) -/
+theorem program_size : program.size = 9 := rfl
 
-/-- Get the opcode at each index in selectAllProgram -/
-theorem selectAllProgram_at_0 : selectAllProgram[0]? = some (.init 0 7) := rfl
-theorem selectAllProgram_at_1 : selectAllProgram[1]? = some (.openRead 0 2 0 1) := rfl
-theorem selectAllProgram_at_2 : selectAllProgram[2]? = some (.rewind 0 6) := rfl
-theorem selectAllProgram_at_3 : selectAllProgram[3]? = some (.column 0 0 1) := rfl
-theorem selectAllProgram_at_4 : selectAllProgram[4]? = some (.resultRow 1 1) := rfl
-theorem selectAllProgram_at_5 : selectAllProgram[5]? = some (.next 0 3) := rfl
-theorem selectAllProgram_at_6 : selectAllProgram[6]? = some (.halt 0 0) := rfl
-theorem selectAllProgram_at_7 : selectAllProgram[7]? = some (.transaction 0 0 1) := rfl
-theorem selectAllProgram_at_8 : selectAllProgram[8]? = some (.goto 1) := rfl
+/-- Get the opcode at each index in program -/
+theorem program_at_0 : program[0]? = some (.init 0 7) := rfl
+theorem program_at_1 : program[1]? = some (.openRead 0 2 0 1) := rfl
+theorem program_at_2 : program[2]? = some (.rewind 0 6) := rfl
+theorem program_at_3 : program[3]? = some (.column 0 0 1) := rfl
+theorem program_at_4 : program[4]? = some (.resultRow 1 1) := rfl
+theorem program_at_5 : program[5]? = some (.next 0 3) := rfl
+theorem program_at_6 : program[6]? = some (.halt 0 0) := rfl
+theorem program_at_7 : program[7]? = some (.transaction 0 0 1) := rfl
+theorem program_at_8 : program[8]? = some (.goto 1) := rfl
 
 /-! ### Opcode PC behavior lemmas -/
 
@@ -254,10 +256,10 @@ theorem executeOpcode_goto_status (p2 : Nat) (state : VMState)
 @[simp] theorem phaseOffset_7 : phaseOffset 7 = 8 := rfl
 @[simp] theorem phaseOffset_8 : phaseOffset 8 = 7 := rfl
 
-/-! ### State invariant for selectAllProgram -/
+/-! ### State invariant for program -/
 
 /--
-  Invariant for selectAllProgram execution states.
+  Invariant for program execution states.
   Captures the relationship between PC and cursor state:
   - Before OpenRead (pc ∈ {0, 7, 8, 1}): cursor 0 doesn't exist
   - After OpenRead (pc ∈ {2, 3, 4, 5, 6}): cursor 0 exists with btreeId = 2
@@ -277,26 +279,26 @@ theorem selectAllInvariant_initial (db : Database) :
 theorem selectAllInvariant_preserved (state : VMState)
     (hInv : selectAllInvariant state)
     (hRunning : state.status = .running)
-    (hValidPc : state.pc < selectAllProgram.size) :
-    selectAllInvariant (step selectAllProgram state) := by
-  simp only [selectAllProgram_size] at hValidPc
+    (hValidPc : state.pc < program.size) :
+    selectAllInvariant (step program state) := by
+  simp only [program_size] at hValidPc
   have hPc : state.pc = 0 ∨ state.pc = 1 ∨ state.pc = 2 ∨ state.pc = 3 ∨
              state.pc = 4 ∨ state.pc = 5 ∨ state.pc = 6 ∨ state.pc = 7 ∨ state.pc = 8 := by omega
   simp only [selectAllInvariant] at hInv ⊢
   obtain ⟨hCursorBtree, hNoCursorBefore⟩ := hInv
   rcases hPc with h | h | h | h | h | h | h | h | h
   -- pc = 0: Init → pc = 7, cursors unchanged
-  · simp [step, hRunning, h, selectAllProgram_at_0, executeOpcode]
+  · simp [step, hRunning, h, program_at_0, executeOpcode]
     exact ⟨hCursorBtree, hNoCursorBefore (by simp [h])⟩
   -- pc = 1: OpenRead → pc = 2, cursor 0 := ⟨2, none, forward⟩
-  · simp only [step, hRunning, h, selectAllProgram_at_1, executeOpcode, Cursors.set]
+  · simp only [step, hRunning, h, program_at_1, executeOpcode, Cursors.set]
     constructor
     · intro cursor hCursor
       simp only [beq_self_eq_true, ↓reduceIte, Option.some.injEq] at hCursor
       rw [← hCursor]
     · simp
   -- pc = 2: Rewind → pc = 3 or 6, need to case split
-  · simp only [step, hRunning, h, selectAllProgram_at_2, executeOpcode]
+  · simp only [step, hRunning, h, program_at_2, executeOpcode]
     split
     · -- cursor not open → error, but cursors unchanged
       exact ⟨hCursorBtree, by simp⟩
@@ -317,13 +319,13 @@ theorem selectAllInvariant_preserved (state : VMState)
             exact hCursorBtree cursor hCursor
           · simp
   -- pc = 3: Column → pc = 4, cursors unchanged
-  · simp only [step, hRunning, h, selectAllProgram_at_3, executeOpcode, getCursorColumn]
+  · simp only [step, hRunning, h, program_at_3, executeOpcode, getCursorColumn]
     split <;> exact ⟨hCursorBtree, by simp⟩
   -- pc = 4: ResultRow → pc = 5, cursors unchanged
-  · simp only [step, hRunning, h, selectAllProgram_at_4, executeOpcode]
+  · simp only [step, hRunning, h, program_at_4, executeOpcode]
     exact ⟨hCursorBtree, by simp⟩
   -- pc = 5: Next → pc = 3 or 6, need to case split
-  · simp only [step, hRunning, h, selectAllProgram_at_5, executeOpcode]
+  · simp only [step, hRunning, h, program_at_5, executeOpcode]
     split
     · exact ⟨hCursorBtree, by simp⟩  -- cursor not open → error
     · rename_i cursor hCursor
@@ -345,13 +347,13 @@ theorem selectAllInvariant_preserved (state : VMState)
           · -- no more rows → pc = 6
             exact ⟨hCursorBtree, by simp⟩
   -- pc = 6: Halt → status = halted
-  · simp only [step, hRunning, h, selectAllProgram_at_6, executeOpcode]
+  · simp only [step, hRunning, h, program_at_6, executeOpcode]
     exact ⟨hCursorBtree, by simp⟩
   -- pc = 7: Transaction → pc = 8, cursors unchanged
-  · simp [step, hRunning, h, selectAllProgram_at_7, executeOpcode]
+  · simp [step, hRunning, h, program_at_7, executeOpcode]
     exact ⟨hCursorBtree, hNoCursorBefore (by simp [h])⟩
   -- pc = 8: Goto → pc = 1, cursors unchanged
-  · simp [step, hRunning, h, selectAllProgram_at_8, executeOpcode]
+  · simp [step, hRunning, h, program_at_8, executeOpcode]
     exact ⟨hCursorBtree, hNoCursorBefore (by simp [h])⟩
 
 /--
@@ -370,22 +372,22 @@ theorem rewindPositionInvariant_initial (db : Database) :
 theorem rewindPositionInvariant_preserved (state : VMState)
     (hRewind : rewindPositionInvariant state)
     (hRunning : state.status = .running)
-    (hValidPc : state.pc < selectAllProgram.size) :
-    rewindPositionInvariant (step selectAllProgram state) := by
-  simp only [selectAllProgram_size] at hValidPc
+    (hValidPc : state.pc < program.size) :
+    rewindPositionInvariant (step program state) := by
+  simp only [program_size] at hValidPc
   simp only [rewindPositionInvariant] at hRewind ⊢
   have hPc : state.pc = 0 ∨ state.pc = 1 ∨ state.pc = 2 ∨ state.pc = 3 ∨
              state.pc = 4 ∨ state.pc = 5 ∨ state.pc = 6 ∨ state.pc = 7 ∨ state.pc = 8 := by omega
   rcases hPc with h | h | h | h | h | h | h | h | h
   -- pc = 0: new pc = 7 ≠ 2
-  · simp [step, hRunning, h, selectAllProgram_at_0, executeOpcode]
+  · simp [step, hRunning, h, program_at_0, executeOpcode]
   -- pc = 1: OpenRead → pc = 2, cursor 0 := ⟨2, none, forward⟩
-  · simp only [step, hRunning, h, selectAllProgram_at_1, executeOpcode, Cursors.set]
+  · simp only [step, hRunning, h, program_at_1, executeOpcode, Cursors.set]
     intro _ cursor hCursor
     simp only [beq_self_eq_true, ↓reduceIte, Option.some.injEq] at hCursor
     rw [← hCursor]
   -- pc = 2: Rewind → new pc = 3 or 6, both ≠ 2
-  · simp only [step, hRunning, h, selectAllProgram_at_2, executeOpcode]
+  · simp only [step, hRunning, h, program_at_2, executeOpcode]
     cases hCursor : state.cursors 0 with
     | none =>
       -- Error state: cursors unchanged, still none, so vacuously true
@@ -410,12 +412,12 @@ theorem rewindPositionInvariant_preserved (state : VMState)
           simp only [hEmpty]
           intro hPc2; simp at hPc2
   -- pc = 3: new pc = 4 ≠ 2
-  · simp [step, hRunning, h, selectAllProgram_at_3, executeOpcode, getCursorColumn]
+  · simp [step, hRunning, h, program_at_3, executeOpcode, getCursorColumn]
     split <;> simp
   -- pc = 4: new pc = 5 ≠ 2
-  · simp [step, hRunning, h, selectAllProgram_at_4, executeOpcode]
+  · simp [step, hRunning, h, program_at_4, executeOpcode]
   -- pc = 5: new pc = 3 or 6 ≠ 2
-  · simp only [step, hRunning, h, selectAllProgram_at_5, executeOpcode]
+  · simp only [step, hRunning, h, program_at_5, executeOpcode]
     cases hCursor5 : state.cursors 0 with
     | none => simp
     | some cursor =>
@@ -429,11 +431,11 @@ theorem rewindPositionInvariant_preserved (state : VMState)
           simp only
           by_cases hMore : pos + 1 < btree.tuples.length <;> simp [hMore]
   -- pc = 6: Halt → status = halted (not running)
-  · simp [step, hRunning, h, selectAllProgram_at_6, executeOpcode]
+  · simp [step, hRunning, h, program_at_6, executeOpcode]
   -- pc = 7: new pc = 8 ≠ 2
-  · simp [step, hRunning, h, selectAllProgram_at_7, executeOpcode]
+  · simp [step, hRunning, h, program_at_7, executeOpcode]
   -- pc = 8: new pc = 1 ≠ 2
-  · simp [step, hRunning, h, selectAllProgram_at_8, executeOpcode]
+  · simp [step, hRunning, h, program_at_8, executeOpcode]
 
 /-! ### remainingRows lemmas -/
 
@@ -469,7 +471,7 @@ theorem remainingRows_after_resultRow (state : VMState) (startReg numRegs : Nat)
   rfl
 
 /--
-  Helper: executing an opcode on selectAllProgram results in gas decrease.
+  Helper: executing an opcode on program results in gas decrease.
   This is the core lemma for the termination proof.
 
   The proof proceeds by case analysis on state.pc ∈ {0,1,2,3,4,5,6,7,8}.
@@ -479,10 +481,10 @@ theorem selectAllGas_decreases_step (state : VMState)
     (hInv : selectAllInvariant state)
     (hRewind : rewindPositionInvariant state)
     (hRunning : state.status = .running)
-    (hValidPc : state.pc < selectAllProgram.size) :
-    selectAllGas (step selectAllProgram state) < selectAllGas state := by
+    (hValidPc : state.pc < program.size) :
+    selectAllGas (step program state) < selectAllGas state := by
   -- Establish pc ∈ {0..8}
-  simp only [selectAllProgram_size] at hValidPc
+  simp only [program_size] at hValidPc
   have hPc : state.pc = 0 ∨
              state.pc = 1 ∨
              state.pc = 2 ∨
@@ -494,17 +496,17 @@ theorem selectAllGas_decreases_step (state : VMState)
              state.pc = 8 := by omega
   rcases hPc with h | h | h | h | h | h | h | h | h
   -- Case pc = 0: Init 0 7 → jump to pc = 7
-  · simp [step, hRunning, h, selectAllProgram_at_0, executeOpcode]
+  · simp [step, hRunning, h, program_at_0, executeOpcode]
     simp [h, selectAllGas, hRunning, phaseOffset, remainingRows]
   -- Case pc = 1: OpenRead → pc = 2
   -- Use invariant: at pc=1, cursor 0 doesn't exist
   · have hNoCursor : state.cursors 0 = none := hInv.2 (by simp [h])
-    simp only [step, hRunning, h, selectAllProgram_at_1, executeOpcode]
+    simp only [step, hRunning, h, program_at_1, executeOpcode]
     simp only [selectAllGas, hRunning, remainingRows, Cursors.set, h]
     simp only [beq_self_eq_true, ↓reduceIte, hNoCursor, phaseOffset]
     omega
   -- Case pc = 2: Rewind → pc = 3 or pc = 6
-  · simp only [step, hRunning, h, selectAllProgram_at_2, executeOpcode]
+  · simp only [step, hRunning, h, program_at_2, executeOpcode]
     cases hCursor : state.cursors 0 with
     | none =>
       -- Error case: gas becomes 0, which is less than positive gas
@@ -537,7 +539,7 @@ theorem selectAllGas_decreases_step (state : VMState)
             List.length_pos_iff.mpr (List.isEmpty_eq_false_iff.mp hNotEmpty)
           omega
   -- Case pc = 3: Column → pc = 4
-  · simp only [step, hRunning, h, selectAllProgram_at_3, executeOpcode, getCursorColumn]
+  · simp only [step, hRunning, h, program_at_3, executeOpcode, getCursorColumn]
     -- Column doesn't change cursors or database, so remainingRows is preserved
     -- But phaseOffset decreases from 4 to 3
     cases hCol : getCursorTuple state 0 >>= fun t => t[0]? with
@@ -548,10 +550,10 @@ theorem selectAllGas_decreases_step (state : VMState)
       simp only [selectAllGas, remainingRows, phaseOffset, hRunning, h]
       omega
   -- Case pc = 4: ResultRow → pc = 5
-  · simp [step, hRunning, h, selectAllProgram_at_4, executeOpcode]
+  · simp [step, hRunning, h, program_at_4, executeOpcode]
     simp [h, selectAllGas, hRunning, phaseOffset, remainingRows]
   -- Case pc = 5: Next → pc = 3 (more rows) or pc = 6 (done)
-  · simp only [step, hRunning, h, selectAllProgram_at_5, executeOpcode]
+  · simp only [step, hRunning, h, program_at_5, executeOpcode]
     cases hCursor : state.cursors 0 with
     | none =>
       -- Error case: gas becomes 0
@@ -589,18 +591,18 @@ theorem selectAllGas_decreases_step (state : VMState)
                        hCursor, hBtreeId, hDb2, hPos, phaseOffset, hRunning, h]
             omega
   -- Case pc = 6: Halt → status = halted, gas = 0
-  · simp only [step, hRunning, h, selectAllProgram_at_6, executeOpcode, selectAllGas, phaseOffset_6]
+  · simp only [step, hRunning, h, program_at_6, executeOpcode, selectAllGas, phaseOffset_6]
     have hGasPos := selectAllGas_pos_of_running state hRunning
     simp only [selectAllGas, hRunning, h] at hGasPos
     exact hGasPos
   -- Case pc = 7: Transaction → pc = 8
-  · simp [step, hRunning, h, selectAllProgram_at_7, executeOpcode]
+  · simp [step, hRunning, h, program_at_7, executeOpcode]
     simp [h, selectAllGas, hRunning, phaseOffset, remainingRows]
   -- Case pc = 8: Goto 1 → pc = 1
-  · simp [step, hRunning, h, selectAllProgram_at_8, executeOpcode]
+  · simp [step, hRunning, h, program_at_8, executeOpcode]
     simp [h, selectAllGas, hRunning, phaseOffset, remainingRows]
 
-/-! ## Termination Proof for selectAllProgram -/
+/-! ## Termination Proof for program -/
 
 /-- Helper: Array indexing returns none when out of bounds -/
 theorem array_getElem?_ge_size {α : Type u} (a : Array α) (i : Nat) (h : i ≥ a.size) :
@@ -611,10 +613,10 @@ theorem array_getElem?_ge_size {α : Type u} (a : Array α) (i : Nat) (h : i ≥
 /-- If PC is out of bounds, step produces an error state -/
 theorem step_invalid_pc (state : VMState)
     (hRunning : state.status = .running)
-    (hInvalidPc : state.pc ≥ selectAllProgram.size) :
-    (step selectAllProgram state).status = .error s!"Invalid PC: {state.pc}" := by
-  simp only [step, hRunning, selectAllProgram_size] at *
-  have hNone : selectAllProgram[state.pc]? = none := array_getElem?_ge_size _ _ hInvalidPc
+    (hInvalidPc : state.pc ≥ program.size) :
+    (step program state).status = .error s!"Invalid PC: {state.pc}" := by
+  simp only [step, hRunning, program_size] at *
+  have hNone : program[state.pc]? = none := array_getElem?_ge_size _ _ hInvalidPc
   simp [hNone]
 
 /-- Gas becomes 0 for non-running states -/
@@ -626,7 +628,7 @@ theorem selectAllGas_zero_of_not_running (state : VMState)
   | halted _ => rfl
   | error _ => rfl
 
-/-- Combined invariant for selectAllProgram -/
+/-- Combined invariant for program -/
 def selectAllCombinedInvariant (state : VMState) : Prop :=
   selectAllInvariant state ∧ rewindPositionInvariant state
 
@@ -639,8 +641,8 @@ theorem selectAllCombinedInvariant_initial (db : Database) :
 theorem selectAllCombinedInvariant_preserved (state : VMState)
     (hInv : selectAllCombinedInvariant state)
     (hRunning : state.status = .running)
-    (hValidPc : state.pc < selectAllProgram.size) :
-    selectAllCombinedInvariant (step selectAllProgram state) :=
+    (hValidPc : state.pc < program.size) :
+    selectAllCombinedInvariant (step program state) :=
   ⟨selectAllInvariant_preserved state hInv.1 hRunning hValidPc,
    rewindPositionInvariant_preserved state hInv.2 hRunning hValidPc⟩
 
@@ -648,13 +650,13 @@ theorem selectAllCombinedInvariant_preserved (state : VMState)
 theorem selectAllGas_decreases (state : VMState)
     (hInv : selectAllCombinedInvariant state)
     (hRunning : state.status = .running) :
-    selectAllGas (step selectAllProgram state) < selectAllGas state := by
-  by_cases hValidPc : state.pc < selectAllProgram.size
+    selectAllGas (step program state) < selectAllGas state := by
+  by_cases hValidPc : state.pc < program.size
   · exact selectAllGas_decreases_step state hInv.1 hInv.2 hRunning hValidPc
   · -- Invalid PC: step produces error, gas becomes 0
-    have hInvalidPc : state.pc ≥ selectAllProgram.size := Nat.not_lt.mp hValidPc
+    have hInvalidPc : state.pc ≥ program.size := Nat.not_lt.mp hValidPc
     have hError := step_invalid_pc state hRunning hInvalidPc
-    have hNotRunning : (step selectAllProgram state).status ≠ .running := by
+    have hNotRunning : (step program state).status ≠ .running := by
       simp [hError]
     rw [selectAllGas_zero_of_not_running _ hNotRunning]
     exact selectAllGas_pos_of_running state hRunning
@@ -664,66 +666,71 @@ theorem runBounded_terminates (state : VMState)
     (hInv : selectAllCombinedInvariant state)
     (fuel : Nat)
     (hFuel : fuel ≥ selectAllGas state) :
-    (runBounded selectAllProgram state fuel).status ≠ .running := by
+    (runBounded program state fuel).status ≠ .running := by
   -- Induction on fuel
   induction fuel generalizing state with
   | zero =>
-    -- fuel = 0: out of fuel error
-    simp [runBounded]
-  | succ n ih =>
+    -- fuel = 0 means selectAllGas state = 0, so state is not running
     simp only [runBounded]
+    intro hRunning
+    have hGasPos := selectAllGas_pos_of_running state hRunning
+    omega
+  | succ n ih =>
+    -- Use runBounded_step_comm: runBounded state (n+1) = runBounded (step state) n
+    rw [VdbeLemmas.runBounded_step_comm]
     cases hStatus : state.status with
     | halted code =>
-      simp only [hStatus]
-      intro h; cases h
+      -- If state is halted, step state = state, and state is not running
+      have hNotRunning : state.status ≠ .running := by simp [hStatus]
+      have hStepEq : step program state = state := by simp [step, hStatus]
+      rw [hStepEq]
+      exact VdbeLemmas.runBounded_preserves_not_running program state n hNotRunning
     | error msg =>
-      simp only [hStatus]
-      intro h; cases h
+      -- If state is error, step state = state, and state is not running
+      have hNotRunning : state.status ≠ .running := by simp [hStatus]
+      have hStepEq : step program state = state := by simp [step, hStatus]
+      rw [hStepEq]
+      exact VdbeLemmas.runBounded_preserves_not_running program state n hNotRunning
     | running =>
-      -- State is running, we take a step
-      -- Apply induction hypothesis to the stepped state
+      -- State is running, apply IH to step state
       apply ih
-      · -- Invariant preserved
-        by_cases hValidPc : state.pc < selectAllProgram.size
+      · -- Invariant preserved by step
+        by_cases hValidPc : state.pc < program.size
         · exact selectAllCombinedInvariant_preserved state hInv hStatus hValidPc
         · -- Invalid PC: step produces error state
-          have hInvalidPc : state.pc ≥ selectAllProgram.size := Nat.not_lt.mp hValidPc
-          -- For error states, the invariant is preserved (state doesn't actually change, just status)
+          have hInvalidPc : state.pc ≥ program.size := Nat.not_lt.mp hValidPc
           simp only [selectAllCombinedInvariant, selectAllInvariant, rewindPositionInvariant]
-          simp only [step, hStatus, selectAllProgram_size] at *
-          have hNone : selectAllProgram[state.pc]? = none := array_getElem?_ge_size _ _ hInvalidPc
+          simp only [step, hStatus, program_size] at *
+          have hNone : program[state.pc]? = none := array_getElem?_ge_size _ _ hInvalidPc
           simp only [hNone]
-          -- The invariant is inherited from the original state
           constructor
           · constructor
             · exact hInv.1.1
             · intro hPc
-              -- state.pc ∈ [0, 7, 8, 1] but state.pc ≥ 9, contradiction
               simp only [List.mem_cons, List.not_mem_nil, or_false] at hPc
               rcases hPc with h | h | h | h <;> omega
           · intro hPc
-            -- state.pc = 2 but state.pc ≥ 9, contradiction
             omega
       · -- Fuel sufficient for stepped state
         have hDecrease := selectAllGas_decreases state hInv hStatus
         omega
 
-/-- Main termination theorem: selectAllProgram terminates for any database -/
-theorem selectAllProgram_terminates (db : Database) :
-    ∃ n : Nat, (runBounded selectAllProgram (mkInitialState db) n).status ≠ .running := by
+/-- Main termination theorem: program terminates for any database -/
+theorem program_terminates (db : Database) :
+    ∃ n : Nat, (runBounded program (mkInitialState db) n).status ≠ .running := by
   refine ⟨selectAllGas (mkInitialState db), ?_⟩
   exact runBounded_terminates (mkInitialState db) (selectAllCombinedInvariant_initial db)
     (selectAllGas (mkInitialState db)) (Nat.le_refl _)
 
 /-- The final state is either halted or an error -/
-theorem selectAllProgram_final_status (db : Database) :
-    ∃ n : Nat, match (runBounded selectAllProgram (mkInitialState db) n).status with
+theorem program_final_status (db : Database) :
+    ∃ n : Nat, match (runBounded program (mkInitialState db) n).status with
       | .halted _ => True
       | .error _ => True
       | .running => False := by
-  have ⟨n, hn⟩ := selectAllProgram_terminates db
+  have ⟨n, hn⟩ := program_terminates db
   refine ⟨n, ?_⟩
-  cases h : (runBounded selectAllProgram (mkInitialState db) n).status with
+  cases h : (runBounded program (mkInitialState db) n).status with
   | halted _ => trivial
   | error _ => trivial
   | running => exact hn h
@@ -733,13 +740,13 @@ def selectAllRequiredFuel (db : Database) : Nat :=
   selectAllGas (mkInitialState db)
 
 /-- runBounded with required fuel terminates -/
-theorem selectAllProgram_terminates' (db : Database) :
-    (runBounded selectAllProgram (mkInitialState db) (selectAllRequiredFuel db)).status ≠ .running :=
+theorem program_terminates' (db : Database) :
+    (runBounded program (mkInitialState db) (selectAllRequiredFuel db)).status ≠ .running :=
   runBounded_terminates (mkInitialState db) (selectAllCombinedInvariant_initial db)
     (selectAllRequiredFuel db) (Nat.le_refl _)
 
-#check selectAllProgram_terminates
--- selectAllProgram_terminates : ∀ (db : Database),
---   ∃ n, (runBounded selectAllProgram (mkInitialState db) n).status ≠ Status.running
+#check program_terminates
+-- program_terminates : ∀ (db : Database),
+--   ∃ n, (runBounded program (mkInitialState db) n).status ≠ Status.running
 
 end Sqlite3Lean.Query0

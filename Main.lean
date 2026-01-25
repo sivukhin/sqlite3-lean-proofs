@@ -1,4 +1,168 @@
 import Sqlite3Lean.Query0
+import Sqlite3Lean.VdbeLemmas
+import Sqlite3Lean.select1.Query000001
+
+open Sqlite3Lean.Vdbe
+open Sqlite3Lean.VdbeLemmas
+
+-- import Sqlite3Lean.select1.Query000002
+-- import Sqlite3Lean.select1.Query000003
+-- import Sqlite3Lean.select1.Query000004
+-- import Sqlite3Lean.select1.Query000005
+-- import Sqlite3Lean.select1.Query000006
+-- import Sqlite3Lean.select1.Query000007
+-- import Sqlite3Lean.select1.Query000008
+-- import Sqlite3Lean.select1.Query000009
+-- import Sqlite3Lean.select1.Query000010
+-- import Sqlite3Lean.select1.Query000011
+-- import Sqlite3Lean.select1.Query000012
+-- import Sqlite3Lean.select1.Query000013
+-- import Sqlite3Lean.select1.Query000014
+-- import Sqlite3Lean.select1.Query000015
+-- import Sqlite3Lean.select1.Query000016
+-- import Sqlite3Lean.select1.Query000017
+-- import Sqlite3Lean.select1.Query000018
+-- import Sqlite3Lean.select1.Query000019
+-- import Sqlite3Lean.select1.Query000020
+-- import Sqlite3Lean.select1.Query000021
+-- import Sqlite3Lean.select1.Query000022
+-- import Sqlite3Lean.select1.Query000023
+-- import Sqlite3Lean.select1.Query000024
+-- import Sqlite3Lean.select1.Query000025
+-- import Sqlite3Lean.select1.Query000026
+-- import Sqlite3Lean.select1.Query000027
+-- import Sqlite3Lean.select1.Query000028
+-- import Sqlite3Lean.select1.Query000029
+-- import Sqlite3Lean.select1.Query000030
+-- import Sqlite3Lean.select1.Query000031
+-- import Sqlite3Lean.select1.Query000032
+-- import Sqlite3Lean.select1.Query000033
+-- import Sqlite3Lean.select1.Query000034
+-- import Sqlite3Lean.select1.Query000035
+-- import Sqlite3Lean.select1.Query000036
+-- import Sqlite3Lean.select1.Query000037
+-- import Sqlite3Lean.select1.Query000038
+-- import Sqlite3Lean.select1.Query000039
+-- import Sqlite3Lean.select1.Query000040
+-- import Sqlite3Lean.select1.Query000041
+-- import Sqlite3Lean.select1.Query000042
+-- import Sqlite3Lean.select1.Query000043
+-- import Sqlite3Lean.select1.Query000044
+-- import Sqlite3Lean.select1.Query000045
+-- import Sqlite3Lean.select1.Query000046
+-- import Sqlite3Lean.select1.Query000047
+-- import Sqlite3Lean.select1.Query000048
+-- import Sqlite3Lean.select1.Query000049
+-- import Sqlite3Lean.select1.Query000050
+-- import Sqlite3Lean.select1.Query000051
+-- import Sqlite3Lean.select1.Query000052
+-- import Sqlite3Lean.select1.Query000053
+-- import Sqlite3Lean.select1.Query000054
+-- import Sqlite3Lean.select1.Query000055
+-- import Sqlite3Lean.select1.Query000056
+-- import Sqlite3Lean.select1.Query000057
+-- import Sqlite3Lean.select1.Query000058
+-- import Sqlite3Lean.select1.Query000059
+-- import Sqlite3Lean.select1.Query000060
+-- import Sqlite3Lean.select1.Query000061
+-- import Sqlite3Lean.select1.Query000062
+-- import Sqlite3Lean.select1.Query000063
+-- import Sqlite3Lean.select1.Query000064
+-- import Sqlite3Lean.select1.Query000065
+-- import Sqlite3Lean.select1.Query000066
+-- import Sqlite3Lean.select1.Query000067
+-- import Sqlite3Lean.select1.Query000068
+-- import Sqlite3Lean.select1.Query000069
+-- import Sqlite3Lean.select1.Query000070
+-- import Sqlite3Lean.select1.Query000071
+-- import Sqlite3Lean.select1.Query000072
+-- import Sqlite3Lean.select1.Query000073
+-- import Sqlite3Lean.select1.Query000074
+-- import Sqlite3Lean.select1.Query000075
+-- import Sqlite3Lean.select1.Query000076
+-- import Sqlite3Lean.select1.Query000077
+-- import Sqlite3Lean.select1.Query000078
+-- import Sqlite3Lean.select1.Query000079
+-- import Sqlite3Lean.select1.Query000080
+-- import Sqlite3Lean.select1.Query000081
+-- import Sqlite3Lean.select1.Query000082
+-- import Sqlite3Lean.select1.Query000083
+-- import Sqlite3Lean.select1.Query000084
+-- import Sqlite3Lean.select1.Query000085
+-- import Sqlite3Lean.select1.Query000086
+-- import Sqlite3Lean.select1.Query000087
+-- import Sqlite3Lean.select1.Query000088
+-- import Sqlite3Lean.select1.Query000089
+-- import Sqlite3Lean.select1.Query000090
+-- import Sqlite3Lean.select1.Query000091
+-- import Sqlite3Lean.select1.Query000092
+-- import Sqlite3Lean.select1.Query000093
+-- import Sqlite3Lean.select1.Query000094
+-- import Sqlite3Lean.select1.Query000095
+-- import Sqlite3Lean.select1.Query000096
+-- import Sqlite3Lean.select1.Query000097
+-- import Sqlite3Lean.select1.Query000098
+-- import Sqlite3Lean.select1.Query000099
+-- import Sqlite3Lean.select1.Query000100
+-- import Sqlite3Lean.select1.Query000101
+-- import Sqlite3Lean.select1.Query000102
+-- import Sqlite3Lean.select1.Query000103
+-- import Sqlite3Lean.select1.Query000104
+-- import Sqlite3Lean.select1.Query000105
+-- import Sqlite3Lean.select1.Query000106
+-- import Sqlite3Lean.select1.Query000107
+-- import Sqlite3Lean.select1.Query000108
+-- import Sqlite3Lean.select1.Query000109
+-- import Sqlite3Lean.select1.Query000110
+-- import Sqlite3Lean.select1.Query000111
+-- import Sqlite3Lean.select1.Query000112
+-- import Sqlite3Lean.select1.Query000113
+-- import Sqlite3Lean.select1.Query000114
+-- import Sqlite3Lean.select1.Query000115
+-- import Sqlite3Lean.select1.Query000116
+-- import Sqlite3Lean.select1.Query000117
+-- import Sqlite3Lean.select1.Query000118
+-- import Sqlite3Lean.select1.Query000119
+-- import Sqlite3Lean.select1.Query000120
+-- import Sqlite3Lean.select1.Query000121
+-- import Sqlite3Lean.select1.Query000122
+-- import Sqlite3Lean.select1.Query000123
+-- import Sqlite3Lean.select1.Query000124
+-- import Sqlite3Lean.select1.Query000125
+-- import Sqlite3Lean.select1.Query000126
+-- import Sqlite3Lean.select1.Query000127
+-- import Sqlite3Lean.select1.Query000128
+-- import Sqlite3Lean.select1.Query000129
+-- import Sqlite3Lean.select1.Query000130
+-- import Sqlite3Lean.select1.Query000131
+-- import Sqlite3Lean.select1.Query000132
+-- import Sqlite3Lean.select1.Query000133
+-- import Sqlite3Lean.select1.Query000134
+-- import Sqlite3Lean.select1.Query000135
+-- import Sqlite3Lean.select1.Query000136
+-- import Sqlite3Lean.select1.Query000137
+-- import Sqlite3Lean.select1.Query000138
+-- import Sqlite3Lean.select1.Query000139
+-- import Sqlite3Lean.select1.Query000140
+-- import Sqlite3Lean.select1.Query000141
+-- import Sqlite3Lean.select1.Query000142
+-- import Sqlite3Lean.select1.Query000143
+-- import Sqlite3Lean.select1.Query000144
+-- import Sqlite3Lean.select1.Query000145
+-- import Sqlite3Lean.select1.Query000146
+-- import Sqlite3Lean.select1.Query000147
+-- import Sqlite3Lean.select1.Query000148
+-- import Sqlite3Lean.select1.Query000149
+-- import Sqlite3Lean.select1.Query000150
+-- import Sqlite3Lean.select1.Query000151
+-- import Sqlite3Lean.select1.Query000152
+-- import Sqlite3Lean.select1.Query000153
+
+theorem terminates1 (db : Database) : ∃ n : Nat, (runBounded Sqlite3Lean.Query0.program (mkInitialState db) n).status ≠ .running :=
+  by simp [Sqlite3Lean.Query0.program_terminates]
+
+theorem terminates2 (db : Database) : ∃ n : Nat, (runBounded Sqlite3Lean.select1.Query000001.program (mkInitialState db) n).status ≠ .running :=
+  by simp [Sqlite3Lean.select1.Query000001.program_terminates]
 
 def main : IO Unit := do
-  IO.println "Running SELECT * FROM t simulation..."
+  IO.println "sqlite3-lean"
