@@ -2,6 +2,23 @@
 
 Formal verification of SQLite bytecode in Lean 4.
 
+## SQLite Busy Challenge
+
+SQLite is one of the most thoroughly tested software projects in the world — with 100% branch coverage, billions of test cases, and decades of fuzzing. Yet bugs still slip through.[^1]
+
+**The SQLite Busy Challenge**: Can we *prove* that SQLite bytecode programs terminate? And beyond that — prove that schema constraints remain satisfied, that joins produce correct results, that indexes stay consistent?
+
+The name is a nod to the [Busy Beaver Challenge](https://bbchallenge.org/story)[^2] — a collaborative effort that formally proved which 5-state Turing machines halt. We're asking the same question for SQLite's virtual machine.
+
+[^1]: In SQLite 3.38, a bug caused queries to hang indefinitely: https://sqlite.org/forum/info/73bd70918595703ea102e8170f5b56aac644e43ce7af35f80eb854d2cba02d04
+[^2]: In July 2024, the community proved BB(5) = 47,176,870 by analyzing all 88 million 5-state Turing machines.
+
+This project is a step toward that goal. We formalize SQLite's VDBE (Virtual Database Engine) in Lean 4 and prove termination for real bytecode programs extracted from SQLite.
+
+Currently, we're working through queries from SQLite's [`select1.test`](https://github.com/sqlite/sqlite/blob/master/test/select1.test) suite — real queries that exercise SELECT, WHERE, ORDER BY, GROUP BY, and aggregate functions. The [progress report](https://sivukhin.github.io/sqlite3-lean-proofs/) tracks which queries have been verified.
+
+The long-term goal is to develop **tactics that can automatically prove termination** for most VDBE programs, reducing manual proof effort to edge cases.
+
 ## Why Formalize SQLite Bytecode?
 
 SQLite is everywhere. It runs on your phone, in your browser, inside your applications. Every query you write gets compiled down to **VDBE bytecode** — a low-level instruction set that the SQLite virtual machine executes.
@@ -15,7 +32,9 @@ This project formalizes SQLite's Virtual Database Engine (VDBE) in Lean 4 and pr
 ## What's Here
 
 - **VDBE Formalization** ([`Sqlite3Lean/Vdbe.lean`](Sqlite3Lean/Vdbe.lean)): Core data types, opcodes, cursor model, and execution semantics
-- **Termination Proofs** ([`Sqlite3Lean/SelectStarProof.lean`](Sqlite3Lean/SelectStarProof.lean)): Formal proofs that specific programs halt
+- **Proof Helpers** ([`Sqlite3Lean/VdbeLemmas.lean`](Sqlite3Lean/VdbeLemmas.lean)): Lemmas for reasoning about program execution
+- **Query Proofs** ([`Sqlite3Lean/select1/`](Sqlite3Lean/select1/)): Termination proofs for queries from SQLite's test suite
+- **Progress Report** ([index.html](https://sivukhin.github.io/sqlite3-lean-proofs/)): Live tracking of verification progress
 
 ## First Theorem: SELECT * FROM t Terminates
 
@@ -64,10 +83,11 @@ lake build
 
 ## What's Next?
 
-The `SELECT *` proof is just the beginning. The same techniques can prove:
-- Termination of `WHERE` clauses with indexes
-- Correctness of `JOIN` implementations
-- Bounds on query execution time
+Termination is just the first step. The same framework can prove deeper properties:
+- **Schema preservation**: After any query, all constraints (NOT NULL, UNIQUE, FOREIGN KEY) remain satisfied
+- **Query correctness**: JOINs produce the right tuples, WHERE filters correctly
+- **Index consistency**: B-tree indexes stay synchronized with table data
+- **Resource bounds**: Worst-case execution time as a function of data size
 
 If SQLite can compile it, we can prove things about it.
 
