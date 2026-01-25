@@ -206,4 +206,12 @@ elab "#analyze_def" id:ident : command => do
         -- Log in the standard format
         logInfo m!"'{name}' has gas bound: {initialStructure}"
 
+/-- Print PR number for a namespace -/
+elab "#print_pr" ns:ident pr:num : command => do
+  let name ← resolveGlobalConstNoOverload ns
+  -- Extract namespace (remove .program suffix if present)
+  let nsStr := name.toString
+  let nsStr := if nsStr.endsWith ".program" then nsStr.dropRight 8 else nsStr
+  logInfo m!"'{nsStr}' PR: {pr.getNat}"
+
 end Sqlite3Lean.Tools
