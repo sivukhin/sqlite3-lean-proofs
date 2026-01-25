@@ -317,6 +317,73 @@ def generate_html_report(queries: list[QueryStatus], output_path: str, project_r
         .pr-link:hover {{
             text-decoration: underline;
         }}
+
+        .table-container {{
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }}
+
+        @media (max-width: 768px) {{
+            body {{
+                padding: 10px;
+            }}
+
+            .header {{
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }}
+
+            .header-left {{
+                flex-direction: column;
+                gap: 5px;
+            }}
+
+            h1 {{
+                font-size: 1.4em;
+            }}
+
+            .header-right {{
+                font-size: 0.75em;
+            }}
+
+            th, td {{
+                padding: 8px 6px;
+                font-size: 0.85em;
+            }}
+
+            .query-name {{
+                font-size: 0.8em;
+            }}
+
+            .sql-query {{
+                max-width: 150px;
+                font-size: 0.75em;
+            }}
+
+            .runtime {{
+                font-size: 0.75em;
+            }}
+        }}
+
+        @media (max-width: 480px) {{
+            h1 {{
+                font-size: 1.2em;
+            }}
+
+            .stats {{
+                font-size: 0.85em;
+            }}
+
+            th, td {{
+                padding: 6px 4px;
+                font-size: 0.8em;
+            }}
+
+            .sql-query {{
+                max-width: 100px;
+            }}
+        }}
     </style>
 </head>
 <body>
@@ -331,19 +398,18 @@ def generate_html_report(queries: list[QueryStatus], output_path: str, project_r
             </div>
         </div>
 
-        <table id="query-table">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Query File</th>
-                    <th>SQL Query</th>
-                    <th>Formalized</th>
-                    <th>Termination</th>
-                    <th>Gas Bound</th>
-                    <th>PR</th>
-                </tr>
-            </thead>
-            <tbody>
+        <div class="table-container">
+            <table id="query-table">
+                <thead>
+                    <tr>
+                        <th>SQL Query</th>
+                        <th>Formalized</th>
+                        <th>Termination</th>
+                        <th>Gas Bound</th>
+                        <th>PR</th>
+                    </tr>
+                </thead>
+                <tbody>
 '''
 
     for i, q in enumerate(queries, 1):
@@ -382,12 +448,10 @@ def generate_html_report(queries: list[QueryStatus], output_path: str, project_r
 
         # Link to file in repo
         file_link = f'{REPO_URL}/blob/master/{q.file_path}'
-        file_name_html = f'<a href="{file_link}">{html.escape(q.file_name)}</a>'
+        sql_link = f'<a href="{file_link}">{sql_html}</a>'
 
         html_content += f'''                <tr>
-                    <td>{i}</td>
-                    <td class="query-name">{file_name_html}</td>
-                    <td class="sql-query" title="{sql_html}">{sql_html}</td>
+                    <td class="sql-query" title="{sql_html}">{sql_link}</td>
                     <td class="{formalized_class}">{formalized_text}</td>
                     <td class="{termination_class}">{termination_text}</td>
                     <td>{gas_bound_html}</td>
@@ -395,8 +459,9 @@ def generate_html_report(queries: list[QueryStatus], output_path: str, project_r
                 </tr>
 '''
 
-    html_content += '''            </tbody>
-        </table>
+    html_content += '''                </tbody>
+            </table>
+        </div>
     </div>
 </body>
 </html>
