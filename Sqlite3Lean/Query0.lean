@@ -8,7 +8,8 @@
 
 import Sqlite3Lean.Vdbe
 
-namespace Sqlite3Lean.Vdbe
+namespace Sqlite3Lean.Query0
+open Sqlite3Lean.Vdbe
 
 /-! ## Example: SELECT * FROM t -/
 
@@ -741,4 +742,4 @@ theorem selectAllProgram_terminates' (db : Database) :
 -- selectAllProgram_terminates : ∀ (db : Database),
 --   ∃ n, (runBounded selectAllProgram (mkInitialState db) n).status ≠ Status.running
 
-end Sqlite3Lean.Vdbe
+end Sqlite3Lean.Query0
