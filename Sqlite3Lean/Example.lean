@@ -120,14 +120,14 @@ def phaseOffset (pc : Nat) : Nat :=
   3. Gas strictly decreases on every step
   4. Gas = 0 only for halted/error states
 
-  loopCost (10) is chosen to be larger than the maximum phaseOffset (9),
+  loopCost (3) is chosen to be larger than the maximum phaseOffset (9),
   ensuring that when remainingRows decreases by 1 (on Next with more rows),
   the overall gas decreases even though phaseOffset might increase.
 -/
 def program_gas (state : VMState) : Nat :=
   match state.status with
   | .halted _ | .error _ => 0
-  | .running => remainingRows state * 10 + phaseOffset state.pc
+  | .running => remainingRows state * 3 + phaseOffset state.pc
 
 /-- Gas is always non-negative (trivial since it's a Nat) -/
 theorem program_gas_nonneg (state : VMState) : program_gas state ≥ 0 := Nat.zero_le _
