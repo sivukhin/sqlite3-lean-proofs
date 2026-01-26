@@ -8,3 +8,8 @@ name = "Sqlite3Lean"
 [[lean_exe]]
 name = "sqlite3-lean"
 root = "Main"
+
+[[require]]
+name = "lean4checker"
+git = "https://github.com/leanprover/lean4checker"
+rev = "v4.25.0"
